@@ -503,6 +503,7 @@ zsh 5.2 (x86_64-apple-darwin16.0)
 
 #### osx
 
+| command         | description                                      |
 | :-------------- | :----------------------------------------------- |
 | `tab`           | Open the current directory in a new tab<br/>相当于<kbd>⌘</kbd>+<kbd>T</kbd>          |
 | `split_tab`     | Split the current terminal tab horizontally      |
