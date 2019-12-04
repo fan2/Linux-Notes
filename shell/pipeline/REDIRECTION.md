@@ -46,6 +46,8 @@ $ find /home -name .bashrc &> list
 双向重定向：同时将数据送与文件与控制台（stdout）。  
 输出到控制台的部分可以传导给下个命令继续处理。
 
+`-a`: Append the output to the files rather than overwriting(default).
+
 ```shell
 # 将 ls -l 结果追加到文件，同时输出到控制台用more分页显示。
 faner@MBP-FAN:~|⇒  ls -l / | tee -a ~/homefile | more

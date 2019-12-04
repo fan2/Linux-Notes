@@ -14,6 +14,7 @@
 - 11.6.7 关于减号-的用途  
 
 ## 管道分隔界定符(|)
+
 A `pipeline` is a sequence of one or more commands separated by one of the control operators `|` or `|&`. The format for a pipeline is:
 
 ```shell
@@ -25,126 +26,8 @@ If **`|&`** is used, *`command`*'s standard error, in addition to its standard o
 
 `ls -al /etc | less`：列举 `/etc` 目录，然后导向 less 使可翻页查看。
 
-## grep
-grep 过滤筛选出符合条件的行。
-
-执行 `grep -V` 查看版本信息：
-
-```shell
-pi@raspberrypi:~ $ grep -V
-grep (GNU grep) 2.27
-Copyright (C) 2016 Free Software Foundation, Inc.
-License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.
-This is free software: you are free to change and redistribute it.
-There is NO WARRANTY, to the extent permitted by law.
-```
-
-执行 `grep --help` 可查看简要帮助（Usage）。
-
-```shell
-
-Regexp selection and interpretation:
-# 忽略大小写敏感
-  -i, --ignore-case         ignore case distinctions
-  -w, --word-regexp         force PATTERN to match only whole words
-  -x, --line-regexp         force PATTERN to match only whole lines
-
-Miscellaneous:
-# 匹配补集，过滤出不包含 '查找字符串' 的行
-  -v, --invert-match        select non-matching lines
-
-Output control:
-# 最多查找条目，相当于 grep | head -n NUM
-  -m, --max-count=NUM       stop after NUM matches
-  -b, --byte-offset         print the byte offset with output lines
-
-# 顺便打印行号
-  -n, --line-number         print line number with output lines
-      --line-buffered       flush output on every line
-
-  -a, --text                equivalent to --binary-files=text
-
-# 只列举（不）符合条件的文件名
-  -L, --files-without-match  print only names of FILEs containing no match
-  -l, --files-with-matches  print only names of FILEs containing matches
-
-# 仅仅打印匹配的行数
-  -c, --count               print only a count of matching lines per FILE
-
-# 查找结果上下文
-Context control:
-# 顺便打印查找结果上面 NUM 行
-  -B, --before-context=NUM  print NUM lines of leading context
-# 顺便打印查找结果下面 NUM 行
-  -A, --after-context=NUM   print NUM lines of trailing context
-# 顺便打印查找结果上面和下面各 NUM 行
-  -C, --context=NUM         print NUM lines of output context
-  -NUM                      same as --context=NUM
-
-```
-
-执行 `man grep` 可查看详细帮助手册（Manual Page）：
-
-```shell
-pi@raspberrypi:~ $ man grep
-
-GREP(1)                            General Commands Manual                            GREP(1)
-
-NAME
-       grep, egrep, fgrep, rgrep - print lines matching a pattern
-
-SYNOPSIS
-       grep [OPTIONS] PATTERN [FILE...]
-       grep [OPTIONS] [-e PATTERN]...  [-f FILE]...  [FILE...]
-
-DESCRIPTION
-       grep searches the named input FILEs for lines containing a match to the given PATTERN.
-       If no files are specified, or if the file “-” is given, grep searches standard  input.
-       By default, grep prints the matching lines.
-
-       In  addition,  the  variant  programs  egrep, fgrep and rgrep are the same as grep -E,
-       grep -F, and grep -r, respectively.  These variants are deprecated, but  are  provided
-       for backward compatibility.
-
-OPTIONS
-   Generic Program Information
-       --help Output a usage message and exit.
-
-       -V, --version
-              Output the version number of grep and exit.
-
-   Matcher Selection
-       -E, --extended-regexp
-              Interpret PATTERN as an extended regular expression (ERE, see below).
-
-       -F, --fixed-strings
-              Interpret  PATTERN as a list of fixed strings (instead of regular expressions),
-              separated by newlines, any of which is to be matched.
-
-       -G, --basic-regexp
-              Interpret PATTERN as a basic regular expression (BRE, see below).  This is  the
-              default.
-
-       -P, --perl-regexp
-              Interpret  the pattern as a Perl-compatible regular expression (PCRE).  This is
-              highly experimental and grep -P may warn of unimplemented features.
-```
-
-### ls
-`ls -al | grep '^d'`：过滤出 ls 结果中以 d 开头的（即文件夹）。  
-
-### svn log
-`svn log -l 100 | grep fan`（`svn log --search fan -l 100`）：从最近100条日志中查找 fan 提交的记录。
-
-### file
-
-```shell
-# 查找 src/ 下所有文件编码为 ISO-8859 的文件个数
-faner@MBP-FAN:~/Downloads/src|⇒  find . -type f -exec file {} \; | grep -c 'ISO-8859'
-15
-```
-
 ## cut
+
 cut 可以基于分隔符（separator/delimiter）将行内数据进行切割，分解出所需的信息列。
 
 执行 `cut --version` 查看版本信息：
@@ -190,6 +73,7 @@ DESCRIPTION
 ```
 
 ### PATH
+
 PATH 环境变量是以 `:` 分隔多个路径，可以使用 cut 命令提取其中部分路径。
 
 ```shell
@@ -239,6 +123,7 @@ faner@MBP-FAN:~/Downloads/include|⇒  enca -L zh_CN -i * | cut -d ':' -f 2
 ```
 
 ### file
+
 file 执行结果输出行格式为 `file: description & charset`：
 
 ```shell
@@ -263,6 +148,7 @@ faner@MBP-FAN:~/Downloads/include|⇒  file * | cut -d ':' -f 2 | cut -d ',' -f 
 ```
 
 ### export
+
 export 声明变量排列整齐，可据此以字符为单位提取固定字符位置区间：
 
 ```shell
@@ -285,6 +171,7 @@ INFINALITY_FT_AUTOHINT_INCREASE_GLYPH_HEIGHTS="true"
 其他像 ps、last 等命令输出都由空白（空格或tab 制表符）控制排版格式，连续空白较难合适分割。
 
 ### grep & cut
+
 grep 和 cut  综合示例：
 
 ```shell
@@ -303,7 +190,9 @@ liteif.h
 ```
 
 ## wc,sort,uniq
+
 ### wc
+
 **wc** - print newline, word, and byte counts for each file
 
 ```shell
@@ -321,9 +210,11 @@ liteif.h
 ```
 
 ### sort
+
 **sort** - sort lines of text files
 
 ### uniq
+
 **uniq** - report or omit repeated lines
 
 统计 `mars/mars/stn/src` 目录下类数（同名的 h/cc）
@@ -359,6 +250,7 @@ faner@MBP-FAN:~/Projects/git/framework/mars/mars/stn/src|master⚡
 ```
 
 ## sed
+
 执行 `sed --version` 查看版本信息：
 
 ```shell
@@ -404,6 +296,7 @@ DESCRIPTION
 `svn log -v | sed -n '/fan/,/-----$/ p'` 
 
 ## xargs
+
 执行 `xargs --version` 查看版本信息：
 
 ```shell
@@ -440,6 +333,7 @@ DESCRIPTION
 ```
 
 ## demos
+
 ### demo 1
   
 - [Homebrew](https://docs.brew.sh/) [Installation](https://docs.brew.sh/Installation.html) 脚本，基于 `&&` 递进执行相关命令：创建目录，下载并解压。
@@ -465,6 +359,7 @@ pi@raspberrypi:~ $ echo $PATH
 执行 `PATH=$(echo $PATH | cut -d : -f 1,3-)` 可移除第2项；
 
 ### demo 3
+
 查找当前目录及其子目录下所有的 `.o` 文件，然后通过管道 xargs 作为参数传递给 `rm -rf`  [递归删除子目录下所有.o后缀文件](http://blog.163.com/sweet_hard/blog/static/66656838201162294812840/)：
 
 ```shell
@@ -486,6 +381,7 @@ echo `wc -l * | grep total | cut -f2 -d’ ‘` – `grep -in “^$” * | wc -l
 ```
 
 ### demo.todo
+
 - 针对当前（指定）目录下的文件执行 **`file`** 命令，过滤出编码为 ASCII,UTF-8 之外的所有文件。  
 	> grep -v；正则或；  
 - 针对当前（指定）目录下的文件执行 **`file`** 命令，过滤出编码为 *`ISO-8859`* 的文件，执行 **`iconv`** 或 **`enca`** 将以上文件都转码为 *`UTF-8`*。  

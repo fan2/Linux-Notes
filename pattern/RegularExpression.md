@@ -131,54 +131,6 @@ A number of prominent open-source programs, such as the Apache and Nginx HTTP Se
 
 Perl 5.10 implements syntactic extensions originally developed in PCRE and Python.
 
-## man regex
-
-```obj-c
-faner@MBP-FAN:~|⇒  man 7 re_format
-faner@MBP-FAN:~|⇒  man 3 regex
-faner@MBP-FAN:~|⇒  man grep
-faner@MBP-FAN:~|⇒  man sed
-```
-
-### grep
-
-`grep`, `egrep`, `fgrep` - print lines matching a pattern
-
-the variant programs **`egrep`** and **`fgrep`** are the same as `grep -E` and `grep -F`, respectively.  
-These variants are **deprecated**, but are provided for backward compatibility.  
-
-以下为 `man grep` 的选项说明：
-
-```shell
-OPTIONS
-
-   Generic Program Information
-       --help Output a usage message and exit.
-
-       -V, --version
-              Output the version number of grep and exit.
-
-   Matcher Selection
-       -E, --extended-regexp
-              Interpret PATTERN as an extended regular expression (ERE, see below).
-
-       -F, --fixed-strings
-              Interpret PATTERN as a list of fixed strings (instead of regular expressions), separated by newlines, any of which is to be matched.
-
-       -G, --basic-regexp
-              Interpret PATTERN as a basic regular expression (BRE, see below).  This is the default.
-
-       -P, --perl-regexp
-              Interpret the pattern as a Perl-compatible regular expression(PCRE).  This is experimental and grep -P may warn of unimplemented features.
-```
-
-默认选项是 `-G`(`--basic-regexp`)，即 **BRE**。  
-如果要支持 **`?`**, **`+`** 和 **`|`**，则需要显式指定 `-E` 选项，即执行 **ERE**。
-
-### [ripgrep](https://github.com/BurntSushi/ripgrep)
-
-ripgrep recursively searches directories for a regex pattern
-
 ## regex online
 
 [regexper](https://regexper.com/) - railroad  
