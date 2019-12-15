@@ -1,4 +1,5 @@
 ## cd
+
 cd（change directory）：切换文件目录。
 
 - `cd` / `cd ~`：进入当前用户的家目录（$HOME）；  
@@ -24,6 +25,7 @@ faner@THOMASFAN-MB0:~/Library/Application Support/Sublime Text 3/Packages/User|
 ```
 
 ### pushd & popd
+
 `cd -` 可在近两次目录之间切换，当涉及3个以上的工作目录需要切换时，可以使用 pushd 和 popd 命令。
 
 macOS 的 zsh 命令行输入 push 然后 tab 可以查看所有 push 相关命令：
@@ -117,54 +119,8 @@ faner@MBP-FAN:~/Music|⇒  popd +3
 [Linux中的pushd和popd](https://www.jianshu.com/p/53cccae3c443)  
 [在命令行中使用pushd和popd进行快速定位](http://blog.sina.com.cn/s/blog_b6b704ef0102wjdk.html)  
 
-## ls
-`ls -ld`: 显示当前文件夹(`.`)信息。  
-
-`ls -lS`：按大小（**降序**）列出文件和文件夹详细信息。  
-`ls -lSr`：按大小**升序**列出文件和文件夹详细信息。  
-
-`ls -lt`：按修改时间（**降序**）列出文件和文件夹详细信息。  
-`ls -ltr`：按修改时间**升序**列出文件和文件夹详细信息。  
-
-`ls -lR`：递归列举当前及所有子文件夹。
-
-### ls only file/dir
-
-- `ls -d */`：通配符语法  
-- `ls -l | grep '^d'`：grep 正则表达式，过滤出以 d 开头的**文件夹**  
-- `ls -al | grep '^[^d]'`：grep 正则表达式，过滤出非 d 开头的**文件**  
-
-其他命令：
-
-- `find . -maxdepth 1 -type d`  
-- `tree -d -L 1`  
-
-> [Listing only directories in UNIX](https://stackoverflow.com/questions/3667329/listing-only-directories-in-unix)  
-> [ls to view directories only](https://www.linuxquestions.org/questions/linux-newbie-8/ls-to-view-directories-only-156254/)  
-> [List Directories in Unix and Linux Systems](https://www.cyberciti.biz/faq/linux-list-just-directories-or-directory-names/list-dirs-in-unix-linux/)  
-> [first two results from ls command](https://stackoverflow.com/questions/10520120/first-two-results-from-ls-command)  
-
-### file count
-[Counting files in a directory from the terminal](http://hints.macworld.com/article.php?story=20010508182132282)  
-
-```shell
-# （递归）统计当前目录下(.)文件夹数量
-## 比 ls -lR | grep '^d' 多1个
-faner@MBP-FAN:~/Downloads/src|⇒  find . -type d -print | wc -l
-       7
-
-# （递归）统计当前目录下(.)文件数量
-## 等效于 ls -lR | grep -c '^-'
-faner@MBP-FAN:~/Downloads/src|⇒  find . -type f -print | wc -l
-       93
-```
-
-### file size
-[How to Get the Size of a Directory from Command Line](http://osxdaily.com/2017/03/09/get-size-directory-command-line/)  
-
-进入指定文件夹执行 `du -sh`
-
 ## [bc](https://en.wikipedia.org/wiki/Bc_(programming_language))
+
 [bc](https://www.gnu.org/software/bc/manual/html_mono/bc.html)(basic calculator) - An arbitrary precision calculator language  
 
 bc is typically used as either a `mathematical scripting language` or as an `interactive mathematical shell`.  
@@ -182,6 +138,7 @@ There are four special variables, `scale`, `ibase`, `obase`, and `last`.
 > [我使用过的Linux命令之bc - 浮点计算器、进制转换](http://codingstandards.iteye.com/blog/793734)  
 
 ### basic
+
 1. 在 bash shell 终端输入 `bc` 即可启动 bc 计算器。
 
 输入表达式 `56.8 + 77.7`，再按回车键即可在新行得到计算结果：
@@ -234,6 +191,7 @@ pi@raspberrypi:~ $ echo $result
 ```
 
 ### last
+
 **`last`**  (an  extension)  is a variable that has the value of the *last* printed number.
 
 bc 内置的 **`last`** 变量代表上个表达式的计算结果，可将 last 变量作为后续表达式的操作数，进行二次计算：
@@ -246,6 +204,7 @@ last*4
 ```
 
 ### ibase/obase
+
 默认输入和输出都是基于十进制：
 
 ```Shell
@@ -270,10 +229,13 @@ pi@raspberrypi:~ $ echo "ibase=10;obase=16;2017" | bc
 ```
 
 ## Checksum
+
 ### cksum
+
 cksum, sum -- display file checksums and block counts
 
 ### CRC32
+
 crc32 - Perform a 32bit Cyclic Redundancy Check
 
 计算从 [crx4chrome](https://www.crx4chrome.com/) 离线下载的 [Vimium CRX 1.60.3 for Chrome](https://www.crx4chrome.com/crx/731/)  插件的 crc32 校验和：
@@ -286,7 +248,8 @@ db950177
 
 与官网给出的 CRC32 Checksum 值一致，则说明未被篡改，可放心安装。
 
-### MD5 
+### MD5
+
 md5 -- calculate a message-digest fingerprint (checksum) for a file
 
 md5 命令后的默认输入参数为文件名，也可通过 `-s` 选项指定计算字符串参数的MD5。
@@ -317,6 +280,7 @@ MD5 ("/Users/faner/Downloads/crx/dbepggeogbaibhgnhhndojpepiihcmeb-1.60.3-Crx4Chr
 ```
 
 ### SHA1
+
 shasum - Print or Check SHA Checksums
 
 ```Shell
@@ -348,7 +312,9 @@ faner@THOMASFAN-MB0:~/Downloads/crx|
 与官网给出的 SHA1 Checksum 值一致，则说明未被篡改，可放心安装。
 
 ## hexdump
+
 ### od
+
 Linux/Unix（macOS）下的命令行工具 `od` 可按指定进制格式查看文档：
 
 ```shell
@@ -419,6 +385,7 @@ faner@MBP-FAN:~/Downloads|⇒  od -N 64 -A x -t x1a tuple.h
 ```
 
 ### hexdump
+
 Linux/Unix（macOS）下的命令行工具 `hexdump` 可按指定进制格式查看文档：
 
 ```shell

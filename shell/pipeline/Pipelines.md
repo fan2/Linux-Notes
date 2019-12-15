@@ -366,10 +366,16 @@ pi@raspberrypi:~ $ echo $PATH
 find . -name "*.o"  | xargs rm -f
 ```
 
-查找当前目录下的 `.svn` 目录，然后通过管道 xargs 作为参数传递给 `rm -rf` 执行删除。
+查找当前目录及其子目录下所有的 `.svn` 目录，然后通过管道 xargs 作为参数传递给 `rm -rf` 执行删除。
 
 ```shell
 find . -type d -name ".svn" | xargs rm -rf
+```
+
+查找当前目录及其子目录下所有的 `.DS_Store` 文件，然后通过管道 xargs 作为参数传递给 `rm` 执行删除。
+
+```
+find . -type f -name ".DS_Store" | xargs rm
 ```
 
 ### demo 4
