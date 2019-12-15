@@ -1,6 +1,7 @@
 BASH Command History 是按照输入时间由远到近尾部追加的，编号越小时间越久远，最近输入的上一条命令编号最大。
 
 # history
+
 在 BASH(1) 的 man page 输入 `/^HISTORY` 可以查看内建 history 命令的帮助说明部分。
 
 可在 BASH(1) 的 man page 中 `/` 或 `?` 搜索以下议题：
@@ -17,6 +18,7 @@ BASH Command History 是按照输入时间由远到近尾部追加的，编号�
 [Linux中history历史命令使用方法详解](http://os.51cto.com/art/201205/335040.htm)  
 
 ## HISTFILE & HISTSIZE
+
 环境变量 **HISTFILE** 定义了保存历史输入记录的文件路径；  
 环境变量 **HISTSIZE** 则定义了保存最近历史记录的条数。  
 
@@ -37,7 +39,7 @@ pi@raspberrypi:~ $ echo $HISTSIZE
 ```
 
 当我们以 bash 登录 linux(raspbian) 时，系统会从 `~/.bash_history` 中读取以前敲过的命令，总共不超过 1000 条。  
-假设此次执行 `/bin/bash` 新建 shell 窗口，登录 Bash Shell 后共输入了100条命令，则当我们 exit 注销退出 Bash Shell 时，系统会将最新的 101~1100 条历史命令更新到 `~/.bash_history` 中。
+假设此次执行 `/bin/bash` 新建 Shell 窗口，登录 Bash Shell 后共输入了100条命令，则当我们 exit 注销退出 Bash Shell 时，系统会将最新的 101~1100 条历史命令更新到 `~/.bash_history` 中。
 
 我们可以在终端偏好设置中修改 Scrollback lines 行数限制。
 
@@ -54,6 +56,7 @@ HISTFILESIZE=2000
 > 也可修改 system-wide 级别的配置`/etc/profile`，但 `/etc/profile` 会被 `~/.bash_profile` 修改覆盖， `~/.bash_profile` 会被 `~/.bashrc` 修改覆盖。  
 
 ## rolling
+
 在终端按下 `C-p`/`C-n`（**↑**/↓，同 `<M-p>`/`<M-n>`）可以调出上一条/下一条历史命令。
 
 ```Shell
@@ -74,6 +77,7 @@ end-of-history (M->)
 ```
 
 ## display
+
 在 macOS/raspbian 终端输入 `history` 命令可查看历史输入记录。
 
 如果过往输入历史接近 HISTSIZE，`history` 命令列表较长，不便翻阅。  
@@ -86,16 +90,17 @@ end-of-history (M->)
 
 可通过管道将 `history` 导向 `tail -n N` 选取列显结尾（最近）的 N 条历史输入记录：
 
-```shell
+```Shell
 # 查看最近10条输入命令记录
 faner@MBP-FAN:~|⇒  history | tail -n 10
 ```
 
 ## Event Designators
+
 针对 history list，支持以下前缀为 `!` 的 Event Designators：
 
 ```Shell
-!      Start a history substitution, except when followed by a blank,  newline,  carriage return, = or ( (when the extglob shell option is enabled using the shopt builtin).
+!      Start a history substitution, except when followed by a blank,  newline,  carriage return, = or ( (when the extglob Shell option is enabled using the shopt builtin).
 !n     Refer to command line n.
 !-n    Refer to the current command minus n.
 !!     Refer to the previous command.  This is a synonym for `!-1'.
@@ -114,7 +119,7 @@ faner@MBP-FAN:~|⇒  history | tail -n 10
 - `!string`：选定最近历史记录中以 string 开头的历史记录；  
 - `!?string`：选定最近历史记录中包含 string 的历史记录；  
 
-```shell
+```Shell
 # 最近一条以 curl 开头的命令
 faner@MBP-FAN:~|⇒  !curl
 faner@MBP-FAN:~|⇒  curl http://linux.vbird.org/linux_basic/0330regularex/regular_express.txt -o regular_express.txt
@@ -126,7 +131,7 @@ faner@MBP-FAN:~|⇒  curl http://linux.vbird.org/linux_basic/0330regularex/regul
 
 更复杂的可以基于 grep 正则查找符合某些规定的历史命令记录：
 
-```shell
+```Shell
 # 查找包含 curl 且以 regular_express.txt 结尾的历史命令
 faner@MBP-FAN:~|⇒  history | grep 'curl.*regular_express.txt$' 
  9950  curl http://linux.vbird.org/linux_basic/0330regularex/regular_express.txt

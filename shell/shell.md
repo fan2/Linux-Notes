@@ -424,6 +424,20 @@ pi@raspberrypi:/lib/modules/4.9.59-v7+/kernel $ ls | wc -l
 
 相比反引号，`$()` 可以区分左右，因此支持嵌套。
 
+---
+
+以下为查看和复位（reset） `brew --repo` 的 git url 信息：
+
+```
+git -C `brew --repo` remote get-url origin
+
+git -C "$(brew --repo)" remote set-url origin https://github.com/Homebrew/brew.git
+git -C "$(brew --repo homebrew/core)" remote set-url origin https://github.com/Homebrew/homebrew-core.git
+git -C "$(brew --repo homebrew/cask)" remote set-url origin https://github.com/Homebrew/homebrew-cask.git
+
+brew update
+```
+
 #### Lists(;, &&, ||)
 
 使用空格或分号（**`;`**）可执行无相关性的连续命令：

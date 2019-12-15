@@ -44,8 +44,8 @@ CentOS 下的 manpath：
 ```shell
 # macOS
 faner@MBP-FAN:~|⇒  cd /usr/share/man/
-faner@MBP-FAN:/usr/share/man|⇒  ls
-man1   man4   man5   man6   man7   man8   man9   mann   whatis
+faner@MBP-FAN:/usr/share/man|⇒ ls -F
+man1/ man4/ man5/ man6/ man7/ man8/ man9/ mann/
 
 # raspbian
 pi@raspberrypi:/usr/share/man$ ls
