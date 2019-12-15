@@ -6,9 +6,20 @@ ls - list directory contents
 
 ### options
 
+#### -1
+
+`-1`: 每一项单行列出（list one file per line），便于按列统计或列选拷贝等操作。
+
+```
+     -1      (The numeric digit ``one''.)  Force output to be one entry per line.  This is
+             the default when output is not to a terminal.
+```
+
+当输出不是控制台（stdout）时，默认就是单行列出，例如 `ls > ls-out.txt`。
+
 #### -l
 
-`-l`: 显示长列表，包括文件的读写权限、所有者及日期等属性信息。
+`-l`: 显示长列表（long listing format），每一项单行列出，显示包括文件的读写权限、所有者及日期等属性信息。
 
 ```
      -l      (The lowercase letter ``ell''.)  List in long format.  (See below.)  A total
@@ -37,7 +48,9 @@ ls - list directory contents
 
 ---
 
-`-F` 选项将在目录后面追加 `/`，在可执行文件后面追加 `*`，在软链后面追加 `@` 等特殊符号，区分普通文件。
+`-F`: append indicator (one of `*/=>@|`) to entries for classify.
+
+将在目录后面追加 `/`，在可执行文件后面追加 `*`，在软链后面追加 `@` 等特殊符号，区分普通文件。
 
 ```
      -F      Display a slash (`/') immediately after each pathname that is a directory, an
@@ -56,7 +69,7 @@ ls - list directory contents
 
 #### size & sort
 
-`-h`: 以 KB、MB、GB 等易读方式显示文件大小。
+`-h`: 以 KB、MB、GB 等易读方式显示文件大小（human-readable size）。
 
 ```
      -h      When used with the -l option, use unit suffixes: Byte, Kilobyte, Megabyte,
