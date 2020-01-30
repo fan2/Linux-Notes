@@ -5,12 +5,12 @@
 使用空格或分号（**`;`**）可执行无相关性的连续命令：
 
 ```
-faner@THOMASFAN-MB0:~|⇒  test1='test 1' test2='test 2'
-faner@THOMASFAN-MB0:~|⇒  echo $test1
+faner@FAN-MB0:~|⇒  test1='test 1' test2='test 2'
+faner@FAN-MB0:~|⇒  echo $test1
 test 1
-faner@THOMASFAN-MB0:~|⇒  echo $test2
+faner@FAN-MB0:~|⇒  echo $test2
 test 2
-faner@THOMASFAN-MB0:~|⇒  echo $test1;echo $test2
+faner@FAN-MB0:~|⇒  echo $test1;echo $test2
 test 1
 test 2
 

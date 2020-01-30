@@ -17,7 +17,7 @@
 
 A `pipeline` is a sequence of one or more commands separated by one of the control operators `|` or `|&`. The format for a pipeline is:
 
-```shell
+```Shell
 [time [-p]] [ ! ] command [ [|⎪|&] command2 ... ]
 ```
 
@@ -32,7 +32,7 @@ cut 可以基于分隔符（separator/delimiter）将行内数据进行切割，
 
 执行 `cut --version` 查看版本信息：
 
-```shell
+```Shell
 pi@raspberrypi:~ $ cut --version
 cut (GNU coreutils) 8.26
 Copyright (C) 2016 Free Software Foundation, Inc.
@@ -45,7 +45,7 @@ Written by David M. Ihnat, David MacKenzie, and Jim Meyering.
 
 执行 `cut --help` 可查看简要帮助（Usage）。
 
-```shell
+```Shell
 -c, --characters=LIST   select only these characters
 -d, --delimiter=DELIM   use DELIM instead of TAB for field delimiter
 -f, --fields=LIST       select only these fields;
@@ -53,7 +53,7 @@ Written by David M. Ihnat, David MacKenzie, and Jim Meyering.
 
 执行 `man cut` 可查看详细帮助手册（Manual Page）：
 
-```shell
+```Shell
 pi@raspberrypi:~ $ man cut
 
 CUT(1)                                  User Commands                                  CUT(1)
@@ -76,7 +76,7 @@ DESCRIPTION
 
 PATH 环境变量是以 `:` 分隔多个路径，可以使用 cut 命令提取其中部分路径。
 
-```shell
+```Shell
 faner@MBP-FAN:~|⇒  echo $PATH
 /usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin
 faner@MBP-FAN:~|⇒  echo $PATH | cut -d ':' -f 3  
@@ -91,7 +91,7 @@ faner@MBP-FAN:~|⇒  echo $PATH | cut -d ':' -f 3,5
 
 enca 执行结果输出行格式为 `file: iconv charset`：
 
-```shell
+```Shell
 faner@MBP-FAN:~/Downloads/include|⇒  enca -L zh_CN -i *
 UtilcFunctions.h: ASCII
 WifiPhotoIf.h: UTF-8
@@ -126,7 +126,7 @@ faner@MBP-FAN:~/Downloads/include|⇒  enca -L zh_CN -i * | cut -d ':' -f 2
 
 file 执行结果输出行格式为 `file: description & charset`：
 
-```shell
+```Shell
 faner@MBP-FAN:~/Downloads/include|⇒  file *
 UtilcFunctions.h: c program text, ASCII text
 WifiPhotoIf.h:    c program text, UTF-8 Unicode text
@@ -151,7 +151,7 @@ faner@MBP-FAN:~/Downloads/include|⇒  file * | cut -d ':' -f 2 | cut -d ',' -f 
 
 export 声明变量排列整齐，可据此以字符为单位提取固定字符位置区间：
 
-```shell
+```Shell
 # 获取 export 前4条
 pi@raspberrypi:~ $ export | head -n 4
 declare -x DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/1000/bus"
@@ -174,7 +174,7 @@ INFINALITY_FT_AUTOHINT_INCREASE_GLYPH_HEIGHTS="true"
 
 grep 和 cut  综合示例：
 
-```shell
+```Shell
 faner@MBP-FAN:~/Downloads/include|⇒  file *
 UtilcFunctions.h: c program text, ASCII text
 WifiPhotoIf.h:    c program text, UTF-8 Unicode text
@@ -195,7 +195,7 @@ liteif.h
 
 **wc** - print newline, word, and byte counts for each file
 
-```shell
+```Shell
 -c, --bytes
       print the byte counts
 
@@ -219,7 +219,7 @@ liteif.h
 
 统计 `mars/mars/stn/src` 目录下类数（同名的 h/cc）
 
-```shell
+```Shell
 faner@MBP-FAN:~/Projects/git/framework/mars/mars/stn/src|master⚡ 
 ⇒  ls | cut -d '.' -f 1 | uniq -c
    2 anti_avalanche
@@ -253,7 +253,7 @@ faner@MBP-FAN:~/Projects/git/framework/mars/mars/stn/src|master⚡
 
 执行 `sed --version` 查看版本信息：
 
-```shell
+```Shell
 pi@raspberrypi:~ $ sed --version
 sed (GNU sed) 4.4
 Copyright (C) 2017 Free Software Foundation, Inc.
@@ -272,7 +272,7 @@ E-mail bug reports to: <bug-sed@gnu.org>.
 
 执行 `man sed` 可查看详细帮助手册（Manual Page）：
 
-```shell
+```Shell
 pi@raspberrypi:~ $ man sed
 
 SED(1)                                  User Commands                                  SED(1)
@@ -299,7 +299,7 @@ DESCRIPTION
 
 执行 `xargs --version` 查看版本信息：
 
-```shell
+```Shell
 pi@raspberrypi:~ $ xargs --version
 xargs (GNU findutils) 4.7.0-git
 Copyright (C) 2016 Free Software Foundation, Inc.
@@ -314,7 +314,7 @@ Written by Eric B. Decker, James Youngman, and Kevin Dalley.
 
 执行 `man xargs` 可查看详细帮助手册（Manual Page）：
 
-```shell
+```Shell
 pi@raspberrypi:~ $ man xargs
 
 XARGS(1)                           General Commands Manual                           XARGS(1)
@@ -338,13 +338,13 @@ DESCRIPTION
   
 - [Homebrew](https://docs.brew.sh/) [Installation](https://docs.brew.sh/Installation.html) 脚本，基于 `&&` 递进执行相关命令：创建目录，下载并解压。
 
-```shell
+```Shell
 mkdir homebrew && curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip 1 -C homebrew
 ```
 
 ### demo 2
 
-```shell
+```Shell
 pi@raspberrypi:~ $ echo $PATH
 /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/games:/usr/games
 pi@raspberrypi:~ $ PATH=$PATH:/usr/local/sbin
@@ -362,13 +362,13 @@ pi@raspberrypi:~ $ echo $PATH
 
 查找当前目录及其子目录下所有的 `.o` 文件，然后通过管道 xargs 作为参数传递给 `rm -rf`  [递归删除子目录下所有.o后缀文件](http://blog.163.com/sweet_hard/blog/static/66656838201162294812840/)：
 
-```shell
+```Shell
 find . -name "*.o"  | xargs rm -f
 ```
 
 查找当前目录及其子目录下所有的 `.svn` 目录，然后通过管道 xargs 作为参数传递给 `rm -rf` 执行删除。
 
-```shell
+```Shell
 find . -type d -name ".svn" | xargs rm -rf
 ```
 

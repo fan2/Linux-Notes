@@ -46,7 +46,7 @@ Windows 就是使用 BOM 来标记文本文件的编码方式的。
 
 ### file 命令
 
-```shell
+```Shell
 pi@raspberrypi:~ $ man file
 
 FILE(1)                                         BSD General Commands Manual                                        FILE(1)
@@ -69,7 +69,7 @@ DESCRIPTION
 
 直接执行 file 命令，查看当前目录下所有文件的信息：
 
-```shell
+```Shell
 ⇒  file *
 UtilcFunctions.h: c program text, ASCII text
 WifiPhotoIf.h:    c program text, UTF-8 Unicode text
@@ -84,7 +84,7 @@ litetime.h:       c program text, ASCII text, with CRLF line terminators
 
 带 `-I` 选项执行 `file -I filename` 将输出 MIME 类型信息：
 
-```shell
+```Shell
 ⇒  file -I *
 UtilcFunctions.h: text/x-c; charset=us-ascii
 WifiPhotoIf.h:    text/x-c; charset=utf-8
@@ -97,7 +97,7 @@ litetime.h:       text/x-c; charset=us-ascii
 
 过滤出当前目录下文件编码为 `ISO-8859` 的文件信息：
 
-```shell
+```Shell
 ⇒  file * | grep 'ISO-8859'
 ./litetransfer.cpp: c program text, ISO-8859 text, with CRLF line terminators
 ./tuple.h: C++ source text, ISO-8859 text, with CRLF line terminators
@@ -118,7 +118,7 @@ find . -maxdepth 1 -type f | xargs file | grep 'ISO-8859'
 
 以下为某个特殊编码的文件：
 
-```shell
+```Shell
 faner@MBP-FAN:~/Classes/module/liteTransfer/src/http|
 ⇒  file lthttpchannel.cpp 
 lthttpchannel.cpp: c program text, Non-ISO extended-ASCII text, with CRLF line terminators
@@ -148,7 +148,7 @@ Press "Cancel" to choose another encoding manually.
 
 macOS 通过包管理器 brew 可搜索安装 enca 工具包：
 
-```shell
+```Shell
 # 查找 enca
 ifan@FAN-MC1:~|⇒  brew search enca
 ==> Searching local taps...
@@ -188,7 +188,7 @@ FOR A PARTICULAR PURPOSE.
 
 raspbian 通过包管理器 apt 可搜索安装 enca 工具包：
 
-```shell
+```Shell
 # 查找 enca
 pi@raspberrypi:~ $ apt-cache search enca --names-only 
 enca - Extremely Naive Charset Analyser - binaries
@@ -212,7 +212,7 @@ pi@raspberrypi:~ $ enca -v
 
 用 enca 命令检测文件编码信息：
 
-```shell
+```Shell
 # -f, --human-readable
 faner@MBP-FAN:~|⇒  enca -L zh_CN *
 ./UtilcFunctions.h: 7bit ASCII characters
@@ -308,7 +308,7 @@ iconv 命令默认将转码结果输出到控制台（stdout）上。
 - 新版 iconv（raspbian 下的 2.24）可通过 `-o` 选项指定输出文件（outputfile）；  
 - 旧版 iconv（macOS 下的 1.11）命令不支持 `-o` 选项，则可使用 `>` 将转码结果重定向到指定文件。  
 
-```shell
+```Shell
 iconv -f GB2312 -t UTF-8 file1 > file2
 iconv -f GBK -t UTF-8 file1 -o file2
 iconv -f GB18030 -t UTF-8 file1 -o file2
@@ -316,7 +316,7 @@ iconv -f GB18030 -t UTF-8 file1 -o file2
 
 转换前 `include/` 目录下的文件编码信息如下：
 
-```shell
+```Shell
 # 转换前
 ⇒  file *
 UtilcFunctions.h: c program text, ASCII text # 纯英文
@@ -344,7 +344,7 @@ litetime.h: 7bit ASCII characters
 
 执行 iconv 转换编码：
 
-```shell
+```Shell
 # 转换
 ifan@FAN-MC1:~/liteTransfer/include|
 ⇒  iconv -f GB18030 -t UTF-8 UtilcFunctions.h > UtilcFunctions2.h
@@ -376,7 +376,7 @@ ifan@FAN-MC1:~/liteTransfer/include|
 
 转换成功后，重新执行 `file` 和 `enca` 命令：
 
-```shell
+```Shell
 # 转换后
 ⇒  file *
 UtilcFunctions.h: c program text, ASCII text
@@ -408,7 +408,7 @@ litetime.h: 7bit ASCII characters
 
 将当前执行目录下所有的 php 文件 `$file` 从 GB18030 转码为 utf8 文件 `$file.new`，然后将 `$file.new` 重命名为 `$file`，即覆盖源文件。
 
-```shell
+```Shell
 #!/bin/bash
 for file in *.php
 do
@@ -420,7 +420,7 @@ done
 在当前目录查找后缀为 php 的文件，每个 find 结果行（文件）读取到变量 file 中，然后 echo 打印出文件名，紧接着将 `$file` 从 GB18030 转码为 UTF-8 文件 `$file.utf8`。  
 第一个 mv 命令将源文件重命名为 *.18030 备份；第二个 mv 将转码文件（`*.utf8`）重名为源文件。
 
-```shell
+```Shell
 #!/bin/bash
 find . -type f -name "*.php" | while read file;
 do
@@ -445,7 +445,7 @@ done
 
 首先利用管道批量查找过滤出混合中文编码的文件：
 
-```shell
+```Shell
 find . -type f | xargs file | grep 'ISO-8859' | cut -d ':' -f 1
 find . -type f | xargs file -I | grep 'iso-8859' | cut -d ':' -f 1
 find . -type f | xargs enca -L zh_CN -m | grep 'GB2312' | cut -d ':' -f 1
@@ -458,7 +458,7 @@ find . -type f | xargs enca -L zh_CN -i | grep 'GBK' | cut -d ':' -f 1
 > 4. 分析文件信息行组织规律，利用 `cut` 命令对文件信息行以 `:`  切割提取出第一列相对文件名；  
 > 5. 对相对文件名结果集执行 `enca -L zh_CN -x utf-8` 命令 将其转码为 UTF-8。  
 
-```shell
+```Shell
 faner@MBP-FAN:~/Classes/module/liteTransfer/src2|
 ⇒  find . -type f | xargs file | grep 'ISO-8859' | cut -d ':' -f 1 | xargs enca -L zh_CN -x utf-8
 ```
@@ -516,7 +516,7 @@ fi
 
 使用 iconv 命令将所有 GB18030 字符都转换为 UTF8 后，再使用 Sublime Text 3 打开文件，通过菜单 File | Save with Encoding 选择 `UTF8 with BOM`：
 
-```shell
+```Shell
 ⇒  file *
 UtilcFunctions.h: c program text, UTF-8 Unicode (with BOM) text
 WifiPhotoIf.h:    c program text, UTF-8 Unicode (with BOM) text

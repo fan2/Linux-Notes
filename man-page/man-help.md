@@ -15,7 +15,7 @@ With respect to the C library, the primary focus is the [GNU](http://www.gnu.org
 
 macOS 下的 manpath：
 
-```shell
+```Shell
 # 等效 man -w
 faner@MBP-FAN:~|⇒  manpath
 /usr/local/share/man:/usr/share/man:/opt/X11/share/man:/Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk/usr/share/man:/Applications/Xcode-beta.app/Contents/Developer/usr/share/man:/Applications/Xcode-beta.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/share/man
@@ -23,7 +23,7 @@ faner@MBP-FAN:~|⇒  manpath
 
 raspbian 下的 manpath：
 
-```shell
+```Shell
 # 等效 man -w
 pi@raspberrypi:~$ manpath
 /usr/local/man:/usr/local/share/man:/usr/share/man:/usr/man
@@ -31,7 +31,7 @@ pi@raspberrypi:~$ manpath
 
 CentOS 下的 manpath：
 
-```shell
+```Shell
 # 等效 man -w
 [root@vcentos ~]# manpath
 /usr/local/share/man:/usr/share/man
@@ -41,7 +41,7 @@ CentOS 下的 manpath：
 
 以下为 `/usr/share/man/` 下的详细列表：
 
-```shell
+```Shell
 # macOS
 faner@MBP-FAN:~|⇒  cd /usr/share/man/
 faner@MBP-FAN:/usr/share/man|⇒ ls -F
@@ -61,7 +61,7 @@ man1  man5  man8
 
 man子目录后面的数字为 man 手册章节序号。
 
-```shell
+```Shell
 # macOS
 faner@MBP-FAN:/usr/share/man|⇒  ls man1 | grep bash
 bash.1
@@ -76,9 +76,10 @@ rbash.1.gz
 ```
 
 ### man -w
+
 `man -w` 命令可以查看 man 手册的 nroff 源文件；加上 `-a`(--all) 选项，则显示所有 section 匹配到的命令说明文档路径。
 
-```shell
+```Shell
 # macOS
 faner@MBP-FAN:~|⇒  man -w bash
 /usr/share/man/man1/bash.1
@@ -105,7 +106,7 @@ pi@raspberrypi:/usr/share/man$ man -aw shutdown
 
 执行 `ls /usr/share/man/zh_CN` 可知 man 1、5、8 三章节中含有部分中文翻译文档。具体可进一步深入查看 `/zh_CN/man1/` 子目录。
 
-```shell
+```Shell
 pi@raspberrypi:~$ man -L zh_CN man
 MAN(1)                         手册分页显示工具                         MAN(1)
 
@@ -123,7 +124,7 @@ man 默认使用可翻页查看的 **less** 作为分页器，可指定 `-P page
 - **raspbian**: By default, man uses `pager`.  
 - **macOS**: By default, man uses `/usr/bin/less -is`.  
 
-```shell
+```Shell
 pi@raspberrypi:~ $ whatis pager
 pager (1)            - opposite of more
 
@@ -137,7 +138,7 @@ less (1)             - opposite of more
 
 man pager 打开的也是 LESS(1) 的帮助手册。
 
-```shell
+```Shell
 faner@MBP-FAN:~|⇒  echo $PAGER
 less
 
@@ -169,7 +170,7 @@ less(1)                  - opposite of more
 
 `man/less/vi` 中输入 **`=`** 可以调出 [bottom status / prompt line](https://askubuntu.com/questions/905322/man-pages-how-to-always-show-total-lines-and-percentage-in-the-bottom-status) 查看阅读进度：
 
-```shell
+```Shell
 # raspbian
 Downloads/NSURLSession.h lines 3-63/1002 byte 1933/47129 4%  (press RETURN)
 ```
@@ -178,7 +179,7 @@ Downloads/NSURLSession.h lines 3-63/1002 byte 1933/47129 4%  (press RETURN)
 
 可在 `~/.zshrc` 或 `~/.bash_profile`(`~/bashrc`) 中配置 LESS，source 重启生效：
 
-```shell
+```Shell
 # less to prompt even more verbosely than more
 LESS='-Pslines %lt-%lb (%Pt-%Pb \%) bytes %bt-%bb file %f'; export LESS
 ```
@@ -187,7 +188,7 @@ LESS='-Pslines %lt-%lb (%Pt-%Pb \%) bytes %bt-%bb file %f'; export LESS
 
 `less $ZSH_CUSTOM/scripts/vimman/vimman.zsh` 底栏状态：
 
-```shell
+```Shell
 lines 39-95 (20-49 %) bytes 959-2253 file /Users/faner/.oh-my-zsh/custom/scripts/vimman/vimman.zsh
 ```
 
@@ -199,7 +200,7 @@ lines 39-95 (20-49 %) bytes 959-2253 file /Users/faner/.oh-my-zsh/custom/scripts
 
 ## manual page types
 
-```shell
+```Shell
        The table below shows the section numbers of the manual followed by the
        types of pages they contain.
 
@@ -230,7 +231,7 @@ lines 39-95 (20-49 %) bytes 959-2253 file /Users/faner/.oh-my-zsh/custom/scripts
 
 `man -f` 命令可查看命令简介，默认显示第一个搜索到的；加上 `-a`(--all) 选项，则显示所有 section 匹配到的命令。
 
-```shell
+```Shell
 # macOS
 faner@MBP-FAN:~|⇒  man -af shutdown
 servertool(1)            - The Java(TM) IDL Server Tool servertool provides an ease-of-use interface for application programmers to register, unregister, startup and shutdown a server
@@ -243,7 +244,15 @@ shutdown (2)         - shut down part of a full-duplex connection
 shutdown (8)         - Halt, power-off or reboot the machine
 ```
 
+如果想查看某个段号下的所有命令，可以输入 `man 8 ` 再输入 tab，遍历 possibilities：
+
+```
+~ → man 8 
+zsh: do you wish to see all 714 possibilities (357 lines)?
+```
+
 ### 1.General Commands
+
 man bash：MAN(1), BASH(1)；  
 脚本类型及命令文件：WHICH(1) （相当于 `type -p`）；  
 系统信息：UNAME(1), ARCH(1), HOSTNAME(1)；  
@@ -265,10 +274,12 @@ SCM 版本控制管理工具：GIT(1), svn(1)；
 软件包管理工具：dpkg(1)；  
 查找文件：WHEREIS(1), FIND(1)；  
 
-### 1m. System Admin；
+### 1m. System Admin
+
 raspbian 下默认只安装了 git，macOS 下安装的 svn(subversion) 有 man page。
 
 ### 2.System Calls
+
 系统调用：SYSCALL(2), _EXIT(2), IOCTL(2);  
 权限操作接口：CHMOD(2), CHOWN(2), CHDIR(2);  
 文件操作接口：FCNTL(2), DUP(2), READ(2), WRITE(2), CLOSE(2);  
@@ -282,6 +293,7 @@ epoll 编程接口：EVENTFD(2), EPOLL_CREATE(2), EPOLL_CTL(2), EPOLL_WAIT(2);
 4. macOS(BSD) 下有 KQUEUE(2) 的 man page，raspbian(Debian) 下没有该接口。  
 
 ### 3.Subroutines
+
 READLINE(3), HISTORY(3);  
 stdio 接口：PRINTF(3);  
 Pthreads 相关接口：PTHREAD_ATTR_INIT(3), PTHREAD_SELF(3), PTHREAD_EQUAL(3), PTHREAD_JOIN(3), PTHREAD_CANCEL(3), PTHREAD_DETACH(3), PTHREAD_EXIT(3);  
@@ -293,6 +305,7 @@ EXIT(3);
 ### 4.Special Files
 
 ### 5.File Formats
+
 网络接口控制管理：INTERFACES(5), DHCPCD.CONF(5)
 
 INTERFACES(5) 对应 `/etc/network/interfaces`；  
@@ -301,11 +314,13 @@ DHCPCD.CONF(5) 对应 `/etc/dhcpcd.conf`;
 ### 6.Games
 
 ### 7.Macros and Conventions
+
 MAN(7);  
 HIER(7);  
 PTHREADS(7);  
 
 ### 8.Maintenance Commands
+
 系统管理：SUDO(8), SHUTDOWN(8), HALT(8)；  
 网络接口管理：IFCONFIG(8), IFUP(8), ；  
 网络诊断工具：ARP(8),  RARP(8), PING(8), ROUTE(8), NETSTAT(8),   IPTABLES(8)。  
@@ -313,11 +328,11 @@ PTHREADS(7);
 
 ### 9.Kernel Interface
 
-### N. New Commands  
+### N. New Commands
 
-## Conventional  section
+## Conventional section
 
-```shell
+```Shell
        A manual page consists of several sections.
 
        Conventional  section  names  include  NAME,  SYNOPSIS,  CONFIGURATION,
@@ -330,7 +345,7 @@ PTHREADS(7);
 ### man man
 [Linux 2.6 - man page for man (linux section 1)](https://www.unix.com/man-page/linux/1/man/)
 
-```shell
+```Shell
 MAN(1)					Manual pager utils				   MAN(1)
 NAME
        man - an interface to the on-line reference manuals
@@ -363,13 +378,13 @@ HISTORY
 
 Raspbian GNU/Linux 9.1 (stretch) 下的 man(1) 版本为最新的：
 
-```shell
+```Shell
 2.7.6.1                           2016-12-12                            MAN(1)
 ```
 
 macOS 下的 man(1) 版本为比较陈旧的：
 
-```shell
+```Shell
                                   September 19, 2005                            man(1)
 ```
 
@@ -386,13 +401,13 @@ macOS 下的 man(1) 版本为比较陈旧的：
 
 ### X-man
 
-```shell
+```Shell
 faner@MBP-FAN:~|⇒  open x-man-page://sed
 ```
 
 ### man -t
 
-```shell
+```Shell
 # man man
        -t     Use  /usr/bin/groff  -Tps  -mandoc -c to format the manual page, passing
               the output to stdout.  The default output format of /usr/bin/groff  -Tps
@@ -406,7 +421,7 @@ faner@MBP-FAN:~|⇒  open x-man-page://sed
 
 `man -t` 结果重定向到 open 使用 Preview.app 打开。
 
-```shell
+```Shell
 faner@MBP-FAN:~|⇒  man -t sed | open -fa "Preview"
 faner@MBP-FAN:~|⇒  man -t sed | open -f -a /Applications/Preview.app
 ```
@@ -419,7 +434,7 @@ zsh 中启用 `osx` 插件，支持 **`man-preview`** 命令调用预览打开 m
 
 **pstopdf** -- convert PostScript input into a PDF document.
 
-```shell
+```Shell
 # 调用 pstopdf 将 man -t 的 PostScript 转换为 PDF 
 faner@MBP-FAN:~|⇒  man -t sed | pstopdf -i -o man_sed.pdf
 ```

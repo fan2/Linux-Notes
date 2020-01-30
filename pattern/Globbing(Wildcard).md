@@ -68,7 +68,7 @@ Bash 中常用通配符只有3个: `*`, `?`, `[list]`。
 
 #### demo
 
-```shell
+```Shell
 *.txt               # 匹配全部后缀为.txt的文件
 file?.log           # 匹配file1.log, file2.log, ...
 [a-z]*.log          # 匹配a-z开头的.log文件

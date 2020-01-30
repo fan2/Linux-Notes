@@ -5,7 +5,7 @@
 
 ```Shell
 # macOS
-faner@THOMASFAN-MB0:~|⇒  cat /etc/shells
+faner@FAN-MB0:~|⇒  cat /etc/shells
 # List of acceptable shells for chpass(1).
 # Ftpd will not allow users to connect who are not using
 # one of these shells.
@@ -34,7 +34,7 @@ cat /etc/shells
 pi@raspberrypi:~$ env | grep 'SHELL'
 SHELL=/bin/bash
 
-faner@THOMASFAN-MB0:~|⇒  echo $SHELL
+faner@FAN-MB0:~|⇒  echo $SHELL
 /bin/bash
 ```
 
@@ -53,7 +53,7 @@ macOS（BSD）、raspbian（Debian） 系统默认 Shell 均为 `/bin/bash`。
 
 ```Shell
 # macOS
-faner@THOMASFAN-MB0:~|⇒  bash --version
+faner@FAN-MB0:~|⇒  bash --version
 bash --version
 GNU bash, version 3.2.57(1)-release (x86_64-apple-darwin16)
 Copyright (C) 2007 Free Software Foundation, Inc.
@@ -97,14 +97,16 @@ and the <u>secondary</u> prompt **PS2** when it needs more *input* to complete a
 
 当输入命令未结束即换行时（continued commands more than one line），将换行以 PS2（**`>`**）提示续行输入：
 
-例如 `telnet`：
+例如 `telnet`，将会通过次提示符提示输入更多参数：
 
 ```Shell
 faner@MBP-FAN % telnet
 telnet>
+
+# 输入 quit 退出
 ```
 
-例如 `echo` 一半：
+例如 `echo` 输入一个引号，将会通过次提示符提示输入数据，直到遇到另一个引号结束：
 
 ```Shell
 {18-09-16 16:46}[]MBP-FAN:~ faner% echo 'hello
@@ -225,7 +227,7 @@ sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/i
 输入 `zsh --version` 查看 zsh 版本信息：
 
 ```Shell
-faner@THOMASFAN-MB0:~|⇒  zsh --version
+faner@FAN-MB0:~|⇒  zsh --version
 zsh --version
 zsh 5.2 (x86_64-apple-darwin16.0)
 ```

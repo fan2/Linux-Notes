@@ -11,17 +11,17 @@ cd（change directory）：切换文件目录。
 以下示例从 `~/` 目录切换到 `/Library/Application Support/Sublime Text 3/Packages/User`：
 
 ```Shell
-faner@THOMASFAN-MB0:~|⇒  cd /Users/faner/Library/Application\ Support/Sublime\ Text\ 3/Packages/User/
-faner@THOMASFAN-MB0:~/Library/Application Support/Sublime Text 3/Packages/User|
+faner@FAN-MB0:~|⇒  cd /Users/faner/Library/Application\ Support/Sublime\ Text\ 3/Packages/User/
+faner@FAN-MB0:~/Library/Application Support/Sublime Text 3/Packages/User|
 ⇒  
 ```
 
 另外一种做法是定义 shell 字符串变量，然后使用 <kbd>$</kbd> 符号解引用变量作为 cd 的参数：
 
 ```Shell
-faner@THOMASFAN-MB0:~|⇒  dir="/Users/faner/Library/Application Support/Sublime Text 3/Packages/User/"                    
-faner@THOMASFAN-MB0:~|⇒  cd $dir
-faner@THOMASFAN-MB0:~/Library/Application Support/Sublime Text 3/Packages/User|
+faner@FAN-MB0:~|⇒  dir="/Users/faner/Library/Application Support/Sublime Text 3/Packages/User/"                    
+faner@FAN-MB0:~|⇒  cd $dir
+faner@FAN-MB0:~/Library/Application Support/Sublime Text 3/Packages/User|
 ```
 
 ### pushd & popd
@@ -30,7 +30,7 @@ faner@THOMASFAN-MB0:~/Library/Application Support/Sublime Text 3/Packages/User|
 
 macOS 的 zsh 命令行输入 push 然后 tab 可以查看所有 push 相关命令：
 
-```shell
+```Shell
 faner@MBP-FAN:~|⇒  push
 pushd   pushdf  pushln
 ```
@@ -44,7 +44,7 @@ pushd   pushdf  pushln
 
 `pushd` 和 `popd` 以栈的方式来运作，后进先出（Last In First Out, LIFO）。目录路径被存储在栈中，然后用 push 和 pop 操作在目录之间进行切换。
 
-```shell
+```Shell
 
 # 执行 dirs -c 清理栈之后，只剩当前目录
 faner@MBP-FAN:~|⇒  dirs
@@ -73,7 +73,7 @@ faner@MBP-FAN:~/Desktop|⇒  pushd ../Music
 -v  | 每行显示一条记录，同时展示该记录在栈中的index
 -c  | 清空目录栈
 
-```shell
+```Shell
 # 查看当前栈，0为栈顶，8为栈底
 faner@MBP-FAN:~/Music|⇒  dirs -v
 0   ~/Music
@@ -98,7 +98,7 @@ faner@MBP-FAN:~/Music|⇒  dirs -v
 对于 `pushd +n` 和 `popd +n`，索引顺序与 `dirs -v` 相反，从栈底开始计数；  
 反过来 `pushd -n` 和 `popd -n` 索引顺序与 `dirs -v` 相同，从栈顶开始计数。
 
-```shell
+```Shell
 # 从栈底（索引为0）右往左数第3个目录 ~/Movies 重新压入栈顶，相当于切换到该目录
 faner@MBP-FAN:~/Music|⇒  pushd +3
 ~/Movies ~/Documents ~/Downloads ~ ~/Music ~/Desktop ~/Applications ~/AppData ~/Pictures
@@ -241,7 +241,7 @@ crc32 - Perform a 32bit Cyclic Redundancy Check
 计算从 [crx4chrome](https://www.crx4chrome.com/) 离线下载的 [Vimium CRX 1.60.3 for Chrome](https://www.crx4chrome.com/crx/731/)  插件的 crc32 校验和：
 
 ```Shell
-faner@THOMASFAN-MB0:~/Downloads/crx|
+faner@FAN-MB0:~/Downloads/crx|
 ⇒  crc32 dbepggeogbaibhgnhhndojpepiihcmeb-1.60.3-Crx4Chrome.com.crx 
 db950177
 ```
@@ -262,7 +262,7 @@ md5 命令后的默认输入参数为文件名，也可通过 `-s` 选项指定�
 计算从 [crx4chrome](https://www.crx4chrome.com/) 离线下载的 [Vimium CRX 1.60.3 for Chrome](https://www.crx4chrome.com/crx/731/)  插件的 MD5：
 
 ```Shell
-faner@THOMASFAN-MB0:~/Downloads/crx|
+faner@FAN-MB0:~/Downloads/crx|
 ⇒  md5 dbepggeogbaibhgnhhndojpepiihcmeb-1.60.3-Crx4Chrome.com.crx 
 MD5 (dbepggeogbaibhgnhhndojpepiihcmeb-1.60.3-Crx4Chrome.com.crx) = c98057821ee3cede87d911ead832dcc1
 ```
@@ -274,7 +274,7 @@ MD5 (dbepggeogbaibhgnhhndojpepiihcmeb-1.60.3-Crx4Chrome.com.crx) = c98057821ee3c
 计算下载到本地的 Vimium CRX 1.60.3 for Chrome 插件所在路径字符串的 MD5 值：
 
 ```Shell
-faner@THOMASFAN-MB0:~/Downloads/crx|
+faner@FAN-MB0:~/Downloads/crx|
 ⇒  md5 -s "/Users/faner/Downloads/crx/dbepggeogbaibhgnhhndojpepiihcmeb-1.60.3-Crx4Chrome.com.crx" 
 MD5 ("/Users/faner/Downloads/crx/dbepggeogbaibhgnhhndojpepiihcmeb-1.60.3-Crx4Chrome.com.crx") = 2f6f9a98b561f995564793765c205a66
 ```
@@ -304,7 +304,7 @@ When verifying SHA-512/224 or SHA-512/256 checksums, indicate the **algorithm** 
 计算从 [crx4chrome](https://www.crx4chrome.com/) 离线下载的 [Vimium CRX 1.60.3 for Chrome](https://www.crx4chrome.com/crx/731/)  插件的 SHA：
 
 ```
-faner@THOMASFAN-MB0:~/Downloads/crx|
+faner@FAN-MB0:~/Downloads/crx|
 ⇒  shasum dbepggeogbaibhgnhhndojpepiihcmeb-1.60.3-Crx4Chrome.com.crx 
 476c61437d3c34e38ed1ee15950d202ded0902c8  dbepggeogbaibhgnhhndojpepiihcmeb-1.60.3-Crx4Chrome.com.crx
 ```
@@ -317,7 +317,7 @@ faner@THOMASFAN-MB0:~/Downloads/crx|
 
 Linux/Unix（macOS）下的命令行工具 `od` 可按指定进制格式查看文档：
 
-```shell
+```Shell
 pi@raspberrypi:~ $ od --version
 od (GNU coreutils) 8.26
 Copyright (C) 2016 Free Software Foundation, Inc.
@@ -328,7 +328,7 @@ There is NO WARRANTY, to the extent permitted by law.
 Written by Jim Meyering.
 ```
 
-```shell
+```Shell
 pi@raspberrypi:~ $ man od
 
 NAME
@@ -370,7 +370,7 @@ SYNOPSIS
 
 以下示例 hex dump `tuple.h` 文件开头的64字节：
 
-```shell
+```Shell
 # 等效 od -N 64 -A x -t xCa tuple.h
 faner@MBP-FAN:~/Downloads|⇒  od -N 64 -A x -t x1a tuple.h
 0000000    ef  bb  bf  0d  0a  23  70  72  61  67  6d  61  20  6f  6e  63
@@ -388,7 +388,7 @@ faner@MBP-FAN:~/Downloads|⇒  od -N 64 -A x -t x1a tuple.h
 
 Linux/Unix（macOS）下的命令行工具 `hexdump` 可按指定进制格式查看文档：
 
-```shell
+```Shell
 pi@raspberrypi:~ $ man hexdump
 
 NAME
@@ -415,7 +415,7 @@ SYNOPSIS
 
 > 如果开头3个字节为 `ef bb bf`，则为带 BOM 编码；否则为不带 BOM 编码。
 
-```shell
+```Shell
 # 等效 hexdump -C litetransfer.cpp | head -n 4
 faner@MBP-FAN:~/Downloads|⇒  hexdump -n 64 -C tuple.h
 00000000  ef bb bf 0d 0a 23 70 72  61 67 6d 61 20 6f 6e 63  |.....#pragma onc|
@@ -427,7 +427,7 @@ faner@MBP-FAN:~/Downloads|⇒  hexdump -n 64 -C tuple.h
 
 ### strings
 
-```shell
+```Shell
 pi@raspberrypi:~ $ man strings
 
 STRINGS(1)                          GNU Development Tools                          STRINGS(1)

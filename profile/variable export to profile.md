@@ -2,7 +2,7 @@
 
 通过等号（`=`）可赋值修改系统变量 PATH，增加可执行路径：
 
-```shell
+```Shell
 # 头部插入
 pi@raspberrypi:~ $ PATH=/usr/local/bin:$PATH
 pi@raspberrypi:~ $ PATH=/usr/local/bin:${PATH}
@@ -22,16 +22,16 @@ pi@raspberrypi:~ $ PATH=${PATH}:/usr/local/sbin
 
 通过等号（`=`）可自定义变量，但是变量的作用域只局限于当前 shell 进程：
 
-```shell
-faner@THOMASFAN-MB0:~|⇒  http_proxy=socks5://127.0.0.1:1080
-faner@THOMASFAN-MB0:~|⇒  echo $http_proxy
+```Shell
+faner@FAN-MB0:~|⇒  http_proxy=socks5://127.0.0.1:1080
+faner@FAN-MB0:~|⇒  echo $http_proxy
 socks5://127.0.0.1:1080
 ```
 
 在当前 shell 进程执行 `bash` 命令 fork 子进程，仅会继承父进程的环境变量，但是不会继承父进程自定义的变量（`http_proxy`）：
 
-```shell
-faner@THOMASFAN-MB0:~|⇒  bash
+```Shell
+faner@FAN-MB0:~|⇒  bash
 bash-3.2$ echo $http_proxy
 
 bash-3.2$ 
@@ -41,16 +41,16 @@ bash-3.2$
 
 使用 export 设置的环境变量，对当前终端 Shell 及其子进程有效：
 
-```shell
-faner@THOMASFAN-MB0:~|⇒  export HTTP_PROXY=socks5://127.0.0.1:1080
-faner@THOMASFAN-MB0:~|⇒  echo $HTTP_PROXY 
+```Shell
+faner@FAN-MB0:~|⇒  export HTTP_PROXY=socks5://127.0.0.1:1080
+faner@FAN-MB0:~|⇒  echo $HTTP_PROXY 
 socks5://127.0.0.1:1080
 ```
 
 在当前 shell 进程执行 `bash` 命令 fork 子进程，将会继承父进程通过 export 导出的环境变量（`HTTP_PROXY`）：
 
-```shell
-faner@THOMASFAN-MB0:~|⇒  bash
+```Shell
+faner@FAN-MB0:~|⇒  bash
 bash-3.2$ echo $HTTP_PROXY 
 socks5://127.0.0.1:1080
 bash-3.2$ 
@@ -67,7 +67,7 @@ bash-3.2$
 
 临时替换：
 
-```shell
+```Shell
 export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles
 ```
 
@@ -75,7 +75,7 @@ export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.tuna.tsinghua.edu.cn/homebrew-bott
 
 man brew 里有提到设置 http proxy 的方法：
 
-```shell
+```Shell
 USING HOMEBREW BEHIND A PROXY
        Homebrew uses several commands for downloading files (e.g. curl, git,  svn).  Many
        of these tools can download via a proxy. It's common for these tools to read proxy
@@ -84,29 +84,23 @@ USING HOMEBREW BEHIND A PROXY
        For the majority of cases setting http_proxy is enough. You can set this  in  your
        shell profile, or you can use it before a brew command:
 
-
-
            http_proxy=http://<host>:<port> brew install foo
 
-
-
        If your proxy requires authentication:
-
-
 
            http_proxy=http://<user>:<password>@<host>:<port> brew install foo
 ```
 
 可以执行 `export http_proxy` 和 `export https_proxy` 设置 HTTP 和 HTTPS 代理：
 
-```shell
+```Shell
 export http_proxy=socks5://127.0.0.1:1080
 export https_proxy=socks5://127.0.0.1:1080
 ```
 
 或
 
-```shell
+```Shell
 export ALL_PROXY=socks5://127.0.0.1:1080
 ```
 
@@ -116,7 +110,7 @@ export ALL_PROXY=socks5://127.0.0.1:1080
 
 以下节选自 bash(1) - Linux manual page 的 INVOCATION 章节：
 
-```shell
+```Shell
 When bash is invoked as an interactive login shell, or as a non-interactive shell with the --login option, it first reads and executes commands from the file /etc/profile, if that file exists. After reading that file, it looks for ~/.bash_profile, ~/.bash_login, and ~/.profile, in that order, and reads and executes commands from the first one that exists and is readable.
 
 When an interactive login shell exits, or a non-interactive login shell executes the exit builtin command, bash reads and executes commands from the file ~/.bash_logout, if it exists.
@@ -168,13 +162,13 @@ bash 在读完了系统整体环境配置的 `/etc/profile` 并借此调用其�
 
 若想定义所有新建 bash shell 进程中都可见的跨进程系统级变量，则可将 export 语句添加到 bash shell 的环境配置文件中，在启动 shell 进程时会读取配置文件以规划好 bash 的操作环境。
 
-```shell
+```Shell
 echo 'export PATH=somepath:$PATH' >> ~/.bash_profile
 ```
 
 以下为 brew install openssl/sqlite 的 Caveats：
 
-```shell
+```Shell
 If you need to have this software first in your PATH run:
   echo 'export PATH="/usr/local/opt/openssl/bin:$PATH"' >> ~/.zshrc
 
@@ -184,8 +178,8 @@ If you need to have this software first in your PATH run:
 
 以下节选自本人 macOS 的 zsh 配置文件 `~/.zshrc`：
 
-```shell
-faner@THOMASFAN-MB0:~|⇒  cat .zshrc
+```Shell
+faner@FAN-MB0:~|⇒  cat .zshrc
 # Path to your oh-my-zsh installation.
 export ZSH=/Users/faner/.oh-my-zsh
 
@@ -201,14 +195,14 @@ export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin"
 
 如果是 bash shell，可将 `export HOMEBREW_BOTTLE_DOMAIN` 加到 `~/.bash_profile` 或 `~/.bashrc`：
 
-```shell
+```Shell
 echo 'export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.ustc.edu.cn/homebrew-bottles' >> ~/.bash_profile
 source ~/.bash_profile
 ```
 
 如果是 zsh shell，可将 `export HOMEBREW_BOTTLE_DOMAIN` 加到 `~/.zshrc`：
 
-```shell
+```Shell
 echo 'export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.ustc.edu.cn/homebrew-bottles' >> ~/.zshrc
 source ~/.zshrc
 ```
@@ -217,7 +211,7 @@ source ~/.zshrc
 
 用如下语句来将命令直接导入到配置文件里：
 
-```shell
+```Shell
 # for bash
 echo export ALL_PROXY=socks5://127.0.0.1:1080 >> ~/.bash_profile
 
@@ -232,7 +226,7 @@ echo export ALL_PROXY=socks5://127.0.0.1:1080 >> ~/.zshrc
 
 以下为 raspbian 的 `/etc/profile` 中导出的系统级 PATH 变量：
 
-```shell
+```Shell
 pi@raspberrypi:~ $ cat /etc/profile
 # /etc/profile: system-wide .profile file for the Bourne shell (sh(1))
 # and Bourne compatible shells (bash(1), ksh(1), ash(1), ...).

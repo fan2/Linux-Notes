@@ -24,9 +24,9 @@ BASH Command History 是按照输入时间由远到近尾部追加的，编号�
 
 ```Shell
 # macOS
-faner@THOMASFAN-MB0:~|⇒  echo $HISTFILE
+faner@FAN-MB0:~|⇒  echo $HISTFILE
 /Users/faner/.zsh_history
-faner@THOMASFAN-MB0:~|⇒  echo $HISTSIZE
+faner@FAN-MB0:~|⇒  echo $HISTSIZE
 10000
 ```
 

@@ -9,7 +9,7 @@ faner@MBP-FAN:~|⇒  man sed
 
 ## grep
 
-grep 过滤筛选出符合条件的行。
+grep 过滤筛选出符合条件的行，起源于 vim（ex）编辑器中的模式匹配命令：`:g/re/p`。
 
 执行 `grep -V` 查看版本信息：
 
@@ -26,6 +26,8 @@ License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
 ```
+
+### usage
 
 执行 `grep --help` 可查看简要帮助（Usage）。  
 

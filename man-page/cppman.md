@@ -1,4 +1,5 @@
 # cppman
+
 github [aitjcize](https://github.com/aitjcize) / [**cppman**](https://github.com/aitjcize/cppman)
 
 C++ 98/11/14 manual pages for Linux, with source from www.cplusplus.com and www.cppreference.com.
@@ -8,7 +9,7 @@ Package Index > [cppman > 0.4.8](https://pypi.python.org/pypi/cppman)
 [looking up c++ documentation inside of vim](https://stackoverflow.com/questions/2272759/looking-up-c-documentation-inside-of-vim)  
 [Ubuntu manuals - cppman](http://manpages.ubuntu.com/manpages/xenial/man1/cppman.1.html)  
 
-```shell
+```Shell
 DESCRIPTION
        cppman  generates  C++  manual  pages  from cplusplus.com and provide a
        man-like interface to view man pages.
@@ -20,13 +21,14 @@ DESCRIPTION
 ```
 
 ## Install from PyPI
-```shell
+
+```Shell
 $ pip install cppman
 ```
 
 pip3 搜索 cppman：
 
-```shell
+```Shell
 faner@MBP-FAN:~|⇒  pip3 search cppman
 cppman (0.4.8)   - C++ 98/11/14 manual pages for Linux/MacOS
 cppmangle (0.2)  - A parser for mangled C++ names
@@ -34,7 +36,7 @@ cppmangle (0.2)  - A parser for mangled C++ names
 
 pip3 安装 cppman：
 
-```shell
+```Shell
 faner@MBP-FAN:~|⇒  pip3 install cppman
 Collecting cppman
   Downloading cppman-0.4.8.tar.gz (218kB)
@@ -59,7 +61,7 @@ Successfully installed beautifulsoup4-4.6.0 cppman-0.4.8 html5lib-1.0.1 six-1.11
 
 查看 cppman 版本：
 
-```shell
+```Shell
 faner@MBP-FAN:~|⇒  cppman -v
 /usr/local/bin/cppman Ver 0.4.8
 Copyright (C) 2010 Wei-Ning Huang
@@ -72,7 +74,7 @@ Written by Wei-Ning Huang (AZ) <aitjcize@gmail.com>.%
 
 查看 cppman 帮助：
 
-```shell
+```Shell
 faner@MBP-FAN:~|⇒  cppman -h
 Usage: cppman [OPTION...] PAGE...
 
@@ -105,6 +107,7 @@ Options:
 ```
 
 ## Debian / Ubuntu
-```shell
+
+```Shell
 $ sudo apt-get install cppman
 ```

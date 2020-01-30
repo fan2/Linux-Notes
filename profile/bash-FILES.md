@@ -2,7 +2,7 @@
 
 ## macOS
 
-```shell
+```Shell
 # man bash on macOS
 
 FILES
@@ -26,7 +26,7 @@ FILES
 
 ## CentOS
 
-```shell
+```Shell
 # man bash on CentOS
 
 FILES
@@ -51,7 +51,7 @@ FILES
 
 ## raspbian
 
-```shell
+```Shell
 #man bash on raspbian
 
 FILES
