@@ -51,7 +51,7 @@ rm_subdir_files()
             if [[ $line =~ $sub_folder ]] # include
             then
                 ios-deploy -1 $1 -R $line
-                if [ $? -eq 0 ] # if [ $? = "0" ]
+                if [ $? -eq 0 ] # if [ "$?" = "0" ]
                 then
                     echo "rm $line success"
                 else

@@ -38,7 +38,7 @@ upload_local_files_to_sandbox()
         file_relpath=${filename#*$file_prefix}  # 沙盒路径(/Documents/...)
         # echo $file_relpath
         ios-deploy -o $filename -1 $1 -2 $file_relpath
-        if [ $? -eq 0 ] # if [ $? = "0" ]
+        if [ $? -eq 0 ] # if [ "$?" = "0" ]
         then
             echo "$file_relpath upload success"
         else
