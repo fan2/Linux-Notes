@@ -1,4 +1,6 @@
 
+## assign
+
 bash shell 中可通过等号（equality sign）赋值定义变量，右值如果没有引号（单/双）引用，默认都是按照字符串类型。
 
 ```Shell
@@ -7,7 +9,11 @@ faner@MBP-FAN:~|⇒  echo $testString
 define
 ```
 
-但是当右值句段遇到 **元字符**（metacharacter） 时，将自动截取第一段分组作为右值，后续句段将按照新的命令解析执行。
+> 注意：在变量、等号和值之间不能出现空格。
+
+### meta
+
+当右值句段遇到 **元字符**（metacharacter） 时，将自动截取第一段分组作为右值，后续句段将按照新的命令解析执行。
 
 关于 bash shell 的元字符参考 `man 1 bash` 中 DEFINITIONS 部分的定义：
 
@@ -43,7 +49,7 @@ faner@MBP-FAN:~/Downloads|⇒  echo $testShellVar
 faner@MBP-FAN:~/Downloads|⇒  
 ```
 
----
+### escape
 
 另外一种常见写法是利用单反斜杠 `\\` 转义掉空格等元字符含义，显式声明采用原生字符义。
 
@@ -74,6 +80,20 @@ Quoting is used to remove the special meaning of certain characters or words to 
 Each of the metacharacters listed above under DEFINITIONS has special meaning to the shell and must be quoted if it is to represent itself.
 ```
 
+通过单引号闭包的字符串中的所有字符都采用原义，但是中间不能出现单引号自身，即使采用反斜杠（backslash）也无法转义（escape）。
+
+```Shell
+Enclosing characters in single quotes preserves the literal value of each character within the quotes. A single quote may not occur between single quotes, even when preceded by a backslash.
+```
+
+通过双引号闭包的字符串中的 $、\`、\\ 等字符将具有特殊意义。
+
+```Shell
+Enclosing characters in double quotes preserves the literal value of all characters within the quotes, with the exception of $, `, \, and, when history expansion is enabled, !.
+```
+
+### demo
+
 定义包含空格和分号等元字符的字符串：
 
 ```Shell
@@ -98,19 +118,53 @@ mv 'a ~file name.txt' another.txt
 mv "a ~file name.txt" another.txt
 ```
 
-## subcmd
+### vs. assign
 
-通过单引号闭包的字符串中的所有字符都采用原义，但是中间不能出现单引号自身，即使采用反斜杠（backslash）也无法转义（escape）。
-
-```Shell
-Enclosing characters in single quotes preserves the literal value of each character within the quotes. A single quote may not occur between single quotes, even when preceded by a backslash.
-```
-
-通过双引号闭包的字符串中的 $、\`、\\ 等字符将具有特殊意义。
+引用一个变量值时，需要使用美元符号；而引用变量来对其进行赋值时不需要使用美元符号。
 
 ```Shell
-Enclosing characters in double quotes preserves the literal value of all characters within the quotes, with the exception of $, `, \, and, when history expansion is enabled, !.
+#!/bin/bash
+value1=10		#左值赋值
+value2=$value1	#右值引用
+echo The resulting value is $value2
 ```
+
+## Command Substitution
+
+shell 脚本中最有用的特性之一就是可以从命令输出中提取信息，并将其赋给变量。把输出赋给变量之后，就可以随意在脚本中使用了。
+
+```
+# man bash
+   Command Substitution
+       Command  substitution allows the output of a command to replace the command name.  There
+       are two forms:
+
+
+              $(command)
+       or
+              `command`
+
+       Bash performs the expansion by executing command and replacing the command  substitution
+       with  the  standard output of the command, with any trailing newlines deleted.  Embedded
+       newlines are not deleted, but they may be removed during word  splitting.   The  command
+       substitution $(cat file) can be replaced by the equivalent but faster $(< file).
+
+       When the old-style backquote form of substitution is used, backslash retains its literal
+       meaning except when followed by $, `, or \.  The first backquote not preceded by a back-
+       slash  terminates the command substitution.  When using the $(command) form, all charac-
+       ters between the parentheses make up the command; none are treated specially.
+
+       Command substitutions may be nested.  To nest when using the backquoted form, escape the
+       inner backquotes with backslashes.
+
+       If  the substitution appears within double quotes, word splitting and pathname expansion
+       are not performed on the results.
+```
+
+有两种方法可以将命令输出赋给变量：
+
+1. 反引号字符（`）；  
+2. $() 格式；  
 
 ### $
 
@@ -136,6 +190,24 @@ LC_CTYPE = UTF-8
 pi@raspberrypi:~ $ varLC_CTYPE="LC_CTYPE = \$LC_CTYPE"
 pi@raspberrypi:~ $ echo ${varLC_CTYPE}
 LC_CTYPE = $LC_CTYPE
+```
+
+#### demo
+
+```Shell
+#!/bin/bash
+
+testing=$(date) #命令替换
+echo "The date and time are: " $testing #引用变量
+```
+
+下面的这个例子，通过命令替换获得当前日期并用它来生成当天的日志文件名。
+
+```Shell
+#!/bin/bash
+
+today=$(date +%y%m%d)
+ls /usr/bin -al > log.$today
 ```
 
 以下右值引用中的 `$testPATH` 和 `${testPATH}` 可加双引号。
@@ -172,12 +244,12 @@ pi@raspberrypi:~ $ testPATH=${testPATH}:/usr/local/sbin
 
 ```Shell
 # $(brew --repo) 可加双引号
-faner@THOMASFAN-MB0:~|⇒  cd $(brew --repo)
-faner@THOMASFAN-MB0:/usr/local/Homebrew|stable
+faner@FAN-MB0:~|⇒  cd $(brew --repo)
+faner@FAN-MB0:/usr/local/Homebrew|stable
 
 # $(brew --repo) 可加双引号
 ⇒  cd $(brew --repo)/Library/Taps/homebrew/homebrew-core
-faner@THOMASFAN-MB0:/usr/local/Homebrew/Library/Taps/homebrew/homebrew-core|master
+faner@FAN-MB0:/usr/local/Homebrew/Library/Taps/homebrew/homebrew-core|master
 ⇒  
 ```
 
