@@ -116,7 +116,7 @@ my_info output.file    #调用另一个脚本中的函数
 ### 脚本封装函数
 
 ```
-faner@THOMASFAN-MB1:/Users/faner/Downloads/scripts $ cat test-function.sh
+faner@FAN-MB1:/Users/faner/Downloads/scripts $ cat test-function.sh
 #!/bin/bash
 
 use_python38()
@@ -136,7 +136,7 @@ echo "script_name=$script_name"
 执行加载脚本到当前 shell：
 
 ```
-faner@THOMASFAN-MB1:/Users/faner/Downloads/scripts $ . ./test-function.sh
+faner@FAN-MB1:/Users/faner/Downloads/scripts $ . ./test-function.sh
 file_name=./test-function.sh
 script_name=test-function.sh
 ```
@@ -144,7 +144,7 @@ script_name=test-function.sh
 执行脚本中的函数 `use_python38`，当前 shell 启用 python3.8：
 
 ```
-faner@THOMASFAN-MB1:/Users/faner/Downloads/scripts $ use_python38
+faner@FAN-MB1:/Users/faner/Downloads/scripts $ use_python38
 which python3 = /usr/local/bin/python3
 use_python38...
 which python3 = /usr/local/opt/python@3.8/bin/python3

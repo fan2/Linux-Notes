@@ -249,52 +249,6 @@ faner@MBP-FAN:~/Projects/git/framework/mars/mars/stn/src|master⚡
    2 zombie_task_manager
 ```
 
-## sed
-
-执行 `sed --version` 查看版本信息：
-
-```Shell
-pi@raspberrypi:~ $ sed --version
-sed (GNU sed) 4.4
-Copyright (C) 2017 Free Software Foundation, Inc.
-License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.
-This is free software: you are free to change and redistribute it.
-There is NO WARRANTY, to the extent permitted by law.
-
-Written by Jay Fenlason, Tom Lord, Ken Pizzini,
-and Paolo Bonzini.
-GNU sed home page: <http://www.gnu.org/software/sed/>.
-General help using GNU software: <http://www.gnu.org/gethelp/>.
-E-mail bug reports to: <bug-sed@gnu.org>.
-```
-
-执行 `sed --help` 可查看简要帮助（Usage）。
-
-执行 `man sed` 可查看详细帮助手册（Manual Page）：
-
-```Shell
-pi@raspberrypi:~ $ man sed
-
-SED(1)                                  User Commands                                  SED(1)
-
-NAME
-       sed - stream editor for filtering and transforming text
-
-SYNOPSIS
-       sed [OPTION]... {script-only-if-no-other-script} [input-file]...
-
-DESCRIPTION
-       Sed is a stream editor.  A stream editor is used to perform basic text transformations
-       on an input stream (a file or input from a pipeline).  While in some ways  similar  to
-       an editor which permits scripted edits (such as ed), sed works by making only one pass
-       over the input(s), and is consequently more efficient.  But it  is  sed's  ability  to
-       filter text in a pipeline which particularly distinguishes it from other types of edi‐
-       tors.
-
-```
-
-`svn log -v | sed -n '/fan/,/-----$/ p'` 
-
 ## xargs
 
 执行 `xargs --version` 查看版本信息：

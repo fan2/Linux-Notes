@@ -11,6 +11,12 @@ faner@MBP-FAN:~|⇒  man sed
 
 grep 过滤筛选出符合条件的行，起源于 vim（ex）编辑器中的模式匹配命令：`:g/re/p`。
 
+unix/POSIX - [grep](https://pubs.opengroup.org/onlinepubs/9699919799/utilities/grep.html)
+FreeBSD/Darwin - [grep](https://www.freebsd.org/cgi/man.cgi?query=grep)  
+
+linux - [grep(1)](http://man7.org/linux/man-pages/man1/grep.1.html) & [grep(1p)](http://man7.org/linux/man-pages/man1/grep.1p.html)  
+debian/Ubuntu - [grep](https://manpages.debian.org/buster/9base/grep.1plan9.en.html)  
+
 执行 `grep -V` 查看版本信息：
 
 ```Shell
@@ -108,6 +114,7 @@ Regexp selection and interpretation:
 Miscellaneous:
 # 匹配补集，过滤出不包含 '查找字符串' 的行
   -v, --invert-match        select non-matching lines
+  -R, -r, --recursive       Recursively search subdirectories listed.
 
 Output control:
 # 最多查找条目，相当于 grep | head -n NUM
@@ -167,6 +174,13 @@ Peruses the file `calendar` looking for either 19, 20, or 25.
 
 `ls -al | grep '^d'`：过滤出 ls 结果中以 d 开头的（即文件夹）。  
 `svn log -l 100 | grep fan`（`svn log --search fan -l 100`）：从最近100条日志中查找 fan 提交的记录。  
+
+Change working directory to project folder. Search for all conflicting files.
+
+```
+cd project-folder
+grep -lr '<<<<<<<' .
+```
 
 查找 src/ 下所有文件编码为 ISO-8859 的文件个数：
 
