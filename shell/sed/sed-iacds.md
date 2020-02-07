@@ -9,16 +9,23 @@
 插入命令（insert）在指定行之前插入新行。  
 插入文本时，不能指定范围，只允许通过一个地址模式指定插入位置。  
 
-debian/raspberrypi 下可单行输入；macOS 下需折行输入：
+debian/raspberrypi 下可单行输入；  
+macOS 下单行执行提示 `\` 后不能有内容：
 
 ```
 $ echo "Test Line 2" | sed 'i\Test Line 1'
 sed: 1: "i\Test Line 1": extra characters after \ at the end of i command
 FAIL: 1
+```
 
+需要在 `\` 处换行，跨行折行输入：
+
+```
 $ echo "Test Line 2" | sed 'i\
 pipe quote> Test Line 1'
 Test Line 1Test Line 2
+
+# 需要显式换行
 
 $ echo "Test Line 2" | sed 'i\
 pipe quote> Test Line 1
@@ -38,9 +45,7 @@ This is line number 4.
 ```
 
 ```
-$ sed '3i\This is an inserted line.' data6.txt
-sed: 1: "3i\This is an inserted  ...": extra characters after \ at the end of i command
-
+# 需要显式换行
 $ sed '3i\
 quote> This is an inserted line.
 quote> ' data6.txt
@@ -59,15 +64,7 @@ This is line number 4.
 debian/raspberrypi 下可单行输入；macOS 下需折行输入：
 
 ```
-$ echo "Test Line 2" | sed 'a\Test Line 1'
-sed: 1: "a\Test Line 1": extra characters after \ at the end of a command
-FAIL: 1
-
-$ echo "Test Line 2" | sed 'a\
-pipe quote> Test Line 1'
-Test Line 2
-Test Line 1%
-
+# 需要显式换行
 $ echo "Test Line 2" | sed 'a\
 pipe quote> Test Line 1
 pipe quote> '
@@ -78,9 +75,7 @@ Test Line 1
 下面示例添加新行到文件的第三行后：
 
 ```
-$ sed '3a\This is an appened line.' data6.txt
-sed: 1: "3a\This is an appened l ...": extra characters after \ at the end of a command
-
+# 需要显式换行
 $ sed '3a\
 quote> This is an appened line.
 quote> ' data6.txt
@@ -99,9 +94,7 @@ This is line number 4.
 debian/raspberrypi 下可单行输入；macOS 下需折行输入：
 
 ```
-$ sed '3c\This is an changed line.' data6.txt
-sed: 1: "3c\This is an changed l ...": extra characters after \ at the end of c command
-
+# 需要显式换行
 $ sed '3c\
 quote> This is a changed line.
 quote> ' data6.txt
@@ -193,6 +186,13 @@ The quick brown fox jumps over the lazy cat.
 The quick brown fox jumps over the lazy cat.
 ```
 
+以下示例将 AAA 替换为空，相当于移除：
+
+```
+$ echo "12312312343242AAAdfasdfasdfasdfasdfadAAAfsdgfsdfgfgfgdfgasdfg" | sed 's/AAA//g'
+12312312343242dfasdfasdfasdfasdfadfsdgfsdfgfgfgdfgasdfg
+```
+
 ### 多个模式
 
 当需要同时匹配多个模式时，可以使用连续重定向管道传递：
@@ -201,23 +201,20 @@ The quick brown fox jumps over the lazy cat.
 $ cat detail.txt | sed 's/brown/green/' | sed 's/dog/cat/'
 ```
 
-也可以使用 `-e` 选项，多条命令之间用分号（`;`）隔开。
-
-执行两次 s 替换命令：
+执行两次 s 替换命令，多条命令之间用分号（`;`）隔开：
 
 ```
-$ sed -e 's/brown/green/; s/dog/cat/' detail.txt
+$ sed 's/brown/green/; s/dog/cat/' detail.txt
 The quick green fox jumps over the lazy cat.
 The quick green fox jumps over the lazy cat.
 The quick green fox jumps over the lazy cat.
 The quick green fox jumps over the lazy cat.
 ```
 
-如果不想用分号，也可以用 bash shell 中的次提示符来分隔命令。
-只要输入第一个单引号标示出 sed 程序脚本的起始，会继续提示输入更多的命令，直至输入了结束单引号。
+也可基于次提示符来跨行输入，每一行是一条独立命令，行尾不用输入分号。
 
 ```
-$ sed -e '
+$ sed '
 quote> s/brown/green/
 quote> s/fox/elephant/
 quote> s/dog/cat/' detail.txt
@@ -225,6 +222,12 @@ The quick green elephant jumps over the lazy cat.
 The quick green elephant jumps over the lazy cat.
 The quick green elephant jumps over the lazy cat.
 The quick green elephant jumps over the lazy cat.
+```
+
+也可以使用 `-e` 选项：
+
+```
+$ sed -e 's/brown/green/' -e 's/fox/elephant/' -e 's/dog/cat/' detail.txt
 ```
 
 ### 替换字符
@@ -316,8 +319,7 @@ This is line number 4. tail
 sed 编辑器用圆括号来定义替换模式中的子模式，替代表达式中用反斜杠和数字表明子模式位置。
 
 ```
-$ echo "The System Administrator manual" | sed '
-pipe quote> s/\(System\) Administrator/\1 User/'
+$ echo "The System Administrator manual" | sed 's/\(System\) Administrator/\1 User/'
 The System User manual
 
 $ echo "That furry cat is pretty" | sed 's/furry \(.at\)/\1/'

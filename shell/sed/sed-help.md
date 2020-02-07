@@ -5,11 +5,13 @@ FreeBSD/Darwin - [sed](https://www.freebsd.org/cgi/man.cgi?query=sed)
 linux - [sed(1)](http://man7.org/linux/man-pages/man1/sed.1.html) & [sed(1p)](http://man7.org/linux/man-pages/man1/sed.1p.html)  
 debian/Ubuntu - [sed](https://manpages.debian.org/buster/9base/sed.1plan9.en.html)  
 
-Sed is a stream editor.  
+`Sed` is a stream editor.
+
 A stream editor is used to perform basic text transformations on an input stream (a file or input from a pipeline).  
 While in some ways similar to an editor which permits scripted edits (such as ed), sed works by making only one pass over the input(s), and is consequently more efficient.  
 But it is sed's ability to filter text in a pipeline which particularly distinguishes it from other types of editors.  
 
+[sed](https://en.wikipedia.org/wiki/Sed)  
 [sed, a stream editor](https://www.gnu.org/software/sed/manual/sed.html)  
 [Sed - An Introduction and Tutorial by Bruce Barnett](https://www.grymoire.com/Unix/Sed.html#toc_Sed_-_An_Introduction_and_Tutorial_by_Bruce_Barnett)  
 
@@ -38,6 +40,42 @@ E-mail bug reports to: <bug-sed@gnu.org>.
 
 - 执行 `sed --help` 可查看简要帮助（Usage）；  
 - 执行 `man sed` 可查看帮助手册。  
+
+### macOS
+
+macOS 执行 `sed --help` 可查看帮助概要信息：
+
+```
+faner@FAN-MB1: ~ $ sed --help
+sed: illegal option -- -
+usage: sed script [-Ealn] [-i extension] [file ...]
+       sed [-Ealn] [-i extension] [-e script] ... [-f script_file] ... [file ...]
+FAIL: 1
+```
+
+macOS 执行 `man sed` 可查看详细帮助手册（Manual Page）：
+
+```
+faner@FAN-MB1: ~ $ man sed
+
+SED(1)                    BSD General Commands Manual                   SED(1)
+
+NAME
+     sed -- stream editor
+
+SYNOPSIS
+     sed [-Ealn] command [file ...]
+     sed [-Ealn] [-e command] [-f command_file] [-i extension] [file ...]
+
+DESCRIPTION
+     The sed utility reads the specified files, or the standard input if no files are specified, modi-
+     fying the input as specified by a list of commands.  The input is then written to the standard
+     output.
+
+     A single command may be specified as the first argument to sed.  Multiple commands may be speci-
+     fied by using the -e or -f options.  All commands are applied to the input in the order they are
+     specified regardless of their origin.
+```
 
 ### raspberrypi
 
@@ -110,45 +148,9 @@ DESCRIPTION
        tors.
 ```
 
-### macOS
-
-macOS 执行 `sed --help` 可查看帮助概要信息：
-
-```
-faner@FAN-MB1: ~ $ sed --help
-sed: illegal option -- -
-usage: sed script [-Ealn] [-i extension] [file ...]
-       sed [-Ealn] [-i extension] [-e script] ... [-f script_file] ... [file ...]
-FAIL: 1
-```
-
-macOS 执行 `man sed` 可查看详细帮助手册（Manual Page）：
-
-```
-faner@FAN-MB1: ~ $ man sed
-
-SED(1)                    BSD General Commands Manual                   SED(1)
-
-NAME
-     sed -- stream editor
-
-SYNOPSIS
-     sed [-Ealn] command [file ...]
-     sed [-Ealn] [-e command] [-f command_file] [-i extension] [file ...]
-
-DESCRIPTION
-     The sed utility reads the specified files, or the standard input if no files are specified, modi-
-     fying the input as specified by a list of commands.  The input is then written to the standard
-     output.
-
-     A single command may be specified as the first argument to sed.  Multiple commands may be speci-
-     fied by using the -e or -f options.  All commands are applied to the input in the order they are
-     specified regardless of their origin.
-```
-
 ## options
 
-主要有3个命令选项：
+sed 主要有5个常用命令选项：
 
 选项         | 描述
 ------------|------------------------------------------------
@@ -157,28 +159,6 @@ DESCRIPTION
 `-f file`   | 在处理输入中，将 file 中指定的命令添加到已有的命令中
 `-E`(`-r`)  | 支持扩展型正则表达式
 `-i`        | 编辑完回写
-
-### raspberrypi
-
-```
-pi@raspberrypi:~ $ man sed
-
-       -n, --quiet, --silent
-
-              suppress automatic printing of pattern space
-
-       -e script, --expression=script
-
-              add the script to the commands to be executed
-
-       -f script-file, --file=script-file
-
-              add the contents of script-file to the commands to be executed
-
-       -i[SUFFIX], --in-place[=SUFFIX]
-
-              edit files in place (makes backup if SUFFIX supplied)
-```
 
 ### macOS
 
@@ -200,4 +180,26 @@ faner@FAN-MB1: ~ $ man sed
 
      -n      By default, each line of input is echoed to the standard output after all of the commands
              have been applied to it.  The -n option suppresses this behavior.
+```
+
+### raspberrypi
+
+```
+pi@raspberrypi:~ $ man sed
+
+       -n, --quiet, --silent
+
+              suppress automatic printing of pattern space
+
+       -e script, --expression=script
+
+              add the script to the commands to be executed
+
+       -f script-file, --file=script-file
+
+              add the contents of script-file to the commands to be executed
+
+       -i[SUFFIX], --in-place[=SUFFIX]
+
+              edit files in place (makes backup if SUFFIX supplied)
 ```

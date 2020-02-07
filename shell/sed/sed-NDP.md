@@ -14,9 +14,7 @@ This is the second data line.
 This is the last line.
 
 # sed '/header/{n ; d}' data2.txt
-$ sed '/header/{
-quote> n
-quote> d
+$ sed '/header/{n;d
 quote> }' data2.txt
 This is the header line.
 This is the second data line.
@@ -36,9 +34,7 @@ This is the last line.
 $ sed '/first/{ N ; s/\n/ / }' data2.txt
 sed: 1: "/first/{ N ; s/\n/ / }": bad flag in substitute command: '}'
 
-$ sed '/first/{
-quote> N
-quote> s/\n/ /
+$ sed '/first/{N ; s/\n/ /
 quote> }' data2.txt
 This is the header line.
 This is the first data line. This is the second data line.
@@ -215,18 +211,16 @@ sed编辑器还提供另一块称做 **保持空间**（hold space）的缓存�
 $ sed -n '/first/{h;p;n;p;g;p}' data2.txt
 sed: 1: "/first/{h;p;n;p;g;p}": extra characters at the end of p command
 
-$ sed -n '/first/{
-quote> h # copy to hold
-quote> p
-quote> n # next line
-quote> p
-quote> g # restore from hold
-quote> p
+$ sed -n '/first/{h;p;n;p;g;p
 quote> }' data2.txt
 This is the first data line.
 This is the second data line.
 This is the first data line.
 ```
+
+- `h;p` : copy first to hold  
+- `n;p` : next line(second)  
+- `g;p` : restore from hold  
 
 通过使用保持空间移动行来辗转腾挪，可以满足一些特殊的编辑需求。
 可以强制输出中的第一个数据行出现在第二个数据行后面。
@@ -236,16 +230,15 @@ This is the first data line.
 $ sed -n '/first/{h;n;p;g;p}' data2.txt
 sed: 1: "/first/{h;n;p;g;p}": extra characters at the end of p command
 
-$ sed -n '/first/{
-quote> h # copy to hold
-quote> n # next line
-quote> p
-quote> g # restore from hold
-quote> p
+sed -n '/first/{h;n;p;g;p
 quote> }' data2.txt
 This is the second data line.
 This is the first data line.
 ```
+
+- `h`   : copy first to hold  
+- `n;p` : next line(second)  
+- `g;p` : restore from hold  
 
 你甚至可以结合这些方法实现将整个文件的文本行反转（Permute Lines: Reverse）。
 
