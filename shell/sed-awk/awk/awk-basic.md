@@ -152,7 +152,7 @@ Three
 以下示例，引用域四并对其进行赋值修改。
 
 ```
-[scripts] awk '{$4="awk";print$0}' data2.txt
+$ awk '{$4="awk";print$0}' data2.txt
 One line of awk text.
 Two lines of awk text.
 Three lines of awk text.
