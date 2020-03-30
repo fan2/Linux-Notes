@@ -29,7 +29,7 @@ UTF-8 以字节为编码单元，没有字节序的问题，故 UTF-8 有无 BOM
 
 Windows 就是使用 BOM 来标记文本文件的编码方式的。
 
-使用 Sublime Text 3 打开文件，通过菜单 `File | Save with Encoding` 可以选择设置保存编码为 [`UTF8 with BOM`](https://stackoverflow.com/questions/21289157/set-encoding-of-file-to-utf8-with-bom-in-sublime-text-3)。
+> 使用 Sublime Text 3 打开文件，通过菜单 `File | Save with Encoding` 可以选择设置保存编码为 [`UTF8 with BOM`](https://stackoverflow.com/questions/21289157/set-encoding-of-file-to-utf8-with-bom-in-sublime-text-3)。
 
 [THE UNIVERSAL CHARACTER SET](http://www.open-std.org/CEN/TC304/guidecharactersets/guideannexb.html)  
 [UCS-2 and UTF-8](https://www.ibm.com/support/knowledgecenter/en/ssw_aix_71/com.ibm.aix.nlsgdrf/ucs-2_utf-8.htm)  
@@ -510,11 +510,11 @@ else
 fi
 ```
 
-## UTF8 with BOM
+### UTF8 with BOM
 
 [Set Encoding of File to UTF8 With BOM in Sublime Text 3](https://stackoverflow.com/questions/21289157/set-encoding-of-file-to-utf8-with-bom-in-sublime-text-3)  
 
-使用 iconv 命令将所有 GB18030 字符都转换为 UTF8 后，再使用 Sublime Text 3 打开文件，通过菜单 File | Save with Encoding 选择 `UTF8 with BOM`：
+使用 iconv 或 enca 命令将所有 GB18030 字符都转换为 UTF8 后，再使用 Sublime Text 3 打开文件，通过菜单 File | Save with Encoding 选择 `UTF8 with BOM`：
 
 ```Shell
 ⇒  file *

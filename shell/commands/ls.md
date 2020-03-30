@@ -109,6 +109,12 @@ ls 默认按文件名排序，可以 `-S` 指定按文件大小降序排列，�
 - `ls -lhFSr`：按文件大小升序排列；  
 - `ls -lhFtr`：按修改时间升序排列；  
 
+ls 递归列举当前目录下的文件，然后按照文件名匹配过滤出部分文件予以删除：
+
+```
+rm $(ls -AR | grep -e .DS_Store -e AVEngine.log -e *_WTLOGIN.*.log)
+```
+
 ### ls only file/dir
 
 - `ls -d */`：通配符语法  
@@ -132,12 +138,12 @@ ls 默认按文件名排序，可以 `-S` 指定按文件大小降序排列，�
 ```Shell
 # （递归）统计当前目录下(.)文件夹数量
 ## 比 ls -lR | grep '^d' 多1个
-faner@MBP-FAN:~/Downloads/src|⇒  find . -type d -print | wc -l
+$ find . -type d -print | wc -l
        7
 
 # （递归）统计当前目录下(.)文件数量
 ## 等效于 ls -lR | grep -c '^-'
-faner@MBP-FAN:~/Downloads/src|⇒  find . -type f -print | wc -l
+$ find . -type f -print | wc -l
        93
 ```
 
@@ -146,3 +152,28 @@ faner@MBP-FAN:~/Downloads/src|⇒  find . -type f -print | wc -l
 [How to Get the Size of a Directory from Command Line](http://osxdaily.com/2017/03/09/get-size-directory-command-line/)  
 
 进入指定文件夹执行 `du -sh`
+
+### cat
+
+假如当前目录下有几个日志文件，并且是按照时间和大小排序的：
+
+```
+Logs $ ls
+1001-10K.log 1003-20K.log 1004-30K.log 1006-40K.log 1007-50K.log 1009-60K.log 1010-70K.log
+Logs $ ls -1
+1001-10K.log
+1003-20K.log
+1004-30K.log
+1006-40K.log
+1007-50K.log
+1009-60K.log
+1010-70K.log
+```
+
+可将所有文件（名）作为 cat 的列表参数，将它们拼接成一个大的日志进行综合分析：
+
+```
+Logs $ ls | xargs cat > ../1001-1010-10K_70K.log
+```
+
+> 如果要从多层目录中筛检文件，需要 `ls -R | grep ` 或借助 `find` 命令。

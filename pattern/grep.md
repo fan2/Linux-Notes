@@ -146,7 +146,9 @@ Context control:
 
 ```
 
-### Examples
+## Examples
+
+### basic
 
 To find all occurrences of the word `patricia` in a file:
 
@@ -160,49 +162,83 @@ The apostrophes ensure the entire expression is evaluated by grep instead of by 
 The caret `^` matches the null string at the beginning of a line, and the `\` escapes the `.`, which would
 otherwise match any character.
 
-To find all lines in a file which do not contain the words `foo` or `bar`:
+从最近100条日志中查找 fan 提交的记录：
 
-    $ grep -v -e 'foo' -e 'bar' myfile
+```
+svn log -l 100 | grep fan
+svn log --search fan -l 100
+```
 
-A simple example of an extended regular expression:
+git-log 的 `--grep` 选项支持过滤提交日志：
 
-    $ egrep '19|20|25' calendar
+```
+git log -100 --author=fan --grep='文件' --stat
+```
 
-Peruses the file `calendar` looking for either 19, 20, or 25.
-
-**其他例子**：
+### ls-grep
 
 `ls -al | grep '^d'`：过滤出 ls 结果中以 d 开头的（即文件夹）。  
-`svn log -l 100 | grep fan`（`svn log --search fan -l 100`）：从最近100条日志中查找 fan 提交的记录。  
 
-Change working directory to project folder. Search for all conflicting files.
+递归查找当前目录下所有包含 git 冲突起始标记的文件：
 
 ```
-cd project-folder
 grep -lr '<<<<<<<' .
+grep -lr '<<<<<<<' . | xargs git checkout --theirs
 ```
 
-查找 src/ 下所有文件编码为 ISO-8859 的文件个数：
+递归扫描当前目录下所有文件，执行 file 命令，过滤出编码为 ISO-8859 的文件个数：
 
 ```Shell
-faner@MBP-FAN:~/Downloads/src|⇒  find . -type f -exec file {} \; | grep -c 'ISO-8859'
+find . -type f -exec file {} \; | grep -c 'ISO-8859'
 15
 ```
 
-### multiple patterns
+## multiple patterns
 
 [How do I grep for multiple patterns with pattern having a pipe character?](https://unix.stackexchange.com/questions/37313/how-do-i-grep-for-multiple-patterns-with-pattern-having-a-pipe-character)
 
-包含 `foo|bar`：
+包含 `foo|bar`（注意这里的 `|` 为普通字符，非正则或）：
 
 ```
 grep -- 'foo|bar' *.txt
 ```
 
-包含 `foo` 或 `bar`：
+如果想正则过滤包含 `foo` 或 `bar` 的行，则需要转义：
 
 ```
 grep -- 'foo\|bar' *.txt
-grep -e 'foo' -e 'bar' myfile
+```
+
+从 myapp.log 日志中过滤包含 `start: role` 和 `stop: role` 的行，并打印行号：
+
+```
+grep -n 'start: role\|stop: role' myapp.log
+```
+
+---
+
+或者用 `-E` 通过扩展 egrep 实现按或查找，这样可以省掉转义字符：
+
+```
 grep -E 'foo|bar' # 等效于 egrep 'foo|bar'
+```
+
+当然，也可以用 `-e` 指定多个匹配模式：
+
+```
+grep -e 'foo' -e 'bar' myfile
+```
+
+ls 递归列举当前目录下的文件，然后按照文件名匹配过滤出部分文件予以删除：
+
+```
+rm $(ls -AR | grep -e .DS_Store -e AVEngine.log -e *_WTLOGIN.*.log)
+```
+
+---
+
+如果想过滤出不包含 `foo` 和 `bar` 的行，可指定 `-v` 选项进行反向过滤：
+
+```
+grep -v -e 'foo' -e 'bar' myfile
 ```

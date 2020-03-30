@@ -314,26 +314,6 @@ pi@raspberrypi:~ $ echo $PATH
 
 ### demo 3
 
-查找当前目录及其子目录下所有的 `.o` 文件，然后通过管道 xargs 作为参数传递给 `rm -rf`  [递归删除子目录下所有.o后缀文件](http://blog.163.com/sweet_hard/blog/static/66656838201162294812840/)：
-
-```Shell
-find . -name "*.o"  | xargs rm -f
-```
-
-查找当前目录及其子目录下所有的 `.svn` 目录，然后通过管道 xargs 作为参数传递给 `rm -rf` 执行删除。
-
-```Shell
-find . -type d -name ".svn" | xargs rm -rf
-```
-
-查找当前目录及其子目录下所有的 `.DS_Store` 文件，然后通过管道 xargs 作为参数传递给 `rm` 执行删除。
-
-```
-find . -type f -name ".DS_Store" | xargs rm
-```
-
-### demo 4
-
 how count all lines in all files in current dir and omit empty lines with wc, grep, cut and bc commands
 
 ```Shell
