@@ -198,6 +198,18 @@ $ find . -type f -name "*.c" -exec cat {} \;>all_c_files.txt
 ls -R | grep '.*\.c$' | xargs cat > all_c_files.txt
 ```
 
+查找当前目录中的所有名为 `DerivedData` 的文件夹，并执行 `du -hs` 输出大小。
+
+```
+find . -type d -name DerivedData -exec du -hs {} \;
+```
+
+排除 `./ten/iqq` 目录：
+
+```
+find . \( -name ./ten/iqq -prune \) -o \( -type d -name DerivedData \) -exec du -hs {} \;
+```
+
 ## delete file
 
 递归查找当前目录及其子目录下所有的 `.o`/`.DS_Store` 文件，然后执行 `-delete` 删除操作。

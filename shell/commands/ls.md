@@ -149,9 +149,69 @@ $ find . -type f -print | wc -l
 
 ### file size
 
+[How to Get the Size of a Directory in Linux](https://linuxize.com/post/how-get-size-of-file-directory-linux/)  
+[How To Find The Size Of A Directory In Linux](https://www.ostechnix.com/find-size-directory-linux/)  
 [How to Get the Size of a Directory from Command Line](http://osxdaily.com/2017/03/09/get-size-directory-command-line/)  
+[How do I get the size of a directory on the command line?](https://unix.stackexchange.com/questions/185764/how-do-i-get-the-size-of-a-directory-on-the-command-line)  
+[3 Simple Ways to Get the Size of Directories in Linux](https://www.2daygeek.com/how-to-get-find-size-of-directory-folder-linux/)  
+
+`du` command (Disk Usage) and `df` (Disk FileSystem) command.
 
 进入指定文件夹执行 `du -sh`
+
+Use the below du command format to get the total size of a given directory.
+
+```
+$ du -hs /home/daygeek/Documents
+or
+$ du -h --max-depth=0 /home/daygeek/Documents/
+
+$ du -sh ~/Library/Developer
+107G	/Users/faner/Library/Developer
+```
+
+get the total size of each directory, including sub-directories.
+
+```
+du -hc /home/daygeek/Documents/ | sort -rh | head -20
+
+~/Library/Developer $ du -hc | sort -rh | head -20
+107G	total
+107G	.
+ 89G	./Xcode
+ 87G	./Xcode/iOS DeviceSupport
+ 14G	./CoreSimulator
+8.8G	./CoreSimulator/Devices
+5.7G	./CoreSimulator/Caches/dyld/19F62f
+5.7G	./CoreSimulator/Caches/dyld
+5.7G	./CoreSimulator/Caches
+3.2G	./Xcode/iOS DeviceSupport/13.4.5 (17F5044d) arm64e/Symbols
+3.2G	./Xcode/iOS DeviceSupport/13.4.5 (17F5044d) arm64e
+3.2G	./Xcode/iOS DeviceSupport/13.4 (17E5255a) arm64e/Symbols
+3.2G	./Xcode/iOS DeviceSupport/13.4 (17E5255a) arm64e
+3.2G	./Xcode/iOS DeviceSupport/13.4 (17E5233g) arm64e/Symbols
+3.2G	./Xcode/iOS DeviceSupport/13.4 (17E5233g) arm64e
+3.1G	./Xcode/iOS DeviceSupport/13.4 (17E5223h) arm64e/Symbols
+3.1G	./Xcode/iOS DeviceSupport/13.4 (17E5223h) arm64e
+3.1G	./Xcode/iOS DeviceSupport/13.4 (17E255) arm64e/Symbols
+3.1G	./Xcode/iOS DeviceSupport/13.4 (17E255) arm64e
+3.0G	./Xcode/iOS DeviceSupport/13.4.5 (17F5044d) arm64e/Symbols/System/Library
+```
+
+> The above command will print the size of each file and the actual size of each directory, including their subdirectory and total size.
+
+If you want to get the size of the first-level sub-directories, including their sub-directories, for a given directory on Linux, use the du command format below.
+
+```
+$ du -shc /home/daygeek/Documents/*
+$ du -h --max-depth=1 /home/daygeek/Documents/
+```
+
+The `tree` command is a recursive directory listing program that produces a depth indented listing of files and directories in a tree-like format.
+
+```
+tree --du -h /opt/ktube-media-downloader
+```
 
 ### cat
 
