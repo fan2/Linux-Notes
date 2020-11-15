@@ -251,6 +251,39 @@ faner@MBP-FAN:~/Projects/git/framework/mars/mars/stn/src|master⚡
 
 ## xargs
 
+unix/POSIX - [xargs](https://pubs.opengroup.org/onlinepubs/9699919799/utilities/xargs.html)  
+FreeBSD/Darwin - [xargs](https://www.freebsd.org/cgi/man.cgi?query=xargs)  
+
+linux - [xargs(1)](http://man7.org/linux/man-pages/man1/xargs.1.html) & [xargs(1p)](http://man7.org/linux/man-pages/man1/xargs.1p.html)  
+debian/Ubuntu - [xargs](https://manpages.debian.org/buster/findutils/xargs.1.en.html)  
+
+执行 `xargs --help` 可查看简要帮助（Usage）。  
+执行 `man xargs` 可查看详细帮助手册（Manual Page）：
+
+```Shell
+pi@raspberrypi:~ $ man xargs
+
+XARGS(1)                           General Commands Manual                           XARGS(1)
+
+NAME
+     xargs -- construct	argument list(s) and execute utility
+
+SYNOPSIS
+     xargs [-0oprt] [-E	eofstr]	[-I replstr [-R	replacements] [-S replsize]]
+	   [-J replstr]	[-L number] [-n	number [-x]] [-P maxprocs] [-s size]
+	   [utility [argument ...]]
+
+DESCRIPTION
+     The xargs utility reads space, tab, newline and end-of-file delimited
+     strings from the standard input and executes utility with the strings as
+     arguments.
+
+     Any arguments specified on	the command line are given to utility upon
+     each invocation, followed by some number of the arguments read from the
+     standard input of xargs.  This is repeated	until standard input is	ex-
+     hausted.
+```
+
 执行 `xargs --version` 查看版本信息：
 
 ```Shell
@@ -264,27 +297,100 @@ There is NO WARRANTY, to the extent permitted by law.
 Written by Eric B. Decker, James Youngman, and Kevin Dalley.
 ```
 
-执行 `xargs --help` 可查看简要帮助（Usage）。
+### options
 
-执行 `man xargs` 可查看详细帮助手册（Manual Page）：
+以下列举了5个常用的命令选项：
 
-```Shell
-pi@raspberrypi:~ $ man xargs
-
-XARGS(1)                           General Commands Manual                           XARGS(1)
-
-NAME
-       xargs - build and execute command lines from standard input
-
-
-
-DESCRIPTION
-       This manual page documents the GNU version of xargs.  xargs reads items from the stan‐
-       dard input, delimited by blanks (which can be protected with double or  single  quotes
-       or  a  backslash)  or newlines, and executes the command (default is /bin/echo) one or
-       more times with any initial-arguments followed by  items  read  from  standard  input.
-       Blank lines on the standard input are ignored.
 ```
+     -0	     Change xargs to expect NUL	(``\0'') characters as separators, in-
+	     stead of spaces and newlines.  This is expected to	be used	in
+	     concert with the -print0 function in find(1).
+
+     -I	replstr
+	     Execute utility for each input line, replacing one	or more	occur-
+	     rences of replstr in up to	replacements (or 5 if no -R flag is
+	     specified)	arguments to utility with the entire line of input.
+
+     -n	number
+	     Set the maximum number of arguments taken from standard input for
+	     each invocation of	utility.
+
+     -p	     Echo each command to be executed and ask the user whether it
+	     should be executed.  An affirmative response, `y' in the POSIX
+	     locale, causes the	command	to be executed,	any other response
+	     causes it to be skipped.  No commands are executed	if the process
+	     is	not attached to	a terminal.
+
+     -t	     Echo the command to be executed to	standard error immediately be-
+	     fore it is	executed.
+```
+
+`xargs -I` 和 `xargs -i` 是一样的，只是 `-i` 默认使用大括号（`{}`）作为替换字符串（replstr），`-I` 则可以自定义其他字符串作为 replstr，但是必须用引号包起来（？）。
+
+man 推荐使用 `-I` 代替 `-i`，但是一般都使用 `-i` 图个简单，除非在命令中不能使用大括号。
+
+> macOS 下不支持 `-i` 选项！
+
+### usage
+
+大多数时候，xargs 命令都是跟管道一起使用的。但是，它也可以单独使用。
+`xargs` 后面的命令默认是 `echo`。
+
+`xargs` 是构建单行命令的重要组件之一，它擅长将标准输入数据转换成命令行参数。  
+xargs 命令一般紧跟在管道操作符之后，以标准输入作为主要的源数据流。它使用 stdin 并通过提供 *命令行参数* 来执行其他命令。  
+默认情况下 xargs 将其标准输入中的内容以空白(包括空格、tab、回车换行等)分割成多个 arguments 之后当作命令行参数传递给其后面的命令。也可以使用 `-d` 命令指定特定分隔符（macOS 貌似不支持该选项）。  
+
+xargs 和 find 算是一对死党，两者结合使用可以让任务变得更轻松。
+
+#### tricks
+
+无法通过 xargs 传递数值做正确的算术扩展：
+
+```
+$ echo 1 | xargs -I "x" echo $((2*x))
+```
+
+这时只能改变方法或寻找一些小技巧，例如：
+
+```
+$ echo 1 | xargs -I {} expr 2 \* {}
+```
+
+---
+
+默认情况下，xargs 每次只能传递一条分割的数据到命令行中作为参数。但有时候想要让 xargs 一次传递2个或2个以上参数到命令行中。如何实现呢？
+
+例如有一个文件保存了 wget 想要下载的大量链接和对应要保存的文件名，一行链接一行文件名。格式如下：
+
+```
+https://www.xxx.yyy/a1
+filename1
+https://www.xxx.yyy/a2
+filename2
+https://www.xxx.yyy/a3
+filename3
+```
+
+现在想要通过读取这个文件，将每一个URL和对应的文件名传递给wget去下载：
+
+```
+$ wget '{URL}' -O '{FILENAME}'
+```
+
+xargs 自身的功能无法一次性传递多个参数（parallel命令可以，而且方式多种），只能寻求一些技巧来实现。
+
+```
+cat url.txt | xargs -n 2 bash -c 'wget "$1" -O "$2"'
+```
+
+### refs
+
+关于 xargs 的用法，可以参考 《Linux Shell 脚本攻略》中的 `2.5 玩转 xargs` 相关章节。
+
+[xargs 命令教程](http://www.ruanyifeng.com/blog/2019/08/xargs-tutorial.html)  
+[xargs 命令详解](https://www.cnblogs.com/wangqiguo/p/6464234.html)  
+[Xargs 用法详解](https://blog.csdn.net/zhangfn2011/article/details/6776925)  
+[xargs 原理剖析及用法详解](https://www.cnblogs.com/f-ck-need-u/p/5925923.html)  
 
 ## demos
 
