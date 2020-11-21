@@ -9,14 +9,14 @@
 
 ![gawk-function-String](./images/gawk-function-String.png)
 
-> `asort`、`asorti` 和 `gensub` 为 gawk 特有函数，macOS awkb不支持。
+> `asort`、`asorti` 和 `gensub` 为 gawk 特有函数，macOS awk 不支持。
 
 相关函数梳理如下：
 
 `gsub()` 函数有点类似于 sed 查找和替换。它允许替换一个字符串或字符为另一个字符串或字符，并以正则表达式的形式执行。  
 
 > 第一个函数作用于记录 `$0`；  
-> 第二个函数允许指定目标，然而，如果未指定目标，缺省为 `$0`。  
+> 第二个函数允许指定目标，若未指定目标，缺省为 `$0`。  
 
 `index(s,t)` 函数返回目标字符串 s 中查询字符串 t 的首位置。  
 `length(s)` 函数返回字符串 s 的字符长度。  
@@ -91,6 +91,53 @@ $ awk '$1=="J.Lulu"{print match($1, "u")}' grade.txt
 $ awk '$1=="J.Lulu"{print match($1, "lu")}' grade.txt
 5
 ```
+
+#### 多行划分区块删除
+
+在 awk-pattern 中的 多行划分区块 示例中，基于 `- path: ` 划分区块。
+
+```
+$ awk 'BEGIN {RS="- path: "; FS="\n"; ORS=""} $1~/\/Classes\/ui\/DeviceMgr\//' bak.code.yml
+```
+
+留下了一个问题：如何进一步基于 awk 命令移除这些匹配的 CR 规则区块记录呢？
+
+sed 天然适合用来执行此类区块匹配及删除操作：
+
+```
+# 指定备份扩展名为空，即不备份
+sed -i '' '/- path: \/Classes\/ui\/DeviceMgr\//,/owner_rule/d' bak.code.yml
+```
+
+由于 awk 没有直接的删除命令，因此无法模式匹配删除，相应的等效实现稍显复杂。
+只能反向匹配剩余的记录，由于区块记录分隔符自身不在匹配记录中，需要想办法补齐分割掉的 RS 前缀。
+
+1. 首先使用域模式的否定匹配，过滤出所有不包含 `/Classes/ui/DeviceMgr/` 的目录，即需要保留的；  
+2. 由于 .code.yml 文件开头有一大段规则描述，故忽略掉第1个 `- path: ` 之前的第1条记录，相当于 `if (NR==1) next;` 直接打印第1条记录；  
+3. 如果记录块的第1行以 `/` 开头（合起来就是 `- path: /xxx`），或第2行包含 `owners:`（第1行路径可能非斜杠开头，也可能是行号），则补齐切割掉的 RS 前缀（`- path: `），并且打印该条记录；不匹配的则直接打印该记录块。  
+
+```
+# 调试
+awk 'BEGIN {RS="- path: "; FS="\n"; ORS=""; OFS="\n"}
+    $1 !~ /\/Classes\/ui\/DeviceMgr\// {
+        if (NR > 1 && (index($1, "/")==1 || index($2, "owners:")))
+            $1="- path: "$1;
+        print $0
+    }' bak.code.yml | more
+```
+
+调试OK后，可将移除匹配区块后的内容重定向输出到新的文件：
+
+```
+awk 'BEGIN {RS="- path: "; FS="\n"; ORS=""; OFS="\n"}
+    $1 !~ /\/Classes\/ui\/DeviceMgr\// {
+        if (NR > 1 && (index($1, "/")==1 || index($2, "owners:")))
+            $1="- path: "$1;
+        print $0
+    }' bak.code.yml > rm.code.yml
+```
+
+执行 `diff bak.code.yml rm.code.yml` 或 `code --diff bak.code.yml rm.code.yml` 对比，校验移除是否符合预期。
 
 ### substr
 

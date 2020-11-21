@@ -77,6 +77,87 @@ $ awk '$4!~/Brown/' grade.txt
 $ awk '$4!="Brown-2"' grade.txt
 ```
 
+### 多行划分区块
+
+考虑工程根目录下有以下 code owner 的 CR 配置文件 `bak.code.yml`：
+
+```
+- path: /Classes/ui/DeviceMgr/PrinterTableView.h
+  owners:
+  - zhangsan
+  - lisi
+  - wangwu
+  owner_rule: 1
+- path: /Classes/ui/DeviceMgr/PrinterTableView.m
+  owners:
+  - zhangsan
+  - lisi
+  - wangwu
+  owner_rule: 1
+- path: /Classes/ui/DeviceMgr/PrinterDeviceCell.h
+  owners:
+  - zhangsan
+  - lisi
+  - wangwu
+  owner_rule: 1
+- path: /Classes/ui/DeviceMgr/PrinterDeviceCell.m
+  owners:
+  - zhangsan
+  - lisi
+  - wangwu
+  owner_rule: 1
+```
+
+执行以下 sed 语句可以界定目录 `/Classes/ui/DeviceMgr/` 的 CR 匹配规则块记录：
+
+```
+$ sed -n '/- path: \/Classes\/ui\/DeviceMgr\//,/owner_rule/p' bak.code.yml
+```
+
+考虑用 awk 等效实现，可以以 `- path: ` 作为记录分割符，以 `\n` 作为字段分割符，匹配打印结果如下：
+
+```
+$ awk 'BEGIN {RS="- path: "; FS="\n"; ORS=""} $1~/\/Classes\/ui\/DeviceMgr\//' bak.code.yml
+/Classes/ui/DeviceMgr/PrinterTableView.h
+  owners:
+  - zhangsan
+  - lisi
+  - wangwu
+  owner_rule: 1
+/Classes/ui/DeviceMgr/PrinterTableView.m
+  owners:
+  - zhangsan
+  - lisi
+  - wangwu
+  owner_rule: 1
+/Classes/ui/DeviceMgr/PrinterDeviceCell.h
+  owners:
+  - zhangsan
+  - lisi
+  - wangwu
+  owner_rule: 1
+/Classes/ui/DeviceMgr/PrinterDeviceCell.m
+  owners:
+  - zhangsan
+  - lisi
+  - wangwu
+  owner_rule: 1
+```
+
+默认的输出记录分割符为换行符，输出记录之间有空行。设置了 `ORS=""` 后，输出记录之间无空行。
+
+以上输出可以看到，块记录的第1行缺少分隔符 RS 前缀，考虑补上：
+
+```
+awk 'BEGIN {RS="- path: "; FS="\n"; ORS=""; OFS="\n"}
+    $1~/\/Classes\/ui\/DeviceMgr\//{
+        $1="- path: "$1;
+        print $0
+    }' bak.code.yml
+```
+
+> 思考：如何进一步基于 awk 命令移除这些匹配的 CR 规则区块记录呢？
+
 ## 记录匹配
 
 表达式 `$0 ~/Brown/`，意即查询包含模式 Brown 腰带级别的记录并打印它；  

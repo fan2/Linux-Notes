@@ -139,6 +139,56 @@ $ sed -n '/^<<<<<<< HEAD$/,/^=======$/p' Git-Conflict.h
 
 但是将 p 替换为 d 命令，尝试删除 ours 部分？未能如愿，删除全文，输出为空。
 
+---
+
+[Sed – Deleting Multiline Patterns](https://gryzli.info/2017/06/26/sed-deleting-multiline-patterns/)
+
+考虑工程根目录下有以下 code owner 的 CR 配置文件 `bak.code.yml`：
+
+```
+- path: /Classes/ui/DeviceMgr/PrinterTableView.h
+  owners:
+  - zhangsan
+  - lisi
+  - wangwu
+  owner_rule: 1
+- path: /Classes/ui/DeviceMgr/PrinterTableView.m
+  owners:
+  - zhangsan
+  - lisi
+  - wangwu
+  owner_rule: 1
+- path: /Classes/ui/DeviceMgr/PrinterDeviceCell.h
+  owners:
+  - zhangsan
+  - lisi
+  - wangwu
+  owner_rule: 1
+- path: /Classes/ui/DeviceMgr/PrinterDeviceCell.m
+  owners:
+  - zhangsan
+  - lisi
+  - wangwu
+  owner_rule: 1
+
+```
+
+以下 sed 语句从 bak.code.yml 中查找匹配目录 `/Classes/ui/DeviceMgr/` 对应的 CR 规则区块：
+
+```
+sed -n '/- path: \/Classes\/ui\/DeviceMgr\//,/owner_rule/p' bak.code.yml
+```
+
+移除以上匹配的 CR owner 规则区块，并直接回写到原文件：
+
+```
+# 回写之前，备份到 bak.code.yml.bak
+sed -i '.bak' '/- path: \/Classes\/ui\/DeviceMgr\//,/owner_rule/d' bak.code.yml
+
+# 指定备份扩展名为空，即不备份
+sed -i '' '/- path: \/Classes\/ui\/DeviceMgr\//,/owner_rule/d' bak.code.yml
+```
+
 ## s(ubstitue)
 
 替换命令（substitue）在行中替换文本。

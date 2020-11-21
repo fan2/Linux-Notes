@@ -1,23 +1,21 @@
 
 shell 脚本最常见的一个用途就是处理文本文件。检查日志文件、读取配置文件、处理数据元素，shell 脚本可以帮助我们将文本文件中的各种数据的日常处理任务自动化。
 
-对于日常工作中的文本编辑需求，可以选择 vscode 这种 GUI 客户端或 vim 这种 CUI 客户端进行操作，
-vscode 和 vim 这两种编辑器，都支持通过鼠标或键盘来完成交互式编辑工作。
+对于日常工作中的文本编辑需求，可以选择 vscode 这种 GUI 客户端或 vim 这种 CUI 客户端进行操作，vscode 和 vim 这两种编辑器都支持通过鼠标或键盘来完成交互式编辑工作。
 
-有时候需要自动处理（编辑）文本文件，但是又不想动用全副武装的交互式文本编辑器。此时，需要一个能够实现自动格式化、插入、修改或删除文本元素的简单命令行编辑器。
+有时候需要自动处理（编辑）文本文件，但是又不想动用全副武装的交互式文本编辑器。此时，需要一个能够实现自动格式化、插入、修改或删除文本元素的简单非交互式命令行编辑器。
 
 Unix/Linux 世界，提供了两个广泛使用的命令行编辑器：`sed` 和 `awk`。
 
 ## sed
 
-sed（`s`tream `ed`itor）意即流式编辑器，和普通的交互式文本编辑器恰好相反。
+**sed**（`s`tream `ed`itor）意即流式编辑器，和普通的交互式文本编辑器恰好相反。
 流式编辑器基于预先提供的一组规则命令来操作数据流，实现无交互静默编辑。
 
 1. **流** 可以是管道重定向的 STDIN，也可以是文件。  
 2. **规则** 要么从命令行中输入，要么存储在一个脚本文件中。  
 
-sed 流编辑器的基本处理单位是 **行**，即按顺序逐行处理。  
-在流编辑器将所有命令与一行数据匹配完毕后，会读取下一行数据并重复这个过程，直至处理完流中的所有数据行。  
+sed 流编辑器的基本处理单位是 **行**，即按顺序逐行处理。在流编辑器将所有命令与一行数据匹配完毕后，会读取下一行数据并重复这个过程，直至处理完流中的所有数据行。  
 
 sed 编辑器一般会执行下列操作：
 
@@ -26,10 +24,8 @@ sed 编辑器一般会执行下列操作：
 3. 按照命令修改（编辑）流中的数据；  
 4. 将编辑后的新的数据输出到 STDOUT。  
 
-需要明白的是，sed 编辑器并不会修改原始文本文件的内容。
-它只是将修改后的数据发送到 STDOUT，原始文本文件依然保留着原始数据。
-
-> 如果要回写原始文件，可以开启 `-i` 选项。
+需要明白的是，sed 编辑器并不会修改原始文本文件的内容。它只是将修改后的数据发送到 STDOUT，原始文本文件依然保留着原始数据。  
+或者说，sed 编辑器并不与初始化文件打交道，它操作的只是一个拷贝，然后所有的改动如果没有重定向到一个文件，将输出到屏幕。  
 
 ### format
 
@@ -49,14 +45,50 @@ sed 主要有5个常用命令选项：
 `-e script` | 在处理输入中，将 script 中指定的命令添加到已有的命令中
 `-f file`   | 在处理输入中，将 file 中指定的命令添加到已有的命令中
 `-E`(`-r`)  | 支持扩展型正则表达式（ERE）
-`-i`        | 编辑完回写
+`-i`        | 编辑完回写（Edit in-place）
+
+其中 `script` 参数指定了应用于流数据上的单个命令。
+
+#### -n
+
+```
+     -n	     By	default, each line of input is echoed to the standard output
+	     after all of the commands have been applied to it.	 The -n	option
+	     suppresses	this behavior.
+```
+
+`-n` 选项将禁止 sed 编辑器输出，即不打印 sed 编辑对象的全部内容。
+但模式匹配后的 `p` 标记会输出修改过的行，将二者配合的效果是只输出匹配定位的行。
+
+#### -i
+
+```
+     -i	extension
+	     Edit files	in-place similarly to -I, but treat each file indepen-
+	     dently from other files.  In particular, line numbers in each
+	     file start	at 1, the "$" address matches the last line of the
+	     current file, and address ranges are limited to the current file.
+	     (See Sed Addresses.)  The net result is as	though each file were
+	     edited by a separate sed instance.
+```
+
+`-i` 选项支持将编辑操作的结果回写到源文件，macOS 上必须要指定一个 extension 参数，指定备份文件的后缀。
+
+如果不需要备份，直接回写文件，可以则设置一个长度为0的空字符串参数：
+
+```
+sed -i '' 's/main/fun/g' 'Test.txt'
+```
+
+> Linux/Unix 平台，可省略 extension 参数。
 
 ### match
 
-默认情况下，在 sed 编辑器中使用的命令会作用于文本数据的所有行。
-如果只想将命令作用于特定行或某些行，则必须进行行寻址（line addressing）。
+因为 sed 是一个非交互性编辑器，必须通过行号或正则表达式指定要操作的文本行。
 
-sed 在文件中查询文本的方式有两种：
+默认情况下，在 sed 编辑器中使用的命令会作用于文本数据的所有行。如果只想将命令作用于特定行或某些行，则必须进行行寻址（line addressing）或模式匹配。
+
+可见，sed 定位要编辑的对象（文本行）的方式有两种：
 
 1. 以数字形式标示行（区间）；  
 2. 使用文本模式来过滤出行；  
@@ -81,6 +113,8 @@ sed 提供了以下编辑命令：
 
 ### 在命令行定义编辑器命令
 
+在命令行使用 sed 命令时，要加单引号，也允许加双引号。
+
 以下命令过滤打印 file.txt 文件中指定行：
 
 ```
@@ -90,11 +124,24 @@ $ sed -n '2p' file.txt
 # 打印末尾行
 $ sed -n '$p' file.txt
 
+# 打印除第2行外的所有其他行
+sed -n '2!p' file.txt
+
+# 打印除第2~4行外的所有其他行
+sed -n '2,4!p' file.txt
+
+# 打印前4行，然后退出
+sed '4 q' file.txt
+
 # 打印整个文件
 $ sed -n '1,$p' file.txt
 ```
 
-更进一步：过滤出 input-file.txt 文件中指定范围的行到 output-file.txt 文件。
+#### 输出到文件
+
+由于不与源文件直接交互，如果想要保存改动的内容，将所有输出重定向到一个文件即可。
+
+例如：过滤出 input-file.txt 文件中指定范围的行到 output-file.txt 文件。
 
 ```
 $ sed -n '100,199p' input-file.txt > output-file.txt
@@ -106,24 +153,32 @@ $ sed -n '100,199p' input-file.txt > output-file.txt
 $ sed -n '100,199w output-file.txt' input-file.txt
 ```
 
----
+当然，如果向将替换、删除的结果直接回写到源文件，也可以使用 `-i` 选项。
 
-以下命令过滤打印 git 冲突文件中 ours 部分：
+#### 模式匹配示例
 
-```
-$ sed -n '/^<<<<<<< HEAD$/,/^=======$/p' Git-Conflict.h
-```
-
-以下命令过滤打印 git 冲突文件中 theirs incoming 结尾分隔行（形如 `>>>>>>> origin/master`）：
+示例1：从 bak.code.yml 文件中匹配出 CR owner 规则区块，`-n` 指定只输出匹配结果：
 
 ```
-$ sed -n '/^>>>>>>> /p' Git-Conflict.h
+sed -n '/- path: \/Classes\/ui\/DeviceMgr\//,/owner_rule/p' bak.code.yml
 ```
 
-以下命令过滤打印 git 冲突文件中 theirs 部分：
+示例2：过滤打印 git 冲突文件中 ours 部分：
 
 ```
-$ sed -n '/^=======$/,/^>>>>>>> /p' Git-Conflict.h
+$ sed -n '/^<<<<<<< HEAD$/,/^=======$/p' git-Conflict-File.h
+```
+
+示例3：过滤打印 git 冲突文件中 theirs incoming 结尾分隔行（形如 `>>>>>>> origin/master`）：
+
+```
+$ sed -n '/^>>>>>>> /p' git-Conflict-File.h
+```
+
+示例4：过滤打印 git 冲突文件中 theirs 部分：
+
+```
+$ sed -n '/^=======$/,/^>>>>>>> /p' git-Conflict-File.h
 ```
 
 `svn log -v | sed -n '/fan/,/-----$/ p'`
@@ -144,10 +199,18 @@ $ sed -n '2=; 2p' detail.txt
 $ sed -n -e '2=' -e '2p' detail.txt
 ```
 
-在单行上执行多条命令，可以考虑用花括号将多条命令组合在一起：
+以下两句 sed 命令等价，都是打印匹配行号和行内容：
+
+```
+sed -n -e '/ID:50/=; /ID:50/p' ss.txt
+sed -n -e '/ID:50/=' -e '/ID:50/p' ss.txt
+```
+
+在单行上执行多条命令，还可以用花括号（`{}`）将多条命令组合在一起：
 
 ```
 sed -n '2{=;p}' detail.txt
+sed -n '/ID:50/{=;p}' ss.txt
 ```
 
 但是 macOS 上不支持这种区块代码在一行执行：

@@ -10,6 +10,7 @@ debian/Ubuntu - [awk](https://manpages.debian.org/buster/9base/awk.1plan9.en.htm
 [AWK](https://en.wikipedia.org/wiki/AWK)  
 [The GNU Awk User’s Guide](https://www.gnu.org/software/gawk/manual/gawk.html)  
 [Awk - A Tutorial and Introduction](https://www.grymoire.com/Unix/Awk.html)  
+[Getting Started With AWK Command](https://linuxhandbook.com/awk-command-tutorial/)  
 
 ## version
 
@@ -121,7 +122,7 @@ OPTIONS
 
 ## options
 
-sed 主要有3个常用命令选项：
+awk 主要有3个常用命令选项：
 
 选项         | 描述
 ------------|--------------------
