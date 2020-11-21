@@ -56,6 +56,20 @@ This is line number 3.
 This is line number 4.
 ```
 
+### 插入多行
+
+以下示例在所有find查找到的cpp文件头部补插一条标准的版权声明：
+
+```
+$ find . -name "*.cpp" -print0 | xargs -I file -0 sed -i '' '1i\
+// Tencent is pleased to support the open source community by making Mars available.\
+// Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.\
+
+' file
+```
+
+> 注意：中间多行末尾需要添加反斜杠续行！
+
 ## a(ppend)
 
 追加命令（append）在指定行之后添加新行。  

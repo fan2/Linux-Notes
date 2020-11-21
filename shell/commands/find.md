@@ -37,6 +37,21 @@ find path [options] [expression]
 
 按照文件名查找文件。
 
+通配查找当前目录下的所有txt文件：
+
+```
+$ find . -name *.txt
+find: data.txt: unknown primary or operator
+```
+
+**注意**：通配符需要转义，或者将 `-name` 参数用引号包起来：
+
+```
+find . -name \*.txt
+find . -name '*.txt'
+find . -name "*.txt"
+```
+
 #### case-insensitive
 
 `-iname`：匹配名字时会忽略大小写。
@@ -236,7 +251,7 @@ $ find devel/source_path \( -name ".git" -prune \) -o \( -type f -print \)
 
 ### -exec
 
-find 命令可以借助选项 `-exec` 与其他命名进行结合，执行命令或动作。
+find 有一个选项 `-exec`，支持对每个find查找到的文件执行命令。
 
 ```
      -exec utility [argument ...] ;
@@ -270,10 +285,13 @@ $ find . -type f -exec echo {} ;
 find: -exec: no terminating ";" or "+"
 ```
 
-查找当前目录中的所有名为 `DerivedData` 的文件夹，并执行 `du -hs` 输出大小。
+查找当前目录中的所有名为 `DerivedData` 的文件夹，并执行 `du -hs` 统计输出各个文件夹的磁盘占用大小。
 
 ```
 $ find . -type d -name DerivedData -exec du -hs {} \;
+385M	./Classes/base/QQBaseUtil/DerivedData
+ 22M	./Frameworks/WX/PublicProtocolFiles/DerivedData
+ 17G	./DerivedData
 ```
 
 排除 `./ten/mars` 目录：
@@ -291,13 +309,13 @@ $ find OfflineFile -type f -iname "*.cpp" > all_cpp_files.txt
 这里使用 `>` 操作符将来自 find 的数据（CPP代码）重定向到 all_cpp_codes.cpp 文件，没有使用 `>>`（追加）的原因
 是因为 find 命令的全部输出就只有一个数据流（stdin），而只有当多个数据流被追加到单个文件中时才有必要使用 `>>`。
 
-如果要将查找到的所有cpp文件拼接写入一个文件 `all_cpp_codes.cpp`，则可借助 -exec cat 逐个查看重定向实现拼接：
+若要将查找到的所有cpp文件拼接写入一个文件 `all_cpp_codes.cpp`，则可借助 `-exec cat` 打开查看文件内容并重定向实现拼接：
 
 ```
 $ find OfflineFile -type f -iname "*.cpp" -exec cat {} \;>all_cpp_codes.cpp
 ```
 
-下面对查找到的所有文件名为 `JceObjectV2.h` 的文件（包括软链替身）进一步执行 `ls -F`，以便区分哪些是文件哪些是软链：
+下面对查找到的所有文件名为 `JceObjectV2.h` 的文件（包括软链替身），进一步执行 `ls -F` 列举打印各文件属性，以便区分哪些是文件哪些是软链：
 
 ```
 $ find . -name 'JceObjectV2.h' \( -type f -o -type l \) -exec ls -F {} \;
@@ -559,3 +577,35 @@ cp -v ./cDACoreListenerCallBack.d /Users/faner/Downloads/dependencies
 ```
 
 > 思考：xargs 如何一次性传递多个参数给后面的 utility 命令呢？这涉及到 `xargs -n` 分段划批和 Bash Shell 命令参数列表。
+
+#### edit files
+
+经常需要将某个目录中的所有文件内的一部分文本替换成另一部分，例如在网站的源文件目录中替换一个URI。
+解决这个问题最快的方法就是利用shell脚本。
+
+场景：遍历项目目录下的所有.cpp文件，并将每个.cpp文件中的 Copyright 替换成 Copyleft。
+
+可以使用find命令的 `-exec` 选项执行 sed 命令对每个查找到的文件执行查找替换：
+
+```
+# 为每个查找到的文件调用一次sed
+$ find . -name "*.cpp" -exec sed -i '' 's/Copyright/Copyleft/g' {} \;
+# 或者将多个文件名一并传递给sed
+$ find . -name "*.cpp" -exec sed -i '' 's/Copyright/Copyleft/g' {} \+
+```
+
+当然，也可以对find结果重定向给 ` | xargs -I{}` 作为参数调用 sed 编辑替换：
+
+```
+$ find . -name "*.cpp" -print0 | xargs -I{} -0 sed -i '' 's/Copyright/Copyleft/g' {}
+```
+
+思考：如果头部没有包含 Copyright 或 Copyleft，如何在头部补插一条标准的版权声明呢？
+
+```
+$ find . -name "*.cpp" -print0 | xargs -I file -0 sed -i '' '1i\
+// Tencent is pleased to support the open source community by making Mars available.\
+// Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.\
+
+' file
+```
