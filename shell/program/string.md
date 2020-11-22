@@ -1,218 +1,123 @@
 
-## assign
+[linux shell 字符串操作详解](https://www.iteye.com/blog/justcoding-1963463)  
 
-bash shell 中可通过等号（equality sign）赋值定义变量，右值如果没有引号（单/双）引用，默认都是按照字符串类型。
+## 字符串长度
 
-```Shell
-faner@MBP-FAN:~|⇒  testString=define
-faner@MBP-FAN:~|⇒  echo $testString
-define
+字符串长度计算表达式：`${#string}`
+
+```
+$ file_path=/Users/faner/Downloads/iosdeploy_download/Documents/2905558360/image_original_flash
+$ echo $file_path
+/Users/faner/Downloads/iosdeploy_download/Documents/2905558360/image_original_flash
 ```
 
-> 注意：在变量、等号和值之间不能出现空格。
+字符串长度：
 
-### meta
-
-当右值句段遇到 **元字符**（metacharacter） 时，将自动截取第一段分组作为右值，后续句段将按照新的命令解析执行。
-
-关于 bash shell 的元字符参考 `man 1 bash` 中 DEFINITIONS 部分的定义：
-
-```Shell
-DEFINITIONS
-
-metacharacter
- A character that, when unquoted, separates words. One of the following:
-
-| & ; ( ) < > space tab newline
+```
+# echo ${#file_path}
+83
+$ strlen=${#file_path}
+$ echo $strlen
+83
 ```
 
-以下第一个空格将右值截段，实际有效的赋值命令1为 `testString=define` ，正常有效执行；  
-string 为命令2，由于找不到 `string` 命令而提示报错。
+`unset string1` 或 `string1=""` 时，字符串长度为0。
+`string1=" "` 时，字符串长度为1。
 
-```Shell
-faner@MBP-FAN:~|⇒  testString=define string in shell command line
-zsh: command not found: string
-faner@MBP-FAN:~|⇒  echo $testString 
-define
+```
+$ if [ ${#string1} -gt 0 ]
+then
+    print 'hello'
+else
+    print 'world'
+fi
 ```
 
-如果每个分组都为有效可执行命令，一般会依次执行。
+## 索引区间
 
-> 参考下文的 `test1='test 1' test2='test 2'` 测试用例。  
+表达式 | 含义
+-------|---
+`${string:position}`          | 在 $string 中, 从位置 $position 开始提取子串
+`${string:position:length}`   | 在 $string 中, 从位置 $position 开始提取长度为$length的子串
 
-但以下示例忽略了第一条赋值命令，而只执行了第2条 cd 命令？
-
-```Shell
-faner@MBP-FAN:~|⇒  testShellVar=string cd ~/Downloads
-faner@MBP-FAN:~/Downloads|⇒  echo $testShellVar
-
-faner@MBP-FAN:~/Downloads|⇒  
+```
+${var:n1:n2}
 ```
 
-### escape
+**解释**：截取n1和n2之间的字符串  
 
-另外一种常见写法是利用单反斜杠 `\\` 转义掉空格等元字符含义，显式声明采用原生字符义。
+例如：
 
-```Shell
-# 原义空格
-pi@raspberrypi:~ $ testString=define\ string\ in\ shell\ command\ line
-pi@raspberrypi:~ $ echo $testString 
-define string in shell command line
+`${var:0:5}`：表示从左边第1个字符开始，截取5个字符。  
+`${var:7}`：表示从左边第8个字符开始，一直到结尾。  
+`${var:0-7:5}`：表示从右边第7个字符开始，截取5个字符。  
+`${var:0-5}`：表示从右边第5个字符开始，一直到结尾。
 
-# 原义空格和分号
-faner@MBP-FAN:~|⇒  testShellVar=string\;\ cd\ ~/Downloads
-faner@MBP-FAN:~|⇒  echo $testShellVar 
-string; cd ~/Downloads
-faner@MBP-FAN:~|⇒  
+- `${str:0:1}`: 第一个字符  
+- `${str:0-1:1}`: 最后一个字符  
+- `${str:0-2:2}`: 末尾两个字符  
+
+判断以某个字符开头、结尾？？？
+
+## 索引位置
+
+[Linux shell 获得字符串所在行数及位置](https://www.cnblogs.com/xiaolincoding/p/11366274.html)
+
+可以借助 awk 中的 `index` 函数，在 awk 的 BEGIN 中针对 shell 字符串变量进行操作：
+
+```
+$ str='uellevcmpottcap'
+$ str1='ott'
+$ awk 'BEGIN{print index("'${str}'","'${str1}'") }'
 ```
 
-## QUOTING
+当然，也可以将 shell 变量传递作为 awk 变量，在 awk 脚本内部操作变量：
 
-除了利用单反斜杠 `\\` 转义掉空格等元字符含义，显式声明采用原生字符义外，一种更普适的方案是**引用**。
+> [shell 查找字符串中字符出现的位置](https://www.cnblogs.com/sea-stream/p/11403014.html)
 
-通过单引号（`'single_quoting'`）或双引号（`"double_quoting"`）来封闭引用是编程语言中常见的字符串定义方式。
-
-```obc-c
-QUOTING
-
-Quoting is used to remove the special meaning of certain characters or words to the shell. Quoting can be used to disable special treatment for special characters, to prevent reserved words from being recognized as such, and to prevent parameter expansion.
-
-Each of the metacharacters listed above under DEFINITIONS has special meaning to the shell and must be quoted if it is to represent itself.
+```
+$ a="The cat sat on the mat"
+$ test="cat"
+$ index=`awk -v a="$a" -v b="$test" 'BEGIN{print index(a,b)}'`
+$ echo $index
+5
 ```
 
-通过单引号闭包的字符串中的所有字符都采用原义，但是中间不能出现单引号自身，即使采用反斜杠（backslash）也无法转义（escape）。
+## [字符串拼接](https://www.cnblogs.com/wuac/p/11121709.html)
 
-```Shell
-Enclosing characters in single quotes preserves the literal value of each character within the quotes. A single quote may not occur between single quotes, even when preceded by a backslash.
-```
-
-通过双引号闭包的字符串中的 $、\`、\\ 等字符将具有特殊意义。
-
-```Shell
-Enclosing characters in double quotes preserves the literal value of all characters within the quotes, with the exception of $, `, \, and, when history expansion is enabled, !.
-```
-
-### demo
-
-定义包含空格和分号等元字符的字符串：
-
-```Shell
-# 单引号定义字符串
-pi@raspberrypi:~ $ testString='define string in shell command line'
-pi@raspberrypi:~ $ echo $testString 
-define string in shell command line
-
-# 双引号重定义字符串
-faner@MBP-FAN:~|⇒  testShellVar="string cd ~/Downloads"
-faner@MBP-FAN:~|⇒  echo $testShellVar 
-string cd ~/Downloads
-```
-
-引述包含空格的文件名：
-
-```Shell
-# 单引号引用
-mv 'a ~file name.txt' another.txt
-
-# 双引号引用
-mv "a ~file name.txt" another.txt
-```
-
-### vs. assign
-
-引用一个变量值时，需要使用美元符号；而引用变量来对其进行赋值时不需要使用美元符号。
+字符串五种拼接模式：
 
 ```Shell
 #!/bin/bash
-value1=10		#左值赋值
-value2=$value1	#右值引用
-echo The resulting value is $value2
+name="Shell"
+str="Test"
+
+str1=$name$str      #中间不能有空格
+str2="$name $str"   #如果被双引号包围，那么中间可以有空格
+str3="$name: $str"
+str4=$name": "$str  #中间可以出现别的字符串
+str5="${name}Script: ${str}" #这个时候需要给变量名加上大括号
+
+echo $str1
+echo $str2
+echo $str3
+echo $str4
+echo $str5
 ```
 
-## Command Substitution
-
-shell 脚本中最有用的特性之一就是可以从命令输出中提取信息，并将其赋给变量。把输出赋给变量之后，就可以随意在脚本中使用了。
+运行结果：
 
 ```
-# man bash
-   Command Substitution
-       Command  substitution allows the output of a command to replace the command name.  There
-       are two forms:
-
-
-              $(command)
-       or
-              `command`
-
-       Bash performs the expansion by executing command and replacing the command  substitution
-       with  the  standard output of the command, with any trailing newlines deleted.  Embedded
-       newlines are not deleted, but they may be removed during word  splitting.   The  command
-       substitution $(cat file) can be replaced by the equivalent but faster $(< file).
-
-       When the old-style backquote form of substitution is used, backslash retains its literal
-       meaning except when followed by $, `, or \.  The first backquote not preceded by a back-
-       slash  terminates the command substitution.  When using the $(command) form, all charac-
-       ters between the parentheses make up the command; none are treated specially.
-
-       Command substitutions may be nested.  To nest when using the backquoted form, escape the
-       inner backquotes with backslashes.
-
-       If  the substitution appears within double quotes, word splitting and pathname expansion
-       are not performed on the results.
+ShellTest
+Shell Test
+Shell: Test
+Shell: Test
+ShellScript: Test
 ```
 
-有两种方法可以将命令输出赋给变量：
+经常需要在shell环境变量 `PATH` 中头插或追加第三方工具的路径：
 
-1. 反引号字符（`）；  
-2. $() 格式；  
-
-### $
-
-单引号将其闭包字符串中的 `$` 视作普通字符，不会替代解引用变量值：
-
-```Shell
-pi@raspberrypi:~ $ varLANG='env LANG=$LANG'
-pi@raspberrypi:~ $ echo $varLANG 
-env LANG=$LANG
 ```
-
-双引号可识别闭包字符串中的特殊字符 `$`，解引用变量值并替换。
-
-```Shell
-pi@raspberrypi:~ $ varLC_CTYPE="LC_CTYPE = $LC_CTYPE"
-pi@raspberrypi:~ $ echo ${varLC_CTYPE}
-LC_CTYPE = UTF-8
-```
-
-双引号中若要打印普通的 `$` 符号，可使用反斜杠 `\$` 转义为普通字符。
-
-```Shell
-pi@raspberrypi:~ $ varLC_CTYPE="LC_CTYPE = \$LC_CTYPE"
-pi@raspberrypi:~ $ echo ${varLC_CTYPE}
-LC_CTYPE = $LC_CTYPE
-```
-
-#### demo
-
-```Shell
-#!/bin/bash
-
-testing=$(date) #命令替换
-echo "The date and time are: " $testing #引用变量
-```
-
-下面的这个例子，通过命令替换获得当前日期并用它来生成当天的日志文件名。
-
-```Shell
-#!/bin/bash
-
-today=$(date +%y%m%d)
-ls /usr/bin -al > log.$today
-```
-
-以下右值引用中的 `$testPATH` 和 `${testPATH}` 可加双引号。
-
-```Shell
 # testPATH 初始值
 pi@raspberrypi:~ $ testPATH=/usr/bin:/bin:/usr/sbin:/sbin
 
@@ -223,72 +128,227 @@ pi@raspberrypi:~ $ testPATH=/usr/local/bin:$testPATH
 pi@raspberrypi:~ $ testPATH=${testPATH}:/usr/local/sbin
 ```
 
-以下 [brew 的官网首页](http://brew.sh/index.html) 给出的 Homebrew 安装命令：
+## 字符串包含
+
+[Shell判断字符串包含关系的几种方法](https://blog.csdn.net/iamlihongwei/article/details/59484029)  
+[Shell判断字符串是否包含小结](https://blog.csdn.net/Primeprime/article/details/79625306)  
+[shell判断字符串包含关系](https://zhuanlan.zhihu.com/p/51708411)  
+
+### 利用通配符
+
+`[[ ]]`: 判断命令  
 
 ```Shell
-/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+#!/bin/bash
+
+A="helloworld"
+B="low"
+if [[ $A == *$B* ]]
+then
+    echo "包含"
+else
+    echo "不包含"
+fi
 ```
 
-1. 调用 **curl** 下载 Homebrew 的 安装脚本 [install.rb](https://github.com/Homebrew/install/blob/master/install)  
+### 利用字符串运算符
 
-	> `-f`, --fail: (HTTP)  Fail  silently (no output at all) on server errors.  
-	> `-s`, --silent: Silent or quiet mode. Don't show progress meter or  error  messages. Makes  Curl mute.  
-	> `-S`, --show-error: When used with -s, --silent, it makes curl show an error message if it fails.  
-	> `-L`, --location: (HTTP)  If  the  server  reports  that the requested page has moved to a different location (indicated with a Location: header and a 3XX response code), this  option will  make  curl  redo  the  request  on  the new place.  
-
-2. 调用 **ruby** 执行下载的安装脚本（install.rb）。
-
-	> `-e` 'command': one line of script.  
-
-以下选自 [清华大学开源软件镜像站](https://mirror.tuna.tsinghua.edu.cn/) 的 [Homebrew 镜像使用帮助](https://mirror.tuna.tsinghua.edu.cn/help/homebrew/)：
+`=~`: 正则式匹配符号  
 
 ```Shell
-# $(brew --repo) 可加双引号
-faner@FAN-MB0:~|⇒  cd $(brew --repo)
-faner@FAN-MB0:/usr/local/Homebrew|stable
+#!/bin/bash
 
-# $(brew --repo) 可加双引号
-⇒  cd $(brew --repo)/Library/Taps/homebrew/homebrew-core
-faner@FAN-MB0:/usr/local/Homebrew/Library/Taps/homebrew/homebrew-core|master
-⇒  
+strA="helloworld"
+strB="low"
+if [[ $strA =~ $strB ]]
+then
+    echo "包含"
+else
+    echo "不包含"
+fi
 ```
 
-### \`
-
-在 shell 命令中，往往需要将其他命令执行结果作为输入信息，此时可使用 “\`command\`” 或 “$(command)” 引用 command 执行结果。
-
-Linux Distributions 都可能拥有多个内核版本，且几乎 distribution 的所有内核版本都不相同。  
-若想进入当前内核的模块目录，可以先执行 `uname -r` 获取发行版本信息（-r, --kernel-release），然后 cd 进入目前内核的驱动程序所放位置。
+### 利用grep查找
 
 ```Shell
-pi@raspberrypi:~ $ uname -r
-4.9.59-v7+
-pi@raspberrypi:~ $ cd /lib/modules/`uname -r`/kernel
-pi@raspberrypi:/lib/modules/4.9.59-v7+/kernel $ ls
-arch  crypto  drivers  fs  kernel  lib  mm  net  sound
-pi@raspberrypi:/lib/modules/4.9.59-v7+/kernel $ ls | wc -l
-9
+#!/bin/bash
+
+strA="long string"
+strB="string"
+result=$(echo $strA | grep "${strB}")
+#if [[ "$result" != "" ]]
+#if [ "$result" != "" ]
+#if [ -n "$result" ]
+if [ $? -eq 0 ] && [ -n "$result" ]
+then
+    echo "包含"
+else
+    echo "不包含"
+fi
 ```
 
-以上 \`uname -r\` 可替换为 `$(uname -r)` 或 `"$(uname -r)"`。
+### 利用 case in 语句
 
-1. 先执行反单引号内的命令 `uname -r` 获取内核版本为 `4.9.59-v7+`；  
-2. 将上述结果代入 cd 命令的目录中，得到实际命令 `/lib/modules/4.9.59-v7+/kernel`。  
+```Shell
+#!/bin/bash
 
-鉴于反单引号容易打错或弄错，建议使用 **`$(uname -r)`** 这种解引用格式。
+thisString="1 2 3 4 5" # 源字符串
+searchString="1 2" # 搜索字符串
+case $thisString in 
+    *"$searchString"*) echo Enemy Spot ;;
+    *) echo nope ;;
+esac
+```
 
-相比反引号，`$()` 可以区分左右，因此支持嵌套。
+### 运用替换运算
 
----
+```Shell
+#!/bin/bash
 
-以下为查看和复位（reset） `brew --repo` 的 git url 信息：
+STRING_A=$1
+STRING_B=$2
+if [[ ${STRING_A/${STRING_B}//} == $STRING_A ]]
+then
+    ## is not substring.
+    echo N
+    return 0
+else
+    ## is substring.
+    echo Y
+    return 1
+fi
+```
+
+## [字符串截取](https://blog.csdn.net/qq_33951180/article/details/68059098)
+
+### 截左留右
+
+`#` 和 `##` 号截断左边留取右边子串（非贪婪模式，贪婪模式） 
+表达式 | 含义
+---------|----------
+`${string#substring}`	| 从变量 $string 的开头, 删除最短匹配 $substring 的子串
+`${string##substring}`	| 从变量 $string 的开头, 删除最长匹配 $substring 的子串
+
+> 其中 substring 可以是一个正则表达式。
 
 ```
-git -C `brew --repo` remote get-url origin
+$ file_path=/Users/faner/Downloads/iosdeploy_download/Documents/2905558360/image_original_flash
+$ suffix=${file_path#*iosdeploy_download}
+$ echo $suffix
+/Documents/2905558360/image_original_flash
+```
 
-git -C "$(brew --repo)" remote set-url origin https://github.com/Homebrew/brew.git
-git -C "$(brew --repo homebrew/core)" remote set-url origin https://github.com/Homebrew/homebrew-core.git
-git -C "$(brew --repo homebrew/cask)" remote set-url origin https://github.com/Homebrew/homebrew-cask.git
+### 截右留左
 
-brew update
+`%` 和 `%%` 号截断右边留取左边子串（非贪婪模式，贪婪模式） 
+表达式 | 含义
+---------|----------
+`${string%substring}`	| 从变量 $string 的结尾, 删除最短匹配 $substring的子串
+`${string%%substring}`	| 从变量 $string 的结尾, 删除最长匹配 $substring 的子串
+
+> 其中 substring 可以是一个正则表达式。
+
+```
+$ file_path=/Users/faner/Downloads/iosdeploy_download/Documents/2905558360/image_original_flash
+$ prefix=${file_path%/Documents/*}
+$ echo $prefix
+/Users/faner/Downloads/iosdeploy_download
+```
+
+### refs
+
+[bash shell字符串的截取](https://www.cnblogs.com/liuweijian/archive/2009/12/27/1633661.html)  
+[Shell字符串截取](http://c.biancheng.net/view/1120.html) - 非常详细  
+[shell截取字符串的方法](https://www.jianshu.com/p/4ceca1a2d265)  
+
+[Linux Shell 截取字符串](https://www.cnblogs.com/fengbohello/p/5954895.html)  
+[Shell脚本8种字符串截取方法总结](https://www.jb51.net/article/56563.htm)
+[shell脚本查找、抽取指定字符串的方法](https://blog.csdn.net/u011006622/article/details/85048488)  
+
+[Extract word from string using grep/sed/awk](https://askubuntu.com/questions/697120/extract-word-from-string-using-grep-sed-awk)  
+[How to extract string following a pattern with grep, regex or perl](https://stackoverflow.com/questions/5080988/how-to-extract-string-following-a-pattern-with-grep-regex-or-perl)  
+
+## 字符串替换
+
+[字符串操作 ${} 的截取，删除和替换](https://www.jianshu.com/p/2305fc9351c2)
+
+[Shell脚本中替换字符串等操作](https://blog.csdn.net/jeffiny/article/details/83271889)
+
+expr    | note
+--------|--------
+`${string/substring/replacement}`  | 使用 $replacement, 代替第一个匹配的 $substring
+`${string//substring/replacement}` | 使用 $replacement, 代替所有匹配的 $substring
+`${string/#substring/replacement}` | 如果 $string 的前缀匹配 $substring, 那么就用 $replacement 来代替匹配到的 $substring
+`${string/%substring/replacement}` | 如果 $string 的后缀匹配 $substring, 那么就用 $replacement 来代替匹配到的 $substring
+
+### 普通替换
+
+`${string/match_string/replace_string}`: 将 string 中第一个 match_string 替换成 replace_string；  
+`${string//match_string/replace_string}`: 将 string 中的 match_string 全部替换成 replace_string；  
+
+```
+$ str=123abc123
+$ echo "${str/123/r}"
+rabc123
+$ echo "${str//123/r}"
+rabcr
+```
+
+将 `2905558360/FileRecv` 中的 / 替换为 -；
+
+```
+> str='2905558360/FileRecv'
+> echo $str
+2905558360/FileRecv
+
+> echo "${str/\//-}"
+2905558360-FileRecv
+```
+
+### 前后缀替换
+
+`${string/#match_string/replace_string}`: 将 string 中第一个 match_string 替换成 replace_string  
+`${string/%match_string/replace_string}`: 将 string 中最后一个 match_string 替换成 replace_string  
+
+```
+$ str=123abc123
+$ echo "${str/#123/r}"
+rabc123
+$ echo "${str/%123/r}"
+123abcr
+```
+
+### demo
+
+doc_subdir 字符串值为 "2015952713/FileRecv" 或 "/2015952713/FileRecv/"，如果是后者需要移除首尾的 `/`：
+
+1. 去掉开头的 `/` 两种方法：
+
+- 截左留右：`sub_dir=${sub_dir#/}`;  
+- 前缀替换为空：`sub_dir=${sub_dir/#\//}`;  
+
+2. 去掉结尾的 `/` 两种方法：
+
+- 截右留左：`sub_dir=${sub_dir%/}`;  
+- 后缀替换为空：`sub_dir=${sub_dir/%\//}`;  
+
+```Shell
+    sub_dir=$doc_subdir
+    if [ ${sub_dir:0:1} = "/" ]   # 去掉开头的 /
+    then
+        sub_dir=${sub_dir#/} # sub_dir=${sub_dir/#\//}
+    fi
+    if [ ${sub_dir:0-1:1} = "/" ] # 去掉结尾的 /
+    then
+        sub_dir=${sub_dir%/} # sub_dir=${sub_dir/%\//}
+    fi
+    
+    sub_folder="/Documents/$sub_dir/" # 拼接沙盒路径
+```
+
+移除首尾的 `/` 后，要生成临时文件名，中间的 `/` 需要全部替换为 `-`：
+
+```Shell
+    file_name=${sub_dir//\//-} # 替换 / 为 -
+    ls_out_file="./ios-deploy-list-Documents-$file_name.txt"
 ```
