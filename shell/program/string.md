@@ -1,5 +1,6 @@
 
 [linux shell 字符串操作详解](https://www.iteye.com/blog/justcoding-1963463)  
+[shell 变量的高级用法](https://www.cnblogs.com/crazymagic/p/11067147.html)  
 
 ## 字符串长度
 
