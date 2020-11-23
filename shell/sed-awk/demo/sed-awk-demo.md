@@ -1,4 +1,7 @@
 
+[sed & awk](https://www.oreilly.com/library/view/sed-awk/1565922255/)  
+[Sed and Awk 101 Hacks](https://vds-admin.ru/sed-and-awk-101-hacks) - [ebook](https://www.thegeekstuff.com/sed-awk-101-hacks-ebook/)  
+
 ## networksetup
 
 以下为 macOS 下执行 `networksetup -listallhardwareports` 输出的网络接口信息：

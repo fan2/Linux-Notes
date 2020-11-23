@@ -11,6 +11,7 @@ debian/Ubuntu - [awk](https://manpages.debian.org/buster/9base/awk.1plan9.en.htm
 [The GNU Awk User’s Guide](https://www.gnu.org/software/gawk/manual/gawk.html)  
 [Awk - A Tutorial and Introduction](https://www.grymoire.com/Unix/Awk.html)  
 [Getting Started With AWK Command](https://linuxhandbook.com/awk-command-tutorial/)  
+[Awk Tutorial Examples](https://www.thegeekstuff.com/tag/awk-tutorial-examples/)  
 
 ## version
 

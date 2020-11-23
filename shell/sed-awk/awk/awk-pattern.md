@@ -179,6 +179,50 @@ P.Bunny     02/99   48      Yellow      12  35  28
 1. 匹配记录：`awk '/Brown/' grade.txt`  
 2. 不匹配记录：`awk '!/Brown/' grade.txt`  
 
+### 过滤行区间
+
+要打印出从 M 行到 N 行这个范围内的文本内容，可使用下面的语法：
+
+```
+$ awk 'NR==M, NR==N' filename
+```
+
+也可以用stdin作为输入：
+
+```
+$ cat filename | awk 'NR==M, NR==N'
+```
+
+以下筛选打印文件 grade.txt 的第2~4行：
+
+```
+$ #awk 'NR==2, NR==4' grade.txt
+$ awk 'FNR==2, FNR==4' grade.txt
+J.Lulu      06/99   48317   green       9   24  26
+P.Bunny     02/99   48      Yellow      12  35  28
+J.Troll     07/99   4842    Brown-3     12  26  26
+```
+
+### 模式匹配区间
+
+要打印处于 start_pattern 与 end_pattern 之间的文本，可使用下面的语法：
+
+```
+$ awk '/start_pattern/, /end _pattern/' filename
+```
+
+例如，筛选打印 .code.yml 中目录 `/Classes/ui/DeviceMgr/` 的 CR 匹配规则块记录：
+
+```
+$ awk '/- path: \/Classes\/ui\/DeviceMgr\//,/owner_rule/' bak.code.yml
+```
+
+等价的 sed 表达式如下：
+
+```
+$ sed -n '/- path: \/Classes\/ui\/DeviceMgr\//,/owner_rule/p' bak.code.yml
+```
+
 ## 任意字符
 
 抽取名字，其记录第一域的第四个字符是 a，使用句点 `.` 表示任意字符。  

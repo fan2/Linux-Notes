@@ -31,6 +31,8 @@ find 命令的工作方式如下：沿着文件层次结构向下遍历，匹配
 find path [options] [expression]
 ```
 
+> 其中 path 可以指定多个目录。
+
 ## options
 
 ### -name
