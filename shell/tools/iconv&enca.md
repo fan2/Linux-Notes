@@ -725,12 +725,71 @@ litetime.h: Universal transformation format 8 bits; UTF-8
 > [Vim 中如何去掉 ^M 字符？](https://www.zhihu.com/question/22130727)  
 > [vim linux下查找显示^M并且删除](http://www.cnblogs.com/juandx/p/5663064.html)  
 
-dos2unix 批量替换方案：`find . -type f -print0 | xargs -0 sed -i 's/^M$//'`。  
+### tr 命令
 
-以下脚本还是有些文件无法替换，待完善。
+dos2unix（crlf->lf）: 
+
+利用 `tr -s` 替换回车换行符（`\r\n`）为换行符（`\n`），仅供调试：
 
 ```
-find include src -type f -print0 | xargs -0 file | grep -i 'CRLF' | cut -d ':' -f 1 | xargs sed -i '' 's/\r//'
+tr -s "[\r\n]" "[\n*]" < include/litestd.h
+tr -s "[\015\012]" "[\012*]" < include/litestd.h
+```
+
+利用 `tr -d` 删除回车控制字符（`\r`），并输出到新文件：
+
+```
+cat include/litestd.h | tr -d '[\r]' > include/litestd2.h
+tr -d '[\r]' < include/litestd.h > include/litestd2.h
+tr -d "[\015]" < include/litestd.h | tee include/litestd2.h
+```
+
+### sed 替换
+
+dos2unix（crlf->lf）
+
+批量替换方案：`find . -type f -print0 | xargs -0 sed -i 's/^M$//'`，貌似不行。
+
+修改为 `sed -i '' 's/\r//g' file`，对单个文件执行OK。
+改为以下管接报错，尚待完善！
+
+```
+$ find include -type f -print0 | xargs -0 file | grep -i 'CRLF' | cut -d ':' -f 1 | xargs sed -i '' 's/\r//g'
+sed: RE error: illegal byte sequence
+```
+
+---
+
+unix2dos（lf->crlf）转换方案参考 [如何使用sed替换换行符？](https://www.imooc.com/wenda/detail/560901) - [腾讯云](https://cloud.tencent.com/developer/ask/137080)。
+
+> [sed 匹配\n换行符](https://www.cnblogs.com/chenfool/p/3820029.html)  
+> [sed命令如何替换换行符“\n”](https://blog.csdn.net/u011729865/article/details/71773840/)  
+
+在 GNU 中采用 sed 解决：
+
+```
+sed ':a;N;$!ba;s/\n/\r\n/g' file
+```
+
+这将在循环中读取整个文件，然后实现 lf->crlf 替换。
+
+1. 创建标签 `a`。  
+2. 通过 `N` 指令将当前和下一行附加到模式空间；  
+3. 在最后一行之前（`$!`），则跳转到标签a（`ba`）；  
+    > $! 意味着不要在最后一行执行，因为应该有一个最终换行符。  
+4. 通过 `s` 替换指令将整个文件（`g`标记）中的 lf 替换为 crlf。  
+
+支持 BSD 和 macOS 的跨平台兼容sed语法：
+
+```
+sed -i -e ':a' -e 'N' -e '$!ba' -e 's/\n/\r\n/g' file
+```
+
+改为以下管接报错，尚待完善！
+
+```
+$ find include -type f -print0 | xargs -0 file | grep -v 'CRLF' | cut -d ':' -f 1 | xargs sed -i '' -e ':a' -e 'N' -e '$!ba' -e 's/\n/\r\n/g'
+sed: RE error: illegal byte sequence
 ```
 
 ### Sublime Text 3 编辑替换
