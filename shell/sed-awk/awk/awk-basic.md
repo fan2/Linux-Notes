@@ -346,6 +346,41 @@ $ echo "12312312343242AAAdfasdfasdfasdfasdfadAAAfsdgfsdfgfgfgdfgasdfg" | awk -F 
 dfasdfasdfasdfasdfad
 ```
 
+#### csv 文件解析
+
+CSV（Comma-Separated Values）即逗号分隔值，有时也称为字符分隔值。
+因为分隔字符也可以不是逗号，其文件以纯文本形式存储表格数据（数字和文本）。
+
+在 CSV 文本文件中，每条记录占一行，每一行以逗号作为为分隔符，逗号前后的空格会被忽略。
+
+[linux awk解析csv文件](https://www.cnblogs.com/htlee/p/4701961.html)  
+
+读取CSV第1行即表头：
+
+```
+$ awk 'FNR==1' dependence.csv
+SubModule,Header,Class,Method,Macro
+```
+
+读取所有记录的第1列：
+
+```
+awk -F ',' 'FNR>1{print $1}' dependence.csv
+```
+
+对第1列进行去重输出：
+
+```
+awk -F ',' 'FNR>1{print $1}' dependence.csv | uniq
+```
+
+对第1列进行合并统计和去重统计：
+
+```
+awk -F ',' 'FNR>1{print $1}' dependence.csv | uniq -c
+awk -F ',' 'FNR>1{print $1}' dependence.csv | uniq | wc -l
+```
+
 ## 结构化流程控制
 
 awk 编程语言支持常见的结构化流程控制。
