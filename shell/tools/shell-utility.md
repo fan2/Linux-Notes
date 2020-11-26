@@ -119,6 +119,103 @@ faner@MBP-FAN:~/Music|⇒  popd +3
 [Linux中的pushd和popd](https://www.jianshu.com/p/53cccae3c443)  
 [在命令行中使用pushd和popd进行快速定位](http://blog.sina.com.cn/s/blog_b6b704ef0102wjdk.html)  
 
+## du
+
+关于磁盘统计涉及到两个命令：
+
+- `df` (Disk FileSystem)  
+- `du` (Disk Usage)  
+
+```
+$ df -lh
+Filesystem       Size   Used  Avail Capacity iused      ifree %iused  Mounted on
+/dev/disk1s1s1  466Gi   15Gi   16Gi    48%  567381 4882909539    0%   /
+/dev/disk1s4    466Gi   12Gi   16Gi    42%       9 4883476911    0%   /System/Volumes/VM
+/dev/disk1s2    466Gi  507Mi   16Gi     3%    2991 4883473929    0%   /System/Volumes/Preboot
+/dev/disk1s6    466Gi  2.3Mi   16Gi     1%      17 4883476903    0%   /System/Volumes/Update
+/dev/disk1s5    466Gi  422Gi   16Gi    97% 4976082 4878500838    0%   /System/Volumes/Data
+```
+
+[How to Get the Size of a Directory in Linux](https://linuxize.com/post/how-get-size-of-file-directory-linux/)  
+[How To Find The Size Of A Directory In Linux](https://www.ostechnix.com/find-size-directory-linux/)  
+[How to Get the Size of a Directory from Command Line](http://osxdaily.com/2017/03/09/get-size-directory-command-line/)  
+[How do I get the size of a directory on the command line?](https://unix.stackexchange.com/questions/185764/how-do-i-get-the-size-of-a-directory-on-the-command-line)  
+[3 Simple Ways to Get the Size of Directories in Linux](https://www.2daygeek.com/how-to-get-find-size-of-directory-folder-linux/)  
+
+进入指定文件夹执行 `du`，列举指定目录下的文件及所有递归文件夹占用磁盘的大小。
+
+```
+du ~/Documents
+du ~/Library/Developer
+du Pods
+```
+
+- 添加 `-c` 选项，最后会输出一条总占用大小；  
+- 添加 `-s` 选项，相当于 `-d 0` 指定一级目录，不递归子目录；  
+- 添加 `-h` 选项，是输出的 fileSize 更易阅读；  
+
+```
+$ du -sh ~/Documents
+or
+$ du -h -d 0 ~/Documents
+$ du -h --max-depth=0 ~/Documents
+```
+
+统计目录 `~/Library/Developer` 占用磁盘空间大小：
+
+```
+$ du -sh ~/Library/Developer
+ 66G	/Users/faner/Library/Developer
+```
+
+统计目录 `~/Library/Developer` 子目录占用磁盘空间大小：
+
+```
+$ du -csh ~/Library/Developer/*
+ 23G	/Users/faner/Library/Developer/CoreSimulator
+1.4G	/Users/faner/Library/Developer/XCTestDevices
+ 39G	/Users/faner/Library/Developer/Xcode
+425M	/Users/faner/Library/Developer/chromium
+2.2G	/Users/faner/Library/Developer/flutter
+ 66G	total
+```
+
+按占用磁盘空间降序（由大到小）排序：
+
+```
+$ du -csh ~/Library/Developer/* | sort -rh
+ 66G	total
+ 39G	/Users/faner/Library/Developer/Xcode
+ 23G	/Users/faner/Library/Developer/CoreSimulator
+2.2G	/Users/faner/Library/Developer/flutter
+1.4G	/Users/faner/Library/Developer/XCTestDevices
+425M	/Users/faner/Library/Developer/chromium
+```
+
+当子目录太多时，可重定向给 `more` 滚动查看，或重定向给 `head -n 10` 查看前10条。
+
+列举 Pods 目录下所有的一级子目录（不递归）：
+
+```
+ls -1 -d Pods/* | tee ~/Downloads/Pods-tree-L1.log
+```
+
+查看 Pods 目录下所有的一级子目录占用磁盘空间大小：
+
+```
+du -csh Pods/* | more
+du -csh Pods/* | tee ~/Downloads/Pods-tree-L1-du.log
+ls -1 -d Pods/* | xargs du -chs | tee ~/Downloads/Pods-tree-L1-du.log
+```
+
+---
+
+The `tree` command is a recursive directory listing program that produces a depth indented listing of files and directories in a tree-like format.
+
+```
+tree --du -h /opt/ktube-media-downloader
+```
+
 ## [bc](https://en.wikipedia.org/wiki/Bc_(programming_language))
 
 [bc](https://www.gnu.org/software/bc/manual/html_mono/bc.html)(basic calculator) - An arbitrary precision calculator language  
@@ -157,6 +254,7 @@ For details type `warranty'.
 也可书写代数表达式，用变量承载计算结果，作为进一步计算的操作数：
 
 ```Shell
+$ bc -q # -q 不显示冗长的欢迎信息
 a=2+3;
 a
 5
@@ -165,30 +263,119 @@ b
 20
 ```
 
-2. 在 bash shell 终端可基于[数据流重定向或管道](https://www.cnblogs.com/mingcaoyouxin/p/4077264.html)作为 `bc` 的输入表达式：
+2. 可通过 bc 内置的 **`scale`** 变量可指定浮点数计算输出精度：
 
 ```Shell
-pi@raspberrypi:~ $ bc <<< "56.8 + 77.7"
-134.5
-
-pi@raspberrypi:~ $ echo "56.8 + 77.7" | bc
-134.5
-```
-
-3. bc 内置的 **`scale`** 变量可指定浮点数计算输出精度：
-
-```Shell
+$ bc -q
+5 * 7 /3
+11
 scale=2; 5 * 7 /3
 11.66
 ```
 
-4. 以下为在 shell scripts 调用 bc 做计算的示例:
+3. 在终端可基于[数据流重定向或管道](https://www.cnblogs.com/mingcaoyouxin/p/4077264.html)作为 `bc` 的输入表达式：
 
 ```Shell
-pi@raspberrypi:~ $ result=$(echo "scale=2; 5 * 7 /3;" | bc)
-pi@raspberrypi:~ $ echo $result
+$ echo "56.8 + 77.7" | bc
+134.5
+```
+
+### inline
+
+对于简单的单行运算，可用 echo 重定向或内联重定向实现：
+
+```
+$ bc <<< "56.8 + 77.7"
+134.5
+```
+
+如果需要进行大量运算，在一个命令行中列出多个表达式就会有点麻烦。  
+bc命令能识别输入重定向，允许你将一个文件重定向到bc命令来处理。  
+但这同样会叫人头疼，因为你还得将表达式存放到文件中。  
+
+最好的办法是使用内联输入重定向，它允许你直接在命令行中重定向数据。  
+在shell脚本中，你可以将输出赋给一个变量。
+
+```
+variable=$(bc << EOF
+           options
+           statements
+           expressions
+           EOF)
+```
+
+`EOF` 文本字符串标识了内联重定向数据的起止。
+
+以下在终端测试这种用法：
+
+```
+$ bc << EOF
+heredoc> 56.8 + 77.7
+heredoc> EOF
+134.5
+```
+
+### script
+
+在shell脚本中，可调用bash计算器帮助处理浮点运算。可以用命令替换运行bc命令，并将输出赋给一个变量。基本格式如下：
+
+```
+variable=$(echo "options; expression" | bc)
+```
+
+第一部分 options 允许你设置变量。 如果你需要不止一个变量， 可以用分号将其分开。 expression参数定义了通过bc执行的数学表达式。
+
+以下为在 shell scripts 调用 bc 对常量表达式做计算的示例:
+
+```Shell
+$ result=$(echo "scale=2; 5 * 7 /3;" | bc)
+$ echo $result
 11.66
 ```
+
+以下为在 shell scripts 调用 bc 对变量表达式做计算的示例:
+
+```
+$ var1=100
+$ var2=45
+$ result=`echo "scale=2; $var1 / $var2" | bc`
+$ echo $result
+2.22
+```
+
+如果在脚本中使用，可使用内联重定向写法，将所有bash计算器涉及的部分都放到同一个脚本文件的不同行。  
+将选项和表达式放在脚本的不同行中可以让处理过程变得更清晰，提高易读性。  
+当然，一般需要用命令替换符号将 bc 命令的输出赋给变量，以作后用。  
+
+`EOF` 字符串标识了重定向给bc命令的数据的起止，bc 内部可创建临时变量辅助计算（定义辅助变量或承接中间计算结果），但总是返回最后一条表达式的计算结果。
+
+下面是在脚本中使用这种写法的例子。
+
+```
+$ cat test12.sh
+#!/bin/bash
+
+var1=10.46
+var2=43.67
+var3=33.2
+var4=71
+var5=$(bc << EOF
+scale = 4
+a1 = ( $var1 * $var2)
+b1 = ($var3 * $var4)
+a1 + b1
+EOF)
+
+echo The final answer for this mess is $var5
+```
+
+```
+$ chmod u+x test12.sh
+$ ./test12.sh
+The final answer for this mess is 2813.9882
+```
+
+**注意**：在bash计算器中创建的局部变量只在内部有效，不能在shell脚本中引用！
 
 ### last
 
@@ -197,6 +384,7 @@ pi@raspberrypi:~ $ echo $result
 bc 内置的 **`last`** 变量代表上个表达式的计算结果，可将 last 变量作为后续表达式的操作数，进行二次计算：
 
 ```
+$ bc -q
 2+3
 5
 last*4
@@ -208,6 +396,7 @@ last*4
 默认输入和输出都是基于十进制：
 
 ```Shell
+$ bc -q
 ibase
 10
 obase
@@ -224,8 +413,34 @@ ibase=10;obase=16;2017
 或者 echo 分号相隔的表达式重定向作为 bc 的输入进行解释运行：
 
 ```Shell
-pi@raspberrypi:~ $ echo "ibase=10;obase=16;2017" | bc
+$ echo "ibase=10;obase=16;2017" | bc
 7E1
+```
+
+以下示例用 `bc` 计算器实现进制转换。
+
+先将十进制转换成二进制：
+
+```
+$ no=100
+$ echo "obase=2;$no" | bc 
+1100100
+```
+
+再将二进制转换回十进制
+
+```
+$ no=1100100
+$ echo "obase=10;ibase=2;$no" | bc
+100
+```
+
+需要注意先写obase再写ibase，否则出错：
+
+```
+$ no=1100100
+$ echo "ibase=2;obase=10;$no" | bc
+1100100
 ```
 
 ## Checksum

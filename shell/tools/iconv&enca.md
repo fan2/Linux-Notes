@@ -176,6 +176,14 @@ find . -type f -exec file {} \; | grep -i 'ISO-8859'
 find . -type f | xargs file | grep -i 'ISO-8859'
 ```
 
+过滤出 incldue 目录下文件编码为 `ISO-8859` 和 `Non-ISO` 的文件：
+
+```
+$ file include/* | grep -i 'ISO-8859\|Non-ISO'
+include/WifiPhotoIf.h:    C++ source text, ISO-8859 text
+include/liteif.h:         C++ source text, ISO-8859 text, with CRLF line terminators
+```
+
 递归查找 include 和 src 子目录下编码为 `ISO-8859` 和 `Non-ISO` 的文件：
 
 ```
@@ -324,6 +332,20 @@ include/litetime.h: ASCII
 ```
 
 > 无法检测 BOM 信息？
+
+借助 cut 命令，可提取出以冒号字符为分割符号，提取文件和编码：
+
+```
+enca -L zh_CN -i include/* | cut -d ':' -f 1
+enca -L zh_CN -i include/* | cut -d ':' -f 2 # 前面有空格
+```
+
+建议采用更为灵活的 awk 命令，可指定字符串（冒号空格）为分割符：
+
+```
+enca -L zh_CN -i include/* | awk -F ': ' '{print $1}'
+enca -L zh_CN -i include/* | awk -F ': ' '{print $2}'
+```
 
 借助 find 命令，可以递归查找指定目录及其子目录下的所有文件，再重定向给 enca 查看编码信息：
 
