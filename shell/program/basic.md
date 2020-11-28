@@ -81,30 +81,64 @@ $ ls -l test1
 
 ## 用户输入参数
 
-方式1: `echo` 提示加 `read` 捕获变量
+read 指定接收变量的个数应与实际输入的参数个数一致，如果变量数量不够，剩下的数据就全部分配给最后一个变量。
+
+### echo -n + read
+
+unix/POSIX - [echo](https://pubs.opengroup.org/onlinepubs/9699919799/utilities/echo.html)  
+FreeBSD/Darwin - [echo](https://www.freebsd.org/cgi/man.cgi?query=echo)  
+
+linux - [echo(1)](https://man7.org/linux/man-pages/man1/echo.1.html) - [echo(1p)](https://man7.org/linux/man-pages/man1/echo.1p.html)  
+debian/Ubuntu - [echo](https://manpages.debian.org/buster/coreutils/echo.1.en.html)  
+
+[echo(1)](https://man7.org/linux/man-pages/man1/echo.1.html) - display a line of text
 
 ```
-    echo -n "enter a number from 1 to 5: "
-    read ANS
+ -n    Do not print the trailing newline characte.
 ```
 
-方式2: 更简洁，`read -p` 指定提示符续接变量捕获
+`echo -n` 不换行提示加 `read` 捕获变量：
 
 ```
-    read -p "enter a number from 1 to 5: " ANS
+#!/bin/bash
+
+echo -n "PLS input the num (1-10): "
+read num
+let i=num+5
+echo $i
+```
+
+### read -p
+
+unix/POSIX - [read](https://pubs.opengroup.org/onlinepubs/9699919799/utilities/read.html)  
+FreeBSD/Darwin - read is a shell builtin  
+
+linux - [read(1p)](https://man7.org/linux/man-pages/man1/read.1p.html) - [read(2)](https://man7.org/linux/man-pages/man2/read.2.html) - [read(3p)](https://man7.org/linux/man-pages/man3/read.3p.html)  
+debian/Ubuntu - [read](https://manpages.debian.org/buster/manpages-zh/read.1.zh_CN.html)  
+
+[read(1p)](https://man7.org/linux/man-pages/man1/read.1p.html) — read a line from standard input
+
+SYNOPSIS: `read [−r] var...`
+
+The read utility shall read a single line from standard input.
+
+另外一种方式更简洁，`read` 指定 `-p` 选项，提示行续接输入捕获到变量：
+
+```
+#!/bin/bash
+
+read -p "PLS input the num (1-10): " num
+let i=num+5
+echo $i
 ```
 
 如果 read 不指定变量，则默认放进环境变量 `REPLY` 中。
 
-### 参数个数
-
-指定接收变量的个数应与实际输入的参数个数一致，如果变量数量不够，剩下的数据就全部分配给最后一个变量。
-
-### 其他选项
+### read 的其他选项
 
 - `read -t seconds`：指定多少秒后提示超时；  
 - `read -s`：隐藏方式读取，不回显密码等隐秘数据（实际上是将文本颜色设置和背景色一致）。  
 
-### 参数解析
+## 脚本参数解析
 
-如果想更专业的处理输入参数列表，可以结合 shift 命令、getopts（getopt）提取分离参数。
+如果想更专业的处理输入参数列表，可以结合 `shift` 命令、`getopts`（getopt）提取分离参数。

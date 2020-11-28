@@ -48,19 +48,89 @@ Linux users can merge two or more files into one file using the merge command or
 
 [Linux paste command](https://www.computerhope.com/unix/upaste.htm)
 
-#### stackoverflow
+#### cat
 
-[How can I concatenate two files in Unix?](https://superuser.com/questions/228878/how-can-i-concatenate-two-files-in-unix)
+unix/POSIX - [cat](https://pubs.opengroup.org/onlinepubs/9699919799/utilities/cat.html)  
+FreeBSD/Darwin - [cat](https://www.freebsd.org/cgi/man.cgi?query=cat)  
+
+linux - [cat(1)](https://man7.org/linux/man-pages/man1/cat.1.html) - [cat(1p)](https://man7.org/linux/man-pages/man1/cat.1p.html)  
+debian/Ubuntu - [cat](https://manpages.debian.org/buster/coreutils/cat.1.en.html)  
+
+[cat(1)](https://man7.org/linux/man-pages/man1/cat.1.html) - concatenate files and print on the standard output
+
+SYNOPSIS: `cat [OPTION]... [FILE]...`
+
+macOS 下 cat 命令只支持7个选项 `cat [-benstuv] [file ...]`
 
 ```
-cat file1.txt file2.txt > new.txt
+     -b      Number the non-blank output lines, starting at 1.
+
+     -e      Display non-printing characters (see the -v option), and display a dollar sign (`$') at the end
+             of each line.
+
+     -n      Number the output lines, starting at 1.
+
+     -s      Squeeze multiple adjacent empty lines, causing the output to be single spaced.
+
+     -t      Display non-printing characters (see the -v option), and display tab characters as `^I'.
+
+     -u      Disable output buffering.
+
+     -v      Display non-printing characters so they are visible.  Control characters print as `^X' for con-
+             trol-X; the delete character (octal 0177) prints as `^?'.  Non-ASCII characters (with the high
+             bit set) are printed as `M-' (for meta) followed by the character for the low 7 bits.
 ```
 
-if new.txt is not empty, and you want to keep its content as it is, and just want to append the concatenated output of two files into it then use this:
+`-n`：number all output lines，打印所有行号。  
+`-b`：number nonempty output lines, overrides `-n`。非空行才显示行号。  
+`-s`：suppress repeated empty output lines，将两行以上的空行压缩为一行空白。  
+`-v`：use `^` and `M-` notation, except for *LFD* and *TAB*。  
+`-e`(end)：显示非打印字符，在 `-v` 的基础上，行末 LFD 显示`$`符号。linux 下等效于 `-vE`。  
+`-t`(tab)：显示非打印字符，在 `-v` 的基础上，制表符 TAB 显示为`^I`。linux 下等效于 `-vT`。  
+
+> Windows CRLF 时，`-v` 将在行末显示 `^M`。  
+> `-et` 相当于 linux 下的 `-A` = `-vET`。  
+
+linux 下多出3个选项：
 
 ```
-cat file1.txt file2.txt >> new.txt
+       -A, --show-all
+              equivalent to -vET
+
+       -E, --show-ends
+              display $ at end of each line
+
+       -T, --show-tabs
+              display TAB characters as ^I
 ```
+
+---
+
+[Linux: Putting two or more files together using cat](http://www.techpository.com/linux-putting-two-or-more-files-together-using-cat/)  
+[How to Combine Text Files Using the “cat” Command in Linux](https://www.howtogeek.com/278599/how-to-combine-text-files-using-the-cat-command-in-linux/)  
+[How can I concatenate two files in Unix?](https://superuser.com/questions/228878/how-can-i-concatenate-two-files-in-unix)  
+
+通过命令行在 file4 末尾追加输入内容：
+
+```
+cat >> file4.txt
+```
+
+> 输入最后一行后，换行 + Ctrl-D 结束。
+
+将 file1、file2 这2个文件追加到 file3 尾部:
+
+```
+cat file1.txt file2.txt >> file3.txt
+```
+
+将 file1、file2、file3 这3个文件合并成 file4（覆盖）:
+
+```
+cat file1.txt file2.txt file3.txt > file4.txt
+```
+
+---
 
 [How can I cat multiple files together into one without intermediary file?](https://stackoverflow.com/questions/4072361/how-can-i-cat-multiple-files-together-into-one-without-intermediary-file)
 
@@ -70,29 +140,30 @@ for file in file1 file2 file3 ... fileN; do
 done
 ```
 
-#### cat
+---
 
-[Linux: Putting two or more files together using cat](http://www.techpository.com/linux-putting-two-or-more-files-together-using-cat/)
-
-[How to Combine Text Files Using the “cat” Command in Linux](https://www.howtogeek.com/278599/how-to-combine-text-files-using-the-cat-command-in-linux/)
-
-将 file1、file2、file3 合并成 file4（新建或覆盖）:
+假如当前目录下有几个日志文件，并且是按照时间排序的：
 
 ```
-cat file1.txt file2.txt file3.txt > file4.txt
+Logs $ ls
+1001-10K.log 1003-20K.log 1004-30K.log 1006-40K.log 1007-50K.log 1009-60K.log 1010-70K.log
+Logs $ ls -1
+1001-10K.log
+1003-20K.log
+1004-30K.log
+1006-40K.log
+1007-50K.log
+1009-60K.log
+1010-70K.log
 ```
 
-将3个文件合并为 file4.txt（新建或追加）：
+可将所有文件（名）作为 cat 的列表参数，将它们拼接成一个大的日志进行综合分析：
 
 ```
-cat file1.txt file2.txt file3.txt > file4.txt
+Logs $ ls | xargs cat > ../1001_1010-10K_70K.log
 ```
 
-通过命令行在 file4 末尾追加输入：
-
-```
-cat >> file4.txt
-```
+> 如果要从多层目录中筛检文件，需要 `ls -R | grep ` 或借助 `find` 命令。
 
 #### tee
 
