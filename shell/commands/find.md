@@ -291,7 +291,7 @@ find: -exec: no terminating ";" or "+"
 
 ```
 $ find . -type d -name DerivedData -exec du -hs {} \;
-385M	./Classes/base/QQBaseUtil/DerivedData
+385M	./Classes/base/WXBaseUtil/DerivedData
  22M	./Frameworks/WX/PublicProtocolFiles/DerivedData
  17G	./DerivedData
 ```
@@ -610,4 +610,43 @@ $ find . -name "*.cpp" -print0 | xargs -I file -0 sed -i '' '1i\
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.\
 
 ' file
+```
+
+#### clang-format
+
+`clang-format` 貌似只接受单个文件路径作为格式化目标参数。
+
+```
+$ cd ~/Projects/mars
+$ clang-format -style=file -i mars/comm/messagequeue/message_queue.cc
+```
+
+如果想批量格式化某个子目录下的所有代码文件，可以在终端执行以下命令：
+
+```
+$ # 设置要格式化的子目录
+$ subdir="mars/comm/messagequeue/"
+```
+
+find 递归查找并 more 滚动预览或统计 subdir 下将要格式化的代码文件：
+
+```
+$ find $subdir -type f \( -iname "*.h" -iname "*.hpp" -iname "*.c" -o -iname "*.cpp" -o -iname "*.m" -o -iname "*.mm" \) | more
+$ find $subdir -type f \( -iname "*.h" -iname "*.hpp" -iname "*.c" -o -iname "*.cpp" -o -iname "*.m" -o -iname "*.mm" \) | wc -l
+```
+
+将 find 结果重定向给 xargs 传参给 clang-format 执行格式化：
+
+```
+$ find $subdir -type f \( -iname "*.h" -iname "*.hpp" -iname "*.c" -o -iname "*.cpp" -o -iname "*.m" -o -iname "*.mm" \) | xargs clang-format --verbose -style=file -i
+```
+
+> xargs 的 `-t` 和 clang-format 的 `--verbose` 调试输出可选。
+
+find 的 path 参数可接受多个目录：
+
+```
+$ subdir1="mars/comm/messagequeue/"
+$ subdir2="mars/comm/coroutine/"
+$ find $subdir1 $subdir2 -type f \( -iname "*.h" -iname "*.hpp" -iname "*.c" -o -iname "*.cpp" -o -iname "*.m" -o -iname "*.mm" \) | xargs clang-format --verbose -style=file -i
 ```

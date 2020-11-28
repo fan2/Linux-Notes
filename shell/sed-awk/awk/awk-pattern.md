@@ -179,30 +179,6 @@ P.Bunny     02/99   48      Yellow      12  35  28
 1. 匹配记录：`awk '/Brown/' grade.txt`  
 2. 不匹配记录：`awk '!/Brown/' grade.txt`  
 
-### 过滤行区间
-
-要打印出从 M 行到 N 行这个范围内的文本内容，可使用下面的语法：
-
-```
-$ awk 'NR==M, NR==N' filename
-```
-
-也可以用stdin作为输入：
-
-```
-$ cat filename | awk 'NR==M, NR==N'
-```
-
-以下筛选打印文件 grade.txt 的第2~4行：
-
-```
-$ #awk 'NR==2, NR==4' grade.txt
-$ awk 'FNR==2, FNR==4' grade.txt
-J.Lulu      06/99   48317   green       9   24  26
-P.Bunny     02/99   48      Yellow      12  35  28
-J.Troll     07/99   4842    Brown-3     12  26  26
-```
-
 ### 模式匹配区间
 
 要打印处于 start_pattern 与 end_pattern 之间的文本，可使用下面的语法：
@@ -223,7 +199,9 @@ $ awk '/- path: \/Classes\/ui\/DeviceMgr\//,/owner_rule/' bak.code.yml
 $ sed -n '/- path: \/Classes\/ui\/DeviceMgr\//,/owner_rule/p' bak.code.yml
 ```
 
-## 任意字符
+## 匹配规则
+
+### 任意字符
 
 抽取名字，其记录第一域的第四个字符是 a，使用句点 `.` 表示任意字符。  
 表达式 `/^...a/` 意为行首前三个字符任意，第四个是a，尖角符号代表行首。  
@@ -234,7 +212,7 @@ M.Tansley   05/99   48311   Green       8   40  44
 L.Tansley   05/99   4712    Brown-2     12  30  28
 ```
 
-## 候选字符
+### 候选字符
 
 在测试正则表达式时提到可匹配 `[]` 内任意字符或单词，因此若查询文件中级别为 green的所有记录，不论其大小写，表达式应为 `/[Gg]reen/`。
 
@@ -244,7 +222,7 @@ M.Tansley   05/99   48311   Green       8   40  44
 J.Lulu      06/99   48317   green       9   24  26
 ```
 
-## 或关系匹配
+### 或关系匹配
 
 为抽取级别为 Yellow 或 Brown 的记录，使用竖线符（`|`），意为匹配 `|` 两边模式之一。  
 注意：使用竖线符时，语句必须用圆括号括起来。
@@ -256,7 +234,7 @@ J.Troll     07/99   4842    Brown-3     12  26  26
 L.Tansley   05/99   4712    Brown-2     12  30  28
 ```
 
-## 与或条件
+### 与或条件
 
 与条件关系：
 
@@ -277,3 +255,64 @@ P.Bunny     02/99   48      Yellow      12  35  28
 J.Troll     07/99   4842    Brown-3     12  26  26
 L.Tansley   05/99   4712    Brown-2     12  30  28
 ```
+
+## CSV 匹配示例
+
+假设代码扫描分析平台导出的 LineTooLong 警告问题清单为 issue_data-LineTooLong.csv。
+其表头如下：
+
+```
+$ awk 'FNR==1' issue_data-LineTooLong.csv
+问题ID,文件,规则名,规则realname,出错信息,状态,处理方法,负责人,严重级别,版本号,项目ID,发现版本时间,扫描ID,是否提单,链接
+```
+
+若想过滤出问题文件列表，可执行记录匹配或域匹配：
+
+```
+$ awk -F ',' '/File\/NearFile/{print $2}' issue_data-LineTooLong.csv
+$ # or
+$ awk -F ',' '$2~/File\/NearFile/{print $2}' issue_data-LineTooLong.csv
+```
+
+以下对所有的问题文件（`$2`）执行 `clang-format` 格式化命令：
+
+```
+awk -F ',' '{cmd="clang-format --verbose -style=file -i "$2;system(cmd)}' issue_data-LineTooLong.csv
+```
+
+以下对匹配路径的问题文件（`$2`）执行 `clang-format` 格式化命令：
+
+```
+awk -F ',' '$2~/File\/NearFile\//{cmd="clang-format --verbose -style=file -i "$2;system(cmd)}' issue_data-LineTooLong.csv
+```
+
+---
+
+考虑将匹配路径的问题文件名逐行导出到txt文件：
+
+```
+awk -F ',' '$2~/File\/NearFile\//{print $2}' issue_data-LineTooLong.csv | tee issue-file-list.txt
+```
+
+然后按行读取为数组，再执行for循环格式化：
+
+```
+array=($(cat issue-file-list.txt)) # array=($(awk 1 issue-file-list.txt))
+echo ${#array[*]}
+
+for file in ${array[@]}; do
+    clang-format --verbose -style=file -i $file
+done
+```
+
+从而提炼出一种更通用的手工收集问题文件进行批处理格式化的方案：将需要格式化的文件名（相对 .clang-format 隐藏文件所在项目根目录的路径）逐行填写到 txt 文件，再执行以上脚本。
+
+---
+
+如果要针对指定目录及其子目录下的所有iOS代码文件执行格式化，可考虑以下更加简洁的集成化脚本：
+
+```
+find $subdir -type f \( -iname "*.h" -iname "*.hpp" -iname "*.c" -o -iname "*.cpp" -o -iname "*.m" -o -iname "*.mm" \) | xargs clang-format --verbose -style=file -i
+```
+
+> subdir 为需要格式化的目录路径，相对 .clang-format 隐藏文件所在项目根目录的路径。

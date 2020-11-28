@@ -190,6 +190,36 @@ Three lines of test text.
 
 可进一步省略默认的 action，简写为 `awk 'NR>1' data2.txt`。
 
+### pick-lines
+
+要打印出从 M 行到 N 行这个范围内的文本内容，可使用下面的语法：
+
+```
+$ awk 'NR==M, NR==N' filename
+```
+
+也可以用stdin作为输入：
+
+```
+$ cat filename | awk 'NR==M, NR==N'
+```
+
+以下筛选打印文件 grade.txt 的第2~4行：
+
+```
+$ #awk 'NR==2, NR==4' grade.txt
+$ awk 'FNR==2, FNR==4' grade.txt
+J.Lulu      06/99   48317   green       9   24  26
+P.Bunny     02/99   48      Yellow      12  35  28
+J.Troll     07/99   4842    Brown-3     12  26  26
+```
+
+打印 CSV 文件第2到4行的第2个字段：
+
+```
+awk -F ',' 'FNR==2, FNR==4 {print $2}' issue_data-LineTooLong.csv
+```
+
 ## user-defined
 
 跟其他典型的编程语言一样，awk 允许定义自己的变量在程序代码中使用。  
