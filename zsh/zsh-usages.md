@@ -230,6 +230,25 @@ ZSH_THEME="pygmalion" #"robbyrussell"
 
 [zshrc配置](https://www.cnblogs.com/halu126/p/7589170.html)
 
+man zsh 可知，zsh 的配置文件如下：
+
+```
+# man zsh on macOS
+
+FILES
+       $ZDOTDIR/.zshenv
+       $ZDOTDIR/.zprofile
+       $ZDOTDIR/.zshrc
+       $ZDOTDIR/.zlogin
+       $ZDOTDIR/.zlogout
+       ${TMPPREFIX}*   (default is /tmp/zsh*)
+       /etc/zshenv
+       /etc/zprofile
+       /etc/zshrc
+       /etc/zlogin
+       /etc/zlogout    (installation-specific - /etc is the default)
+```
+
 ## ZSH 插件
 
 Oh My Zsh 默认自带的插件存放在 `~/.oh-my-zsh/plugins` 目录中，可以 cd 进入查看。
