@@ -305,6 +305,12 @@ man 推荐使用 `-I` 代替 `-i`，但是一般都使用 `-i` 图个简单，�
 xargs 命令一般紧跟在管道操作符之后，以标准输入作为主要的源数据流。它使用 stdin 并通过提供 *命令行参数* 来执行其他命令。  
 默认情况下 xargs 将其标准输入中的内容以空白(包括空格、tab、回车换行等)分割成多个 arguments 之后当作命令行参数传递给其后面的命令。也可以使用 `-d` 命令指定特定分隔符（macOS 貌似不支持该选项）。  
 
+以下通过 `brew list --cask` 列举所有brew安装的cask应用，然后通过管道 xargs 传参给 `brew upgrade --cask` 执行升级：
+
+```
+brew list --cask | xargs -t brew upgrade --cask
+```
+
 xargs 和 find 算是一对死党，两者结合使用可以让任务变得更轻松。
 
 #### tricks
