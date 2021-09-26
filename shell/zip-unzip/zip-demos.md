@@ -41,7 +41,7 @@ total bytes=8099973, compressed=8041393 -> 1% savings
 zip -r archive.zip . -x .DS_Store
 zip -r archive.zip . -x __MACOSX/\*
 
-zip -r archive.zip . -x \*/__MACOSX/\* \*/.DS_Store
+zip -r archive.zip . -x \*/.DS_Store \*/__MACOSX/\*
 ```
 
 ### append
@@ -183,6 +183,8 @@ Archive:  map_image-arch.zip
 ```
 
 如果想保留原始压缩包，可通过 `-O output-file` 指定保存操作后的结果。
+
+> 同时删除打包进去的隐藏文件和文件夹：`zip -d file.zip .DS_Store __MACOSX/\*`
 
 ## extract
 

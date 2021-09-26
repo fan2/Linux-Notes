@@ -494,7 +494,7 @@ faner@FAN-MB0:~/Downloads/crx|
 MD5 ("/Users/faner/Downloads/crx/dbepggeogbaibhgnhhndojpepiihcmeb-1.60.3-Crx4Chrome.com.crx") = 2f6f9a98b561f995564793765c205a66
 ```
 
-### SHA1
+### SHA
 
 shasum - Print or Check SHA Checksums
 
@@ -516,7 +516,7 @@ When verifying SHA-512/224 or SHA-512/256 checksums, indicate the **algorithm** 
 
 ---
 
-计算从 [crx4chrome](https://www.crx4chrome.com/) 离线下载的 [Vimium CRX 1.60.3 for Chrome](https://www.crx4chrome.com/crx/731/)  插件的 SHA：
+计算从 [crx4chrome](https://www.crx4chrome.com/) 离线下载的 [Vimium CRX 1.60.3 for Chrome](https://www.crx4chrome.com/crx/731/) 插件的 SHA-1：
 
 ```
 faner@FAN-MB0:~/Downloads/crx|
@@ -525,6 +525,12 @@ faner@FAN-MB0:~/Downloads/crx|
 ```
 
 与官网给出的 SHA1 Checksum 值一致，则说明未被篡改，可放心安装。
+
+---
+
+[SHA1 vs SHA256](https://www.keycdn.com/support/sha1-vs-sha256)  
+[Why use SHA256 instead of SHA1?](https://www.ibm.com/support/pages/why-use-sha256-instead-sha1)  
+[Re-Hashed: The Difference Between SHA-1, SHA-2 and SHA-256 Hash Algorithms](https://www.thesslstore.com/blog/difference-sha-1-sha-2-sha-256-hash-algorithms/)  
 
 ## hexdump
 

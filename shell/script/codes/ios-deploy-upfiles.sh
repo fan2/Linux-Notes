@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ################################################################################
-# ./ios-deploy-upfiles.sh ~/Downloads/Documents/ com.apple.DemoApp
+# ./ios-deploy-upfiles.sh com.apple.DemoApp ~/Downloads/Documents/
 # $1 = bundle_id
 # $2 = file_dir
 
@@ -78,7 +78,7 @@ main()
                 ios-deploy -1 $bundle_id -D /tmp/ios-deploy-dir
                 if [ $? -eq 0 ]
                 then
-                    upload_local_files_to_sandbox $file_dir $bundle_id
+                    upload_local_files_to_sandbox $bundle_id $file_dir
                 else
                     echo "APP[$bundle_id]: sandbox not-accessible!"
                     exit 1
