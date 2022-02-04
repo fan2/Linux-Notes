@@ -1,16 +1,6 @@
 
 # man
 
-[Linux Man Pages](https://www.linux.org/docs/)  
-[善用 man 指令查詢 Linux 線上手冊（Man Page）](https://blog.gtwang.org/linux/linux-man-page-command-examples/)  
-
-[The Linux *man-pages* project](https://www.kernel.org/doc/man-pages/) documents the [Linux](http://en.wikipedia.org/wiki/Linux) [kernel](http://www.kernel.org/pub/linux/kernel) and C library interfaces that are employed by user-space programs.  
-With respect to the C library, the primary focus is the [GNU](http://www.gnu.org/) C library (glibc), although, where known, documentation of *variations* on other C libraries available for Linux is also included.
-
-- [CGit](http://git.kernel.org/?p=docs/man-pages/man-pages.git)  
-- [Online man pages](http://man7.org/linux/man-pages/index.html) @man7.org  
-- [Changelog](http://man7.org/linux/man-pages/changelog.html)  
-
 ## manpath
 
 macOS 下的 manpath：
@@ -198,9 +188,63 @@ lines 39-95 (20-49 %) bytes 959-2253 file /Users/faner/.oh-my-zsh/custom/scripts
 
 > [Make the less Command More Powerful](https://www.topbug.net/blog/2016/09/27/make-gnu-less-more-powerful/)
 
+## man pages
+
+### unix.com
+
+[unix.com](https://www.unix.com/) - [Linux and Unix Man Pages](https://www.unix.com/man-page/opensolaris/1/man/)  
+
+- [Unix Commands - Man Pages](https://www.unix.com/unix-commands.php) - [FREEBSD Man Pages](https://www.unix.com/man-page-collection.php?os=freebsd)  
+- [Linux Commands - Man Pages](https://www.unix.com/linux-commands.php) - [LINUX Man Pages](https://www.unix.com/man-page-collection.php?os=linux)  
+
+### kernel.org
+
+[Linux Man Pages](https://www.linux.org/docs/)  
+
+[The Linux *man-pages* project](https://www.kernel.org/doc/man-pages/) documents the [Linux](http://en.wikipedia.org/wiki/Linux) [kernel](http://www.kernel.org/pub/linux/kernel) and C library interfaces that are employed by user-space programs.  
+With respect to the C library, the primary focus is the [GNU](http://www.gnu.org/) C library (glibc), although, where known, documentation of *variations* on other C libraries available for Linux is also included.
+
+- [CGit](http://git.kernel.org/?p=docs/man-pages/man-pages.git)  
+- [Online man pages](http://man7.org/linux/man-pages/index.html) @man7.org  
+- [Changelog](http://man7.org/linux/man-pages/changelog.html)  
+
+### online man
+
+[man7.org](https://man7.org/index.html) - [Online manual pages](https://man7.org/linux/man-pages/index.html)  
+[linuxcommand.org](https://linuxcommand.org/) - [Command Documentation - Manual Pages](http://linuxcommand.org/lc3_man_page_index.php)  
+[ubuntu manuals](http://manpages.ubuntu.com/) - [man man](https://manpages.ubuntu.com/manpages/jammy/en/man1/man.1.html)  
+
+以下为为各大平台 ls 命令在线手册：
+
+- unix/POSIX - [ls - list directory contents](https://pubs.opengroup.org/onlinepubs/9699919799/utilities/ls.html)  
+- FreeBSD/Darwin - [ls -- list directory contents](https://www.freebsd.org/cgi/man.cgi?query=ls)  
+- linux - [ls - list directory contents](https://man7.org/linux/man-pages/man1/ls.1.html)  
+- debian - [ls - list directory contents](https://manpages.debian.org/bullseye/coreutils/ls.1.en.html)  
+- ubuntu - [ls - list contents of directory](https://manpages.ubuntu.com/manpages/jammy/en/man1/ls.1plan9.html)  
+- windows - [dir - Displays a list of a directory's files and subdirectories](https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/dir)  
+
+以下为为各大平台 select 函数在线手册：
+
+- unix/POSIX - [select](http://pubs.opengroup.org/onlinepubs/9699919799/functions/select.html)  
+- FreeBSD/Darwin - [SELECT(2)](https://www.freebsd.org/cgi/man.cgi?query=select)  
+- linux - [SELECT(2)](http://man7.org/linux/man-pages/man2/select.2.html)  
+- debian - [SELECT(2)](https://manpages.debian.org/stretch/manpages-dev/_newselect.2.en.html)  
+- ubuntu - [select.2](https://manpages.ubuntu.com/manpages/jammy/en/man2/select.2.html)  
+- Windows - [select()](https://docs.microsoft.com/zh-cn/windows/desktop/api/winsock2/nf-winsock2-select)  
+
 ## manual page types
 
+[善用 man 指令查詢 Linux 線上手冊（Man Page）](https://blog.gtwang.org/linux/linux-man-page-command-examples/)  
+
 ```Shell
+$ man man
+MAN(1)                                                 Manual pager utils                                                 MAN(1)
+
+NAME
+       man - an interface to the on-line reference manuals
+
+DESCRIPTION
+
        The table below shows the section numbers of the manual followed by the
        types of pages they contain.
 
@@ -343,6 +387,7 @@ PTHREADS(7);
 ```
 
 ### man man
+
 [Linux 2.6 - man page for man (linux section 1)](https://www.unix.com/man-page/linux/1/man/)
 
 ```Shell

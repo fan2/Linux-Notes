@@ -119,7 +119,8 @@ The default `/etc/profile`, `/etc/zprofile` and `/etc/csh.login` on macOS all lo
 
 以下为 macOS ZSH 下的 PATH 变量：
 
-```
+```Shell
+# print为默认动作，可省略
 $ echo $PATH | awk 'BEGIN{RS=":"} {print}'
 # 省略在 ~/.zshrc 中追加在 PATH 前面的配置
 /usr/local/bin
