@@ -68,3 +68,5 @@
 > [Shell.Programming.in.Unix.Linux.and.OS.X.4th.Edition.pdf](http://download.csdn.net/download/xinconan1992/9675826) @CSDN  
 
 [技巧高超的Shell脚本 101个Linux_Mac OS X_Unix系统的脚本](http://download.csdn.net/download/sames/368523)  
+
+- [Linux-101-Hacks.pdf](https://www.programmer-books.com/wp-content/uploads/2018/07/Linux-101-Hacks.pdf)  
