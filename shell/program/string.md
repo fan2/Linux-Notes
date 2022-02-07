@@ -266,6 +266,9 @@ $ echo $prefix
 [Shell脚本8种字符串截取方法总结](https://www.jb51.net/article/56563.htm)
 [shell脚本查找、抽取指定字符串的方法](https://blog.csdn.net/u011006622/article/details/85048488)  
 
+[extract substring using regex in shell script](https://stackoverflow.com/questions/40422067/extract-substring-using-regex-in-shell-script)  
+[How to extract a value from a string using regex and a shell?](https://stackoverflow.com/questions/3320416/how-to-extract-a-value-from-a-string-using-regex-and-a-shell)  
+
 [Extract word from string using grep/sed/awk](https://askubuntu.com/questions/697120/extract-word-from-string-using-grep-sed-awk)  
 [How to extract string following a pattern with grep, regex or perl](https://stackoverflow.com/questions/5080988/how-to-extract-string-following-a-pattern-with-grep-regex-or-perl)  
 
