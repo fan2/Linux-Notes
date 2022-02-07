@@ -117,7 +117,9 @@ rm $(ls -AR | grep -e .DS_Store -e AVEngine.log -e *_WTLOGIN.*.log)
 
 ### ls only file/dir
 
-- `ls -d */`：通配符语法  
+**注意**：ls 模糊匹配目录或文件，是基于通配符（globbing/wildcard patterns），而非正则表达式！
+
+- `ls -d */`：通配符语法，列举当前目录下的所有子目录  
 - `ls -1 -d Pods/*`：列举 Pods 所有子目录，方便重定向给其他命令处理  
 - `ls -l | grep '^d'`：grep 正则表达式，过滤出以 d 开头的**文件夹**  
 - `ls -al | grep '^[^d]'`：grep 正则表达式，过滤出非 d 开头的**文件**  
