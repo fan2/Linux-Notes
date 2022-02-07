@@ -446,6 +446,7 @@ while getopts :ab:c opt; do
     c) echo "Found the -c option" ;;
     *) echo "Unknown option: $opt" ;;
     esac
+    echo "OPTIND = $OPTIND"
 done
 ```
 
@@ -461,7 +462,7 @@ Found the -c option
 
 while语句定义了getopts命令，指明了要查找哪些命令行选项，以及每次迭代中存储它们的变量名（opt）。
 本例中case判断单字母选项不用单破折线，因为getopts命令解析命令行选项时会移除开头的单破折线。
-getopts命令在参数值中可以包含空格，可以解决上一节 getopt 遗留的问题。
+getopts命令在参数值中可以包含空格，可以解决上一节getopt遗留的问题。
 
 ```Shell
 $ ./test19.sh -b "test1 test2" -a
@@ -513,10 +514,10 @@ while getopts :ab:cd opt; do
     c) echo "Found the -c option" ;;
     d) echo "Found the -d option" ;;
     *) echo "Unknown option: $opt" ;;
+    echo "OPTIND = $OPTIND"
     esac
 done
 #
-echo "OPTIND = $OPTIND"
 shift $(($OPTIND - 1))
 #
 echo
@@ -529,41 +530,110 @@ done
 
 测试结果：
 
+> 需要注意的是，解析到第一个非破折号加单字母（test2）开始，后续都会当成普通参数。
+
 ```Shell
-$ ./test20.sh -a -b test1 -d test2 test3 test4
+$ ./test20.sh -a -b test1 -cd -e test2 -f test3 --help test4
 
 Found the -a option
 Found the -b option, with value test1
+Found the -c option
 Found the -d option
-OPTIND = 5
-
-Parameter 1: test2
-Parameter 2: test3
-Parameter 3: test4
-```
-
-需要注意的是，解析到第一个非破折号加单字母（test2）开始，后续的都会当成普通参数。
-
-```Shell
-$ ./test20.sh -a -b test1 -d -ef test2 -g test3 --help test4
-
-OPTIND = 2
-Found the -a option
-OPTIND = 4
-Found the -b option, with value test1
-OPTIND = 5
-Found the -d option
-OPTIND = 5
-Unknown option: ?
-OPTIND = 6
 Unknown option: ?
 
 Parameter 1: test2
-Parameter 2: -g
+Parameter 2: -f
 Parameter 3: test3
 Parameter 4: --help
 Parameter 5: test4
 ```
+
+### 调试 OPTIND
+
+每一轮 while 执行时，getopts 将解析索引 `OPTIND` 位置选项，解析完一个位置后，OPTIND++ 指向下一位置。
+
+为了更直观地理解 OPTIND 索引机制，我们稍作修改 test19 和 test20 脚本，添加一些调试输出。
+
+给 test19.sh（optspec=`:ab:c`）的 esac 后添加调试输出 `echo "OPTIND = $OPTIND"`。
+
+```Shell
+$ ./test19.sh -a -b test1 -c -d test2 -e
+
+Found the -a option
+OPTIND = 2 # next option index for -b
+Found the -b option, with value test1
+OPTIND = 4 # next option index for -c
+Found the -c option
+OPTIND = 5 # next option index for -d
+Unknown option: ?
+OPTIND = 6 # next option index for ?
+```
+
+1. 初始化 OPTIND=1，getopts 开始解析第一个选项 `-a`，解析完 OPTIND++=2；  
+2. getopts 继续解析 OPTIND 索引的第二个选项 `-b`，解析后 OPTIND++=3；  
+    - 由于b:带参，故继续解析 OPTIND 索引的第三个选项 `test1`，赋值给 OPTARG 作为选项二的参数，解析后 OPTIND++=4；  
+3. getopts 继续解析 OPTIND 索引的第四个选项 `-c`，解析后 OPTIND++=5；  
+4. getopts 继续解析 OPTIND 索引的第五个选项 `-d`，非预期参数，解析后 OPTIND++=6；  
+5. getopts 继续解析 OPTIND 索引的第六个选项 `test2`，非破折线单字母，选项解析完毕，后面视作普通参数。  
+
+```Shell
+$ ./test19.sh -ab test1 -c -d test2 -e
+
+Found the -a option
+OPTIND = 1 # next option index for -b
+Found the -b option, with value test1
+OPTIND = 3 # next option index for -c
+Found the -c option
+OPTIND = 4 # next option index for -d
+Unknown option: ?
+OPTIND = 5 # next option index for ?
+```
+
+> 合并选项 -ab 占用一个位置。
+
+1. 初始化 OPTIND=1，getopts 开始解析第一个选项 `-ab`，解析出 `-a`，由于有合并选项，维持 OPTIND；  
+2. getopts 继续从 OPTIND 索引的第一个合并选项中解析出 `-b`，OPTIND++=2；  
+    - 由于b:带参，故继续解析 OPTIND 索引的第二个选项 `test1`，赋值给 OPTARG 作为选项二的参数，解析后 OPTIND++=3；  
+3. getopts 继续解析 OPTIND 索引的第三个选项 `-c`，解析后 OPTIND++=4；  
+4. getopts 继续解析 OPTIND 索引的第四个选项 `-d`，非预期参数，解析后 OPTIND++=5；  
+5. getopts 继续解析 OPTIND 索引的第五个选项 `test2`，非破折线单字母，选项解析完毕，后面视作普通参数。  
+
+---
+
+给 test20.sh（optspec=`:ab:cd`）的 esac 后添加调试输出 `echo "OPTIND = $OPTIND"`。
+
+```Shell
+$ ./test20.sh -a -b test1 -cd -e test2 -f test3 --help test4
+
+Found the -a option
+OPTIND = 2
+Found the -b option, with value test1
+OPTIND = 4
+Found the -c option
+OPTIND = 4
+Found the -d option
+OPTIND = 5
+Unknown option: ?
+OPTIND = 6
+
+Parameter 1: test2
+Parameter 2: -f
+Parameter 3: test3
+Parameter 4: --help
+Parameter 5: test4
+```
+
+> 合并选项 -cd 占用一个位置。
+
+1. 初始化 OPTIND=1，getopts 开始解析第一个选项 `-a`，解析完 OPTIND++=2；  
+2. getopts 继续解析 OPTIND 索引的第二个选项 `-b`，解析后 OPTIND++=3；  
+    - 由于b:带参，故继续解析 OPTIND 索引的第三个选项 `test1`，赋值给 OPTARG 作为选项二的参数，解析后 OPTIND++=4；  
+3. getopts 继续解析 OPTIND 索引的第四个选项 `-cd`，解析出 `-c`，由于有合并选项，维持 OPTIND；  
+4. getopts 继续从 OPTIND 索引的第四个合并选项中解析出 `-d`，OPTIND++=5；  
+5. getopts 继续解析 OPTIND 索引的第五个选项 `-e`，非预期参数，解析后 OPTIND++=6；  
+6. getopts 继续解析 OPTIND 索引的第六个选项 `test2`，非破折线单字母，选项解析完毕，后面视作普通参数。  
+
+最后执行 `shift $(($OPTIND - 1))` 或 `shift $[ $OPTIND - 1 ]`，将 test2 左移五位到 -a 原来的位置 `$1`。
 
 ### 处理长选项
 

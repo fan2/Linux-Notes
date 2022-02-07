@@ -4,7 +4,7 @@
 
 命令行执行运算表达式：
 
-```
+```sh
 $ expr 5 + 1
 6
 
@@ -36,7 +36,7 @@ expr 命令能够识别少数的数学和字符串操作符，见表11-1。
 1. 操作符两侧需要空格隔开算子；  
 2. 算子引用变量需要用美元符号；  
 
-```
+```sh
 $ x=$(expr 5 + 1)
 $ echo $x
 6
@@ -50,7 +50,7 @@ $ echo $y
 
 可用 expr 表达式实现 for 循环中记录递增的索引：
 
-```
+```sh
 $ i=0
 $ index=`expr $i + 1` # 等效于 index=$(expr $i + 1)
 $ echo $i $index
@@ -59,7 +59,7 @@ $ echo $i $index
 
 综合示例2：
 
-```
+```sh
 #!/bin/bash
 
 $ var1=5
@@ -92,7 +92,7 @@ bash shell 为了保持跟 Bourne shell 的兼容而包含了 expr 命令，但�
 
 常量计算表达式：
 
-```
+```sh
 $ x=$[5 + 1]
 $ echo $x
 6
@@ -104,7 +104,7 @@ $ echo $y
 
 用 `$[]` 表达式实现 for 循环中记录递增的索引：
 
-```
+```sh
 $ i=0
 $ index=$[$i+1]
 $ echo $i $index
@@ -113,7 +113,7 @@ $ echo $i $index
 
 变量计算表达式：
 
-```
+```sh
 $ var1=5
 $ var2=1
 
@@ -125,7 +125,7 @@ x=6
 在使用方括号来计算公式时，不用担心shell会误解乘号或其他符号。  
 对于方括号中的星号，shell知道它执行数学中的乘法运算而不是通配符，因为它在方括号内。
 
-```
+```sh
 $ var1=100
 $ var2=50
 $ var3=45
@@ -137,7 +137,7 @@ The final result is 500
 
 无论是 expr 表达式，还是中括号运算式，bash shell 数学运算符只支持整数运算。
 
-```
+```sh
 $ var1=100
 $ var2=45
 $ var3=$(expr $var1 / $var2)
@@ -159,7 +159,7 @@ bash shell 内置支持的 let 表达式，直接引用变量，而无需美元�
 
 范式：`let var3=var1+var2`
 
-```
+```sh
 $ z=0
 $ let z=z+3 # 等效: let z+=3
 $ let "z += 3"
@@ -173,7 +173,7 @@ sum = 11
 
 综合示例：
 
-```
+```sh
 $ var1=5
 $ var2=1
 $ let x=var1+var2
@@ -189,7 +189,7 @@ let 表达式更自然，算子引用的变量直接采用变量名，无需添�
 
 以下用 `let` 表达式实现 for 循环中记录递增的索引：
 
-```
+```sh
 $ i=0
 $ let index=i+1
 $ echo $i $index
@@ -220,7 +220,7 @@ test 命令只能在比较中使用简单的算术操作。
 
 双括号命令的格式如下：
 
-```
+```sh
 (( expression ))
 ```
 
@@ -234,7 +234,7 @@ test 命令只能在比较中使用简单的算术操作。
 
 可以在if语句中用双括号命令，也可以在脚本中的普通命令里使用来赋值。
 
-```
+```sh
 #!/bin/bash
 
 n=0
@@ -255,7 +255,7 @@ fi
 
 关于双括号的场景，参考bash中C语言风格的for循环格式：
 
-```
+```sh
 for (( variable assignment ; condition ; iteration process ))
 
 #实例
@@ -273,7 +273,7 @@ for (( a = 1; a < 10; a++ ))
 
 [Arithmetic Expansion](https://www.tldp.org/LDP/abs/html/arithexp.html)
 
-```
+```sh
 # man bash
    Arithmetic Expansion
        Arithmetic expansion allows the evaluation of an arithmetic expression and the substitu-
@@ -293,7 +293,7 @@ for (( a = 1; a < 10; a++ ))
 
 示例：
 
-```
+```sh
 #!/bin/bash
 
 val3=$((val2+3))
@@ -306,7 +306,7 @@ echo "val3=$val3"
 
 以下用 `(( expr ))` 表达式实现 for 循环中记录递增的索引：
 
-```
+```sh
 $ i=0
 $ ((i += 1))
 $ echo $i
