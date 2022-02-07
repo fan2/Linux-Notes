@@ -119,6 +119,71 @@ faner@MBP-FAN:~/Music|⇒  popd +3
 [Linux中的pushd和popd](https://www.jianshu.com/p/53cccae3c443)  
 [在命令行中使用pushd和popd进行快速定位](http://blog.sina.com.cn/s/blog_b6b704ef0102wjdk.html)  
 
+## head/tail
+
+head/tail 命令支持查看文件(file)前/后指定字节(-c)或行数(-n)的内容。
+
+```Shell
+# macOS
+$ man head
+HEAD(1)                   BSD General Commands Manual                  HEAD(1)
+
+NAME
+     head -- display first lines of a file
+
+SYNOPSIS
+     head [-n count | -c bytes] [file ...]
+
+$ man tail
+TAIL(1)                   BSD General Commands Manual                  TAIL(1)
+
+NAME
+     tail -- display the last part of a file
+
+SYNOPSIS
+     tail [-F | -f | -r] [-q] [-b number | -c number | -n number] [file ...]
+```
+
+在 [bash_history](../manual/bash_history.md) 中，当过往输入历史接近 HISTSIZE 时，`history` 命令列表较长，不便翻阅。
+此时，可通过管道命令导向 `head` / `tail` 筛选查看开头/结尾部分。
+
+```Shell
+# 查看最远10条输入命令记录：
+$ history | head # 默认显示10条
+$ history | head -n 10
+# 查看最近10条输入命令记录：
+$ history | tail # 默认显示10条
+$ history | tail -n 10
+```
+
+下面通过 du 命令按占用磁盘空间大小降序列举某一目录下各个子目录。
+当子目录太多时，可重定向给 `more` 滚动查看，或重定向给 `head` 查看前10条。
+
+```Shell
+$ du -csh ~/Library/Developer/* | sort -rh | head
+```
+
+`-f` 参数是 tail 命令的一个突出特性，它使该命令保持活动状态，支持监视文件追加变更，并实时显示追加到到文末的内容。
+这是实时监测日志的绝妙方式，可以用来实时滚动显示日志文件最新的内容。
+
+```Shell
+# macOS/FreeBSD/Darwin
+     -f      The -f option causes tail to not stop when end of file is reached, but rather to wait for addi-
+             tional data to be appended to the input.  The -f option is ignored if the standard input is a
+             pipe, but not if it is a FIFO.
+
+# linux
+       -f, --follow[={name|descriptor}]
+              output appended data as the file grows;
+              an absent option argument means 'descriptor'
+```
+
+以下用于实时滚动显示 nginx 最新访问日志：
+
+```Shell
+$ tail -f nginx-access.log
+```
+
 ## du
 
 关于磁盘统计涉及到两个命令：
@@ -126,7 +191,7 @@ faner@MBP-FAN:~/Music|⇒  popd +3
 - `df` (Disk FileSystem)  
 - `du` (Disk Usage)  
 
-```
+```Shell
 $ df -lh
 Filesystem       Size   Used  Avail Capacity iused      ifree %iused  Mounted on
 /dev/disk1s1s1  466Gi   15Gi   16Gi    48%  567381 4882909539    0%   /
@@ -144,7 +209,7 @@ Filesystem       Size   Used  Avail Capacity iused      ifree %iused  Mounted on
 
 进入指定文件夹执行 `du`，列举指定目录下的文件及所有递归文件夹占用磁盘的大小。
 
-```
+```Shell
 du ~/Documents
 du ~/Library/Developer
 du Pods
@@ -154,7 +219,7 @@ du Pods
 - 添加 `-s` 选项，相当于 `-d 0` 指定一级目录，不递归子目录；  
 - 添加 `-h` 选项，是输出的 fileSize 更易阅读；  
 
-```
+```Shell
 $ du -sh ~/Documents
 or
 $ du -h -d 0 ~/Documents
@@ -163,14 +228,14 @@ $ du -h --max-depth=0 ~/Documents
 
 统计目录 `~/Library/Developer` 占用磁盘空间大小：
 
-```
+```Shell
 $ du -sh ~/Library/Developer
  66G	/Users/faner/Library/Developer
 ```
 
 统计目录 `~/Library/Developer` 子目录占用磁盘空间大小：
 
-```
+```Shell
 $ du -csh ~/Library/Developer/*
  23G	/Users/faner/Library/Developer/CoreSimulator
 1.4G	/Users/faner/Library/Developer/XCTestDevices
@@ -182,7 +247,7 @@ $ du -csh ~/Library/Developer/*
 
 按占用磁盘空间降序（由大到小）排序：
 
-```
+```Shell
 $ du -csh ~/Library/Developer/* | sort -rh
  66G	total
  39G	/Users/faner/Library/Developer/Xcode
@@ -196,13 +261,13 @@ $ du -csh ~/Library/Developer/* | sort -rh
 
 列举 Pods 目录下所有的一级子目录（不递归）：
 
-```
+```Shell
 ls -1 -d Pods/* | tee ~/Downloads/Pods-tree-L1.log
 ```
 
 查看 Pods 目录下所有的一级子目录占用磁盘空间大小：
 
-```
+```Shell
 du -csh Pods/* | more
 du -csh Pods/* | tee ~/Downloads/Pods-tree-L1-du.log
 ls -1 -d Pods/* | xargs du -chs | tee ~/Downloads/Pods-tree-L1-du.log
@@ -212,7 +277,7 @@ ls -1 -d Pods/* | xargs du -chs | tee ~/Downloads/Pods-tree-L1-du.log
 
 The `tree` command is a recursive directory listing program that produces a depth indented listing of files and directories in a tree-like format.
 
-```
+```Shell
 tree --du -h /opt/ktube-media-downloader
 ```
 
@@ -284,7 +349,7 @@ $ echo "56.8 + 77.7" | bc
 
 对于简单的单行运算，可用 echo 重定向或内联重定向实现：
 
-```
+```Shell
 $ bc <<< "56.8 + 77.7"
 134.5
 ```
@@ -296,7 +361,7 @@ bc命令能识别输入重定向，允许你将一个文件重定向到bc命令�
 最好的办法是使用内联输入重定向，它允许你直接在命令行中重定向数据。  
 在shell脚本中，你可以将输出赋给一个变量。
 
-```
+```Shell
 variable=$(bc << EOF
            options
            statements
@@ -308,7 +373,7 @@ variable=$(bc << EOF
 
 以下在终端测试这种用法：
 
-```
+```Shell
 $ bc << EOF
 heredoc> 56.8 + 77.7
 heredoc> EOF
@@ -319,7 +384,7 @@ heredoc> EOF
 
 在shell脚本中，可调用bash计算器帮助处理浮点运算。可以用命令替换运行bc命令，并将输出赋给一个变量。基本格式如下：
 
-```
+```Shell
 variable=$(echo "options; expression" | bc)
 ```
 
@@ -335,7 +400,7 @@ $ echo $result
 
 以下为在 shell scripts 调用 bc 对变量表达式做计算的示例:
 
-```
+```Shell
 $ var1=100
 $ var2=45
 $ result=`echo "scale=2; $var1 / $var2" | bc`
@@ -351,7 +416,7 @@ $ echo $result
 
 下面是在脚本中使用这种写法的例子。
 
-```
+```Shell
 $ cat test12.sh
 #!/bin/bash
 
@@ -369,7 +434,7 @@ EOF)
 echo The final answer for this mess is $var5
 ```
 
-```
+```Shell
 $ chmod u+x test12.sh
 $ ./test12.sh
 The final answer for this mess is 2813.9882
@@ -383,7 +448,7 @@ The final answer for this mess is 2813.9882
 
 bc 内置的 **`last`** 变量代表上个表达式的计算结果，可将 last 变量作为后续表达式的操作数，进行二次计算：
 
-```
+```Shell
 $ bc -q
 2+3
 5
@@ -421,7 +486,7 @@ $ echo "ibase=10;obase=16;2017" | bc
 
 先将十进制转换成二进制：
 
-```
+```Shell
 $ no=100
 $ echo "obase=2;$no" | bc 
 1100100
@@ -429,7 +494,7 @@ $ echo "obase=2;$no" | bc
 
 再将二进制转换回十进制
 
-```
+```Shell
 $ no=1100100
 $ echo "obase=10;ibase=2;$no" | bc
 100
@@ -437,7 +502,7 @@ $ echo "obase=10;ibase=2;$no" | bc
 
 需要注意先写obase再写ibase，否则出错：
 
-```
+```Shell
 $ no=1100100
 $ echo "ibase=2;obase=10;$no" | bc
 1100100
@@ -518,7 +583,7 @@ When verifying SHA-512/224 or SHA-512/256 checksums, indicate the **algorithm** 
 
 计算从 [crx4chrome](https://www.crx4chrome.com/) 离线下载的 [Vimium CRX 1.60.3 for Chrome](https://www.crx4chrome.com/crx/731/) 插件的 SHA-1：
 
-```
+```Shell
 faner@FAN-MB0:~/Downloads/crx|
 ⇒  shasum dbepggeogbaibhgnhhndojpepiihcmeb-1.60.3-Crx4Chrome.com.crx 
 476c61437d3c34e38ed1ee15950d202ded0902c8  dbepggeogbaibhgnhhndojpepiihcmeb-1.60.3-Crx4Chrome.com.crx

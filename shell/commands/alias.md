@@ -99,3 +99,20 @@ unalias -a Removes All aliases
 ```
 ➜  ~ unalias ll
 ```
+
+## demo
+
+可考虑在 ~/.zshrc 中添加常用软件的便捷替身命令，以便在命令行中即可快速调起相关工具/软件。
+
+```Shell
+# 每次执行删除都需要确认
+alias rm='rm -i'
+# tnmp指定腾讯云源
+alias tnpm='npm --registry https://mirrors.tencent.com/npm/'
+# 快捷打开系统偏好设置，注意空格需要转义。
+alias prefs='open /System/Applications/System\ Preferences.app'
+# 快捷打开Android Studio，后面可接工程目录
+alias AndroidStudio='open -a /Applications/Android\ Studio.app'
+# 快捷打开 GoogleChrome 浏览器
+alias chrome='/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome'
+```
