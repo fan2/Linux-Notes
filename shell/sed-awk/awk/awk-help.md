@@ -1,17 +1,30 @@
 
-unix/POSIX - [awk](https://pubs.opengroup.org/onlinepubs/9699919799/utilities/awk.html)  
-FreeBSD/Darwin - [awk](https://www.freebsd.org/cgi/man.cgi?query=awk)  
+## Introduction
 
-linux - [awk(1p)](http://man7.org/linux/man-pages/man1/awk.1p.html)  
-debian/Ubuntu - [awk](https://manpages.debian.org/buster/9base/awk.1plan9.en.html)  
+WIKI - [AWK](https://en.wikipedia.org/wiki/AWK)  
 
-`awk` -- pattern-directed scanning and processing language
+AWK (awk) is a domain-specific language designed for text processing and typically used as a **data extraction** and **reporting** tool. Like [sed](https://en.wikipedia.org/wiki/Sed) and [grep](https://en.wikipedia.org/wiki/Grep), it is a filter, and is a standard feature of most Unix-like operating systems.
 
-[AWK](https://en.wikipedia.org/wiki/AWK)  
-[The GNU Awk User’s Guide](https://www.gnu.org/software/gawk/manual/gawk.html)  
+The AWK language is a data-driven scripting language consisting of a set of actions to be taken against *streams* of textual data – either run directly on files or used as part of a pipeline – for purposes of extracting or transforming text, such as producing formatted reports. The language extensively uses the string datatype, associative arrays (that is, arrays indexed by key strings), and [regular expressions](https://en.wikipedia.org/wiki/Regular_expression). While AWK has a limited intended application domain and was especially designed to support [one-liner programs](https://en.wikipedia.org/wiki/One-liner_program), the language is Turing-complete, and even the early Bell Labs users of AWK often wrote well-structured large AWK programs.
+
+[The GNU Awk User’s Guide](https://www.gnu.org/software/gawk/manual/gawk.html) - [Getting Started](https://www.gnu.org/software/gawk/manual/gawk.html#Getting-Started)  
+
+The basic function of `awk` is to search files for lines (or other units of text) that contain certain patterns. When a line matches one of the patterns, awk performs specified actions on that line. awk continues to process input lines in this way until it reaches the end of the input files.
+
+Programs in awk are different from programs in most other languages, because awk programs are *data driven* (i.e., you describe the data you want to work with and then what to do when you find it). Most other languages are procedural; you have to describe, in great detail, every step the program should take. When working with procedural languages, it is usually much harder to clearly describe the data your program will process. For this reason, awk programs are often refreshingly easy to read and write.
+
+When you run awk, you specify an awk *program* that tells awk what to do. The program consists of a series of *rules* (it may also contain *function definitions*, an advanced feature that we will ignore for now; see section [User-Defined Functions](https://www.gnu.org/software/gawk/manual/gawk.html#User_002ddefined)). Each rule specifies one pattern to search for and one action to perform upon finding the pattern.
+
+Syntactically, a rule consists of a *pattern* followed by an *action*. The action is enclosed in braces to separate it from the pattern. Newlines usually separate rules. Therefore, an awk program looks like this:
+
+```Shell
+pattern { action }
+pattern { action }
+…
+
+```
+
 [Awk - A Tutorial and Introduction](https://www.grymoire.com/Unix/Awk.html)  
-[Getting Started With AWK Command](https://linuxhandbook.com/awk-command-tutorial/)  
-[Awk Tutorial Examples](https://www.thegeekstuff.com/tag/awk-tutorial-examples/)  
 
 ## version
 
@@ -25,6 +38,16 @@ awk version 20070501
 ## man
 
 执行 `man awk` 可查看帮助手册。  
+
+以下是各大平台的 awk 在线手册：
+
+- unix/POSIX - [awk - pattern scanning and processing language](https://pubs.opengroup.org/onlinepubs/9699919799/utilities/awk.html)  
+- FreeBSD/Darwin - [awk -- pattern-directed scanning and processing language](https://www.freebsd.org/cgi/man.cgi?query=awk) & [gawk - pattern scanning and processing language](https://www.freebsd.org/cgi/man.cgi?query=gawk)  
+
+- linux - [awk — pattern scanning and processing language](https://man7.org/linux/man-pages/man1/awk.1p.html) & [gawk - pattern scanning and processing language](https://man7.org/linux/man-pages/man1/gawk.1.html)  
+- debian - [awk - pattern-directed scanning and processing language](https://manpages.debian.org/buster/9base/awk.1plan9.en.html) & [gawk - pattern scanning and processing language](https://manpages.debian.org/bullseye/gawk/gawk.1.en.html)  
+
+- ubuntu - [awk - pattern-directed scanning and processing language](https://manpages.ubuntu.com/manpages/jammy/en/man1/awk.1plan9.html) & [gawk - pattern scanning and processing language](https://manpages.ubuntu.com/manpages/jammy/en/man1/gawk.1.html)  
 
 ### macOS
 
@@ -460,3 +483,17 @@ raspberrypi man page 中归纳为数学运算函数和字符串处理函数。
 
        Getline returns 0 on end-of-file, -1 on error, otherwise 1.
 ```
+
+## notes
+
+- [Getting Started With AWK Command](https://linuxhandbook.com/awk-command-tutorial/)  
+- [Awk Tutorial Examples](https://www.thegeekstuff.com/tag/awk-tutorial-examples/)  
+- [awk 工具](https://dywang.csie.cyut.edu.tw/dywang/linuxProgram/node49.html)  
+
+系列笔记章节：
+
+1. [awk-basic](./awk-basic.md)  
+2. [awk-vars](./awk-vars.md)  
+3. [awk-pattern](./awk-pattern.md)  
+4. [awk-control](./awk-control.md)  
+5. [awk-functions](./awk-functions.md)  

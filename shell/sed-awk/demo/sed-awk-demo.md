@@ -4,9 +4,9 @@
 
 ## networksetup
 
-以下为 macOS 下执行 `networksetup -listallhardwareports` 输出的网络接口信息：
+以下为 macOS 下执行 `networksetup -listallhardwareports` 输出的网络服务接口信息：
 
-```
+```Shell
 $ networksetup -listallhardwareports
 
 Hardware Port: Wi-Fi
@@ -16,7 +16,6 @@ Ethernet Address: 61:e8:2d:ed:34:5e
 Hardware Port: Bluetooth PAN
 Device: en3
 Ethernet Address: 61:e8:2d:ed:34:5f
-
 ```
 
 如果提取无线网卡（Wi-Fi）的接口名称（en0）呢？
@@ -29,7 +28,7 @@ Ethernet Address: 61:e8:2d:ed:34:5f
 
 可以基于 sed 实现：
 
-```
+```Shell
 $ networksetup -listallhardwareports | sed -n '/Wi-Fi/{n;p
 pipe quote> }' | sed -n 's/^.*: //p' # sed 's/Device: //'
 en0
@@ -39,7 +38,7 @@ sed 进行替换删减时，替换的部分尽量少用 `Device: ` 这样的具�
 
 #### awk
 
-```
+```Shell
 $ networksetup -listallhardwareports | awk '/Wi-Fi/{getline; print $2}'
 en0
 ```
@@ -50,7 +49,7 @@ en0
 
 可对无线网口继续调用 `networksetup -getairportnetwork en0` 获取当前连接的 Wi-Fi 网络：
 
-```
+```Shell
 $ networksetup -listallhardwareports | awk '/Wi-Fi/{getline; print $2}' | xargs networksetup -getairportnetwork
 Current Wi-Fi Network: HiWiFi-5
 ```
@@ -59,7 +58,7 @@ Current Wi-Fi Network: HiWiFi-5
 
 以上结果重定向给 sed，替换删除掉冒号前面的部分即可提取 SSID：
 
-```
+```Shell
 sed -n 's/^.*: //p'
 ```
 
@@ -74,7 +73,7 @@ sed -n 's/^.*: //p'
 
 以下为 `airport -I` 输出的无线网络信息：
 
-```
+```Shell
 $ airport -I
      agrCtlRSSI: -35
      agrExtRSSI: 0
@@ -96,7 +95,7 @@ lastAssocStatus: 0
 假如想提取各个字段的值，按照默认的FS分割，`op mode`、`802.11 auth`、`link auth` 这些将失效。
 需要按照 `: ` 作为 FS 分割。
 
-```
+```Shell
 $ airport -I | awk -F ': ' '{print $1}'
      agrCtlRSSI
      agrExtRSSI
@@ -140,7 +139,7 @@ HiWiFi-5
 
 基于 [sed](https://unix.stackexchange.com/questions/102008/how-do-i-trim-leading-and-trailing-whitespace-from-each-line-of-some-output) 首尾正则替换：
 
-```
+```Shell
 $ airport -I | awk -F ': ' '{print $1}' | sed 's/^[ \t]*//;s/[ \t]*$//'
 ```
 
@@ -154,7 +153,7 @@ $ airport -I | awk -F ': ' '{sub(/^[ \t\r\n]+/, "", $1); sub(/[ \t\r\n]+$/, "", 
 
 或编写 awk [trim](https://gist.github.com/andrewrcollins/1592991) 函数。
 
-```
+```Shell
 $ airport -I | awk -F ': ' '
     function ltrim(s) {
         sub(/^[ \t\r\n]+/, "", s)
@@ -178,7 +177,7 @@ $ airport -I | awk -F ': ' '
 
 #### sed
 
-```
+```Shell
 # 移除开头空格及 SSID: 
 $ airport -I | sed -n 's/^ *SSID: //p'
 HiWiFi-5
@@ -194,7 +193,7 @@ HiWiFi-5
 
 #### awk
 
-```
+```Shell
 $ airport -I | grep ' SSID' | awk '{print $2}'
 HiWiFi-5
 ```
@@ -210,7 +209,7 @@ HiWiFi-5
 
 在 macOS 下，除了基于 networksetup 和 airport 之外，还可以基于 system_profiler 来获取当前连接的网络名称：
 
-```
+```Shell
 $ system_profiler SPAirPortDataType | grep 'Current Network Information:' -A 2
           Current Network Information:
             HiWiFi-5:
@@ -221,7 +220,7 @@ $ system_profiler SPAirPortDataType | grep 'Current Network Information:' -A 2
 
 基于 sed 查找到 `Current Network Information:` 的下一行，再进行掐头去尾：
 
-```
+```Shell
 $ system_profiler SPAirPortDataType | sed -n '/Current Network Information:/{n;p
 }' | sed -n 's/^ *//p' | sed -n 's/:$//p'
 ```
@@ -230,7 +229,7 @@ $ system_profiler SPAirPortDataType | sed -n '/Current Network Information:/{n;p
 
 基于 awk 的 sub 函数进行替换；
 
-```
+```Shell
 system_profiler SPAirPortDataType | awk '/Current Network Information:/{getline; sub(/:/,"",$1); print $1}'
 ```
 
@@ -244,7 +243,7 @@ system_profiler SPAirPortDataType | awk '/Current Network Information:/{getline;
 
 基于 sed 掐头去尾，可提取 IP 地址信息：
 
-```
+```Shell
 $ ifconfig en0 | grep 'inet ' | sed 's/^.*inet //' | sed 's/ netmask.*//'
 $ ifconfig en0 | sed -n '/inet /p' | sed 's/^.*inet //' | sed 's/ netmask.*//'
 192.168.0.107
@@ -256,7 +255,7 @@ $ ifconfig en0 | sed -n '/inet /p' | sed 's/^.*inet //' | sed 's/ netmask.*//'
 
 用 awk 提取更加简洁：
 
-```
+```Shell
 ifconfig en0 | awk '/inet /{print $2}'
 192.168.0.107
 ```
@@ -265,7 +264,7 @@ ifconfig en0 | awk '/inet /{print $2}'
 
 `ios-deploy -c` 打印连接的 iOS 设备信息：
 
-```
+```Shell
 $ ios_device=`ios-deploy -c`
 $ echo $ios_device
 [....] Waiting up to 5 seconds for iOS device to be connected
@@ -276,7 +275,7 @@ $ echo $ios_device
 
 基于 sed 的 n 命令，[提取第二行](https://blog.csdn.net/WMSOK/article/details/78463199)：
 
-```
+```Shell
 $ second_line=`echo $ios_device| sed -n 'n;p'`
 $ echo $second_line
 [....] Found f45d8fa32cab22b136c86116f20d875f7e93ef52 (D10AP, iPhone 7, iphoneos, arm64) a.k.a. 'iPhone7Fan' connected through USB.
@@ -284,7 +283,7 @@ $ echo $second_line
 
 再基于 sed 对第2行掐头去尾提取:
 
-```
+```Shell
 $ udid=`echo $second_line | sed 's/.* Found //' | sed 's/ (.*//'`
 $ echo $udid
 f45d8fa32cab22b136c86116f20d875f7e93ef52
@@ -296,7 +295,7 @@ $ echo ${#udid}
 
 基于 awk 对第2行指定 FS=`Found ` 分割提取：
 
-```
+```Shell
 # sub 替换空格后面的部分为空
 $ udid=`echo $second_line | awk -F "Found " '{sub(/ .*/, "", $2);print$2}'`
 # 重定向二次基于默认的空格分割提取
@@ -306,6 +305,6 @@ $ udid=`echo $second_line | awk -F "Found " '{print$2}' | awk '{print $1}'`
 仔细观察可知，包含 udid 的第二行本身就是基于空格排版的，可进一步精简 awk 语句。
 直接基于 awk 正则过滤出包含 `Found` 的第2行，再打印分割域 field 3 即可。
 
-```
+```Shell
 $ udid=`ios-deploy -c | awk '/Found/{print $3}'`
 ```

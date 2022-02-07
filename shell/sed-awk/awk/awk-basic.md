@@ -6,7 +6,7 @@ awk 提供了一个类编程环境来修改和重新组织文件中的数据，�
 awk 是一种自解释的编程语言，以发展这种语言的人 `A`ho.`W`eninberger 和 `K`ernigham 命名。  
 awk 结合诸如 grep 和 sed 等其他工具，将会使shell编程更加强大。除此之外，还有 gawk、nawk 和 mawk 等扩展变种。  
 
-为获得所需信息，文本或字符串必须格式化，意即用 `域分隔符`（Filed Separator）划分抽取域。
+为获得所需信息，文本或字符串必须格式化，意即用 `域分割符`（Filed Separator）划分抽取域。
 awk 在文本文件或字符串中基于指定规则浏览和抽取信息，然后再执行其他命令。
 
 可以利用 awk 编程语言做下面的事情：
@@ -14,7 +14,7 @@ awk 在文本文件或字符串中基于指定规则浏览和抽取信息，然�
 - 定义变量来保存数据  
 - 使用算术和字符串操作符来处理数据  
 - 使用结构化编程概念（比如if-then语句和循环）来为数据处理增加处理逻辑  
-- 通过提取数据文件中的数据元素，将其重新排列或格式化，生成格式化报告。
+- 通过提取数据文件中的数据元素，将其重新排列或格式化，生成格式化报告  
 
 awk 程序的报告生成能力通常用来从大文本文件中提取数据元素，并将它们格式化成可读的报告。其中最完美的例子是格式化日志文件。
 
@@ -50,7 +50,7 @@ awk 脚本的 body 部分可能包含多条语句，任何一条 awk 语句则�
 模式部分决定动作语句何时触发及触发事件，处理即对数据进行的操作。  
 模式可以是任何条件语句或复合语句或正则表达式。
 
-```
+```Shell
 pattern { action }
 ```
 
@@ -61,26 +61,26 @@ pattern { action }
 
 > 如果不指明采取动作，awk 将打印出所有浏览出来的记录。
 
-awk 默认的动作是逐条打印记录，有以下几种最简范式：
+awk 默认的动作是**逐条遍历打印记录**(*foreach print*)，有以下几种最简范式：
 
 - 逐行打印文档：`awk 1{print $0} data.txt`，其中模式1恒成立；  
 - 进一步省略默认参数 $0：`awk 1{print} data.txt`；  
 - 进一步省略默认动作：`awk 1 data.txt`。  
 
-除了输出字段分隔符（`OFS`），awk 中的 print 语句在数据显示上并未提供多少控制。
+除了输出字段分割符（`OFS`），awk 中的 print 语句在数据显示上并未提供多少控制。
 
-### 示例
+### 入门示例
 
 可以只书写 BEGIN 部分测试 awk 语法，省略 body 和 END 部分，以及 file 参数。
 
-```
+```Shell
 $ awk 'BEGIN {print "Hello, AWK!"}'
 Hello, AWK!
 ```
 
 文本文件 data1 内容如下：
 
-```
+```Shell
 $ cat data1
 P.Bunny # 02/99 # 48   # Yellow
 J.Troll # 07/99 # 4842 # Brown-3
@@ -88,7 +88,7 @@ J.Troll # 07/99 # 4842 # Brown-3
 
 在 awk 结尾部分，通过 END 打印处理的记录数：
 
-```
+```Shell
 $ awk 'END {print "end-of-record, NR="NR}' data1
 end-of-record, NR=2
 ```
@@ -97,7 +97,7 @@ end-of-record, NR=2
 
 文本文件 data2.txt 内容如下：
 
-```
+```Shell
 $ cat data2.txt
 One line of test text.
 Two lines of test text.
@@ -106,7 +106,7 @@ Three lines of test text.
 
 下面是一段完整的范式示例：
 
-```
+```Shell
 $ awk 'BEGIN {print "The data2 File Contents:"; print "=========="}
     {print $0}
     END {print "=========="; print "End of File"}' data2.txt
@@ -119,102 +119,131 @@ Three lines of test text.
 End of File
 ```
 
----
-
-文本文件 grade.txt 内容如下：
-
-```
-$ cat grade.txt
-M.Tansley   05/99   48311   Green       8   40  44
-J.Lulu      06/99   48317   green       9   24  26
-P.Bunny     02/99   48      Yellow      12  35  28
-J.Troll     07/99   4842    Brown-3     12  26  26
-L.Tansley   05/99   4712    Brown-2     12  30  28
-```
-
-将所有学生的目前级别分加在一起，方法是 `tot += $6`，tot 即为 awk 浏览的整个文件的域6结果总和。  
-所有记录读完后，在 END 部分加入一些提示信息及域6总和。
-
-不必在 awk 中显式说明打印所有记录，每一个操作匹配时，这是缺省动作。
-
-```
-$ awk '(tot+=$6); END{print "Club student total points: " tot}' grade.txt
-M.Tansley   05/99   48311   Green       8   40  44
-J.Lulu      06/99   48317   green       9   24  26
-P.Bunny     02/99   48      Yellow      12  35  28
-J.Troll     07/99   4842    Brown-3     12  26  26
-L.Tansley   05/99   4712    Brown-2     12  30  28
-Club student total points: 155
-```
-
-> 以上统计语句作为模式恒真，故默认打印所有记录。
-
-如果文件很大， 只想打印 END 中的统计结果而不是所有记录，可在语句的外面加上大括号。
-
-```
-# 可去掉圆括号
-$ awk '{(tot+=$6)}; END{print "Club student total points: " tot}' grade.txt
-Club student total points: 155
-```
-
 ## 记录和域
 
 ### 记录（Record）
 
-跟 sed 一样，awk 默认对数据流逐行读取分析，每一行即为一条记录（Record），然后针对每条记录执行程序脚本。
+跟 sed 一样，awk 默认逐行扫描文本，并执行程序对每一行进行分析处理。
+这里的“一行”即为一条记录（Record），是 awk 将进行数据分析处理的基本单位。
 
-如果未设置 `-F` 选项，则 awk 默认采用空格为域（字段）分隔符，并保持这个设置直到发现记录分割符（默认为换行符 `\n`）。  
-当新行出现时，awk 命令获悉已读完一条记录，然后在下一个记录启动读命令，这个读进程将持续到文件结尾或文件不再存在。
+awk 扫描文本时，实际上是根据记录分割符 `RS`（Record Seperator）来界定一条记录的。
+当发现 RS 时，awk 获悉读取到了一条记录，进行模式匹配（分析）并执行动作（处理）。
+分析完一条记录后，继续移动指针向后扫描，直到发现下一个 RS，处理新的记录。
+读取进程如此往复，持续到文件结尾（EOF）或文件不再存在结束。
 
-以下打印记录分割符 `RS`（Record Seperator）
+以下在 BEGIN 中打印当前 RS，默认为换行符 `\n`：
 
-```
+```Shell
 $ awk 'BEGIN { printf "RS=\"%s\"\n", RS }'
 RS="
 "
 ```
 
-`awk '1 {print $0}'` 中的 pattern 永远成立，实际效果为打印所有行（记录）。
+> 关于 RS 变量的设置和实践，参考 [awk-vars](./awk-vars.md) 一节。
 
-```
+---
+
+`awk '1 {print $0}' data2.txt` 中的模式永真，实际效果为逐条打印。
+
+> 由于 print 为缺省动作，因此可进一步简写为 `awk 1 data2.txt`。
+
+```Shell
 $ awk '1 {print}' data2.txt
 One line of test text.
 Two lines of test text.
 Three lines of test text.
 ```
 
-由于 print 为缺省动作，因此可进一步简写为 `awk 1 data2.txt`。
-
 ### 域（Field）
 
-awk 处理一条记录时，会用预定义的分隔符划分每个域（字段，Field）。
+awk 在处理一条记录时，会用预定义的分割符，将这条记录划分为多个域（字段，Field）。
 
-> awk 中默认的字段分隔符是任意的空白字符（例如空格或制表符）。
+> 可类比excel表格数据：将记录类比表格的行（row），域类比为表格的列（column）。
 
-以下打印域分割符 `FS`（Field Seperator）
+awk 扫描记录时，当发现域分割符 `FS`（Field Seperator），则将其当做一个字段。
 
-```
+awk 中默认的字段分割符是任意的空白字符（例如空格或制表符）。
+
+以下在 BEGIN 中打印当前 FS：
+
+```Shell
 $ awk 'BEGIN { printf "FS=\"%s\"\n", FS }'
 FS=" "
 ```
 
+#### -F 指定域分割符
+
+默认 `FS` 非顶格空格或制表符，也可以自行指定其他字符（串）作为域分割符。
+除此之外，也可在执行 awk 命令时通过 `-F` 选项来指定域分割符。
+
+> `-F` 之后的 fs 之间可以没有空格；`fs` 如果是单个字符可以不加（双）引号；如果是多个字符或包含空格，建议添加引号。
+
+携带 `-F` 选项的典型调用范式如下：
+
+```Shell
+awk -F: 'commands' input-file
+```
+
+执行 awk 命令，`-F` 指定按 `#` 分割域，输出如下：
+
+```Shell
+$ awk -F '#' '{print $1,$2,$3,$4}' data1
+P.Bunny   02/99   48     Yellow
+J.Troll   07/99   4842   Brown-3
+```
+
+参照下表，awk 每次读取一条记录，在分析记录时，遇到域分割符（`#`），标识其为域 $n，直至遇到记录分割符 `RS` 结束。
+然后，继续扫描下一条记录，分析其中的域（字段），如此往复。
+
+| 域1     | 分割符  | 域2   | 分割符   | 域3   | 分割符  | 域4     | RS |
+| --------| ------ | ------| ------ | ---- | ------ | --------|----|
+| P.Bunny | #      | 02/99 | #      | 48   | #      | Yellow  | \n |
+| J.Troll | #      | 07/99 | #      | 4842 | #      | Brown-3 | \n |
+
+---
+
+awk 的 `-F` 选项可指定任何合法的字符串作为域分割符，以便对数据记录进行切割提取分析。  
+典型使用场景是利用 grep 或 sed 从文本中筛选出匹配指定模式的行，再通过管道重定向给 awk 进行切割提取指定域。  
+
+[sed-awk-demo](../demo/sed-awk-demo.md) 中有大量 sed 与 awk 结合使用的场景示例。 
+
+[awk - 10 examples to insert / remove / update fields of a CSV file](https://www.theunixschool.com/2012/11/awk-examples-insert-remove-update-fields.html)  
+
+[关于使用shell在文件中查找一段字符串的问题](https://bbs.csdn.net/topics/380208443)
+
+指定 FS=AAA，基于 AAA 分割前半部分：
+
+```Shell
+$ echo "12312312343242AAAdfasdfasdfasdfasdfadAAAfsdgfsdfgfgfgdfgasdfg" | awk -F "AAA" '{print $1}'
+12312312343242
+```
+
+指定 FS=AAA，基于 AAA 分割后半部分：
+
+```Shell
+$ echo "12312312343242AAAdfasdfasdfasdfasdfadAAAfsdgfsdfgfgfgdfgasdfg" | awk -F "AAA" '{print $2}'
+dfasdfasdfasdfasdfad
+```
+
+#### 域标识及引用
+
 awk 将分割出来的域依次标记为 `$1`,`$2`,...,`$n`，它们称为 **域标识**。
 
-- `$0` : 代表整个文本行  
+- `$0` : 代表整个文本行（整条记录）  
 - `$1` : 代表文本行中的第1个数据字段  
 - `$2` : 代表文本行中的第2个数据字段  
 - `$n` : 代表文本行中的第n个数据字段  
 
-脚本中可引用域标识可进一步对域进行处理。  
-使用 `$1,$3` 表示引用第1和第3域，注意这里用逗号做域分隔。  
+脚本中可引用域标识对域进行进一步处理。  
+使用 `$1,$3` 表示引用第1和第3域，注意这里用逗号做域分割。  
 如果希望打印有5个域的记录的所有域，不必指明 `$1,$2,$3,$4,$5`，可使用 `$0`，意即整条记录的所有域。  
-awk 浏览数据时，到达一新行，即假定到达包含域的记录末尾，然后执行新记录下一行的读动作，并重新设置域分隔。  
+awk 浏览数据到达一新行时，即假定到达包含域的记录末尾，然后开始下一行新记录的读动作，并重新设置域分割符。  
 
 ---
 
-以下示例中，awk 读取文本文件，只显示第1个数据字段的值。
+以下示例中，awk 读取文本文件，每行只显示第1个字段。
 
-```
+```Shell
 $ awk '{print $1}' data2.txt
 One
 Two
@@ -223,7 +252,7 @@ Three
 
 以下命令摘取打印每条记录的第1、3、6三个字段：
 
-```
+```Shell
 $ awk '{print $1,$3,$6}' grade.txt
 M.Tansley 48311 40
 J.Lulu 48317 24
@@ -232,22 +261,20 @@ J.Troll 4842 26
 L.Tansley 4712 30
 ```
 
-以下示例中，awk 引用域四并对其进行赋值修改。
+以下示例中，awk 引用域四并对其进行赋值修改：
 
-```
+```Shell
 $ awk '{$4="awk";print$0}' data2.txt
 One line of awk text.
 Two lines of awk text.
 Three lines of awk text.
 ```
 
-默认 `FS` 非顶格空格或 tab，我们也可以自行指定其他字符（串）作为域分隔符。
-
 ## 典型范式
 
 Manual Pages 中的 SYNOPSIS 如下：
 
-```
+```Shell
        awk [ -F fs ] [ -v var=value ] [ 'prog' | -f progfile ] [ file ...  ]
 
        awk [−F sepstring] [−v assignment]... program [argument...]
@@ -258,13 +285,13 @@ Manual Pages 中的 SYNOPSIS 如下：
 
 省略模式部分的典型 awk 调用范式如下：
 
-```
+```Shell
 awk options 'commands' input-file
 ```
 
-也可将所有的 awk 命令保存到一个脚本文件中，然后调用 awk 时，用 `-f` 选项指定命令脚本：
+也可将所有的 awk 命令保存到一个脚本文件中，然后调用 awk 时用 `-f` 选项指定命令脚本：
 
-```
+```Shell
 awk -f awk-script-file input-file(s)
 ```
 
@@ -277,7 +304,7 @@ awk 常用命令选项如下表：
 
 | 选项           | 描述                          |
 | -------------- | -----------------------------|
-| `-F fs`        | 指定行中划分数据字段的字段分隔符   |
+| `-F fs`        | 指定行中划分数据字段的字段分割符   |
 | `-f file`      | 从指定的文件中读取脚本程序        |
 | `-v var=value` | 定义一个变量及其默认值           |
 | `-mf N`        | 指定要处理的数据文件中的最大字段数 |
@@ -291,7 +318,7 @@ awk 常用命令选项如下表：
 
 以下示例 `awk '{print "Hello, AWK!"}'` 总是打印一行固定的文本字符串，因此不管你在数据流中输入什么文本，都会得到同样的文本输出。
 
-```
+```Shell
 $ awk '{print "Hello, AWK!"}'
 stdin line 1 for awk!
 Hello, AWK!
@@ -301,99 +328,12 @@ Hello, AWK!
 
 稍作修改为 `awk '{print $2}'`，则打印输入文本空格分割的第2个字段：
 
-```
+```Shell
 $ awk '{print $2}'
 Hello World
 World
 Hey Jude
 Jude
-
 ```
 
 按下 `<C-C>` 或 `<C-D>`（EOF）退出。
-
-### -F 指定域分割符
-
-`-F` 是可选的，不特别指定时，awk 使用空格作为缺省的域分隔符。
-
-> `-F` 之后的 fs 之间可以没有空格；`fs` 如果是单个字符可以不加（双）引号；如果是多个字符或包含空格，建议添加引号。
-
-携带 `-F` 选项的典型调用范式如下：
-
-```
-awk -F: 'commands' input-file
-```
-
-执行 awk 命令，`-F` 指定按 `#` 分割域，输出如下：
-
-```
-$ awk -F '#' '{print $1,$2,$3,$4}' data1
-P.Bunny   02/99   48     Yellow
-J.Troll   07/99   4842   Brown-3
-```
-
-参照下表，awk 每次在文件中读一行，找到域分隔符（`#`），设置其为域n，直至遇到记录分隔符（`RS` 默认是换行符 `\n`）结束。
-然后，awk 再次启动下一行读取下一条记录。
-
-| 域1     | 分隔符  | 域2   | 分隔符   | 域3   | 分隔符  | 域4     | RS |
-| --------| ------ | ------| ------ | ---- | ------ | --------|----|
-| P.Bunny | #      | 02/99 | #      | 48   | #      | Yellow  | \n |
-| J.Troll | #      | 07/99 | #      | 4842 | #      | Brown-3 | \n |
-
-awk 的 `-F` 选项可指定任何合法的字符串作为域分割符，对数据记录进行切割提取分析。  
-典型的使用场景是利用 grep 或 sed 从文本中筛选出匹配指定模式的行，再重定向给 awk 进行切割提取指定域。  
-
-[sed-awk-demo](../demo/sed-awk-demo.md) 中有大量 sed 与 awk 结合使用的场景示例。 
-
-[awk - 10 examples to insert / remove / update fields of a CSV file](https://www.theunixschool.com/2012/11/awk-examples-insert-remove-update-fields.html)  
-
-[关于使用shell在文件中查找一段字符串的问题](https://bbs.csdn.net/topics/380208443)
-
-指定 FS=AAA，基于 AAA 分割前半部分：
-
-```
-$ echo "12312312343242AAAdfasdfasdfasdfasdfadAAAfsdgfsdfgfgfgdfgasdfg" | awk -F "AAA" '{print $1}'
-12312312343242
-```
-
-指定 FS=AAA，基于 AAA 分割后半部分：
-
-```
-$ echo "12312312343242AAAdfasdfasdfasdfasdfadAAAfsdgfsdfgfgfgdfgasdfg" | awk -F "AAA" '{print $2}'
-dfasdfasdfasdfasdfad
-```
-
-## csv 文件简析
-
-CSV（Comma-Separated Values）即逗号分隔值，有时也称为字符分隔值。
-因为分隔字符也可以不是逗号，其文件以纯文本形式存储表格数据（数字和文本）。
-
-在 CSV 文本文件中，每条记录占一行，每一行以逗号作为为分隔符，逗号前后的空格会被忽略。
-
-[linux awk解析csv文件](https://www.cnblogs.com/htlee/p/4701961.html)  
-
-读取CSV第1行即表头：
-
-```
-$ awk 'FNR==1' dependence.csv
-SubModule,Header,Class,Method,Macro
-```
-
-读取所有记录的第1列：
-
-```
-awk -F ',' 'FNR>1{print $1}' dependence.csv
-```
-
-对第1列进行去重输出：
-
-```
-awk -F ',' 'FNR>1{print $1}' dependence.csv | uniq
-```
-
-对第1列进行合并统计和去重统计：
-
-```
-awk -F ',' 'FNR>1{print $1}' dependence.csv | uniq -c
-awk -F ',' 'FNR>1{print $1}' dependence.csv | uniq | wc -l
-```

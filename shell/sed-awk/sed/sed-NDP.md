@@ -302,3 +302,7 @@ This is the header line.
 1. 第1行不执行 `G` 命令，执行 `h` 将模式空间复制到保持空间；  
 2. 第2行至最后一行执行 `G` 指令，将保持空间附加到模式空间（当前行），形成逆序；再执行 `h` 指令；  
 3. 执行到最后一行，将模式空间中的整个数据流都按行反转了之后，当达到数据流中的最后一行时，打印模式空间整个数据流。  
+
+## refs
+
+[How to use the Linux sed command](https://opensource.com/article/21/3/sed-cheat-sheet) - [使用 sed 命令进行复制、剪切和粘贴](https://linux.cn/article-13417-1.html)

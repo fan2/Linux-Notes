@@ -1,18 +1,14 @@
 
-unix/POSIX - [sed](https://pubs.opengroup.org/onlinepubs/9699919799/utilities/sed.html)  
-FreeBSD/Darwin - [sed](https://www.freebsd.org/cgi/man.cgi?query=sed)  
+## Introduction
 
-linux - [sed(1)](http://man7.org/linux/man-pages/man1/sed.1.html) & [sed(1p)](http://man7.org/linux/man-pages/man1/sed.1p.html)  
-debian/Ubuntu - [sed](https://manpages.debian.org/buster/9base/sed.1plan9.en.html)  
+WIKI - [sed](https://en.wikipedia.org/wiki/Sed)  
 
-`Sed` is a stream editor.
+sed ("stream editor") is a Unix utility that parses and transforms text, using a simple, compact programming language. sed was developed from 1973 to 1974 by Lee E. McMahon of Bell Labs, and is available today for most operating systems. sed was based on the scripting features of the interactive editor [ed](https://en.wikipedia.org/wiki/Ed_(text_editor)) ("editor", 1971) and the earlier [qed](https://en.wikipedia.org/wiki/QED_(text_editor)) ("quick editor", 1965–66). sed was one of the earliest tools to support [regular expressions](https://en.wikipedia.org/wiki/Regular_expression), and remains in use for text processing, most notably with the `substitution` command. Popular alternative tools for plaintext string manipulation and "stream editing" include [AWK](https://en.wikipedia.org/wiki/AWK) and [Perl](https://en.wikipedia.org/wiki/Perl).
 
-A stream editor is used to perform basic text transformations on an input stream (a file or input from a pipeline).  
-While in some ways similar to an editor which permits scripted edits (such as ed), sed works by making only one pass over the input(s), and is consequently more efficient.  
-But it is sed's ability to filter text in a pipeline which particularly distinguishes it from other types of editors.  
+GNU.org - [sed, a stream editor](https://www.gnu.org/software/sed/manual/sed.html) - [Introduction](https://www.gnu.org/software/sed/manual/html_node/Introduction.html)
 
-[sed](https://en.wikipedia.org/wiki/Sed)  
-[sed, a stream editor](https://www.gnu.org/software/sed/manual/sed.html)  
+`Sed` is a stream editor. A stream editor is used to perform basic text transformations on an input stream (a file or input from a pipeline). While in some ways similar to an editor which permits scripted edits (such as `ed`), sed works by making only one pass over the input(s), and is consequently more efficient. But it is sed's ability to filter text in a pipeline which particularly distinguishes it from other types of editors.
+
 [Sed - An Introduction and Tutorial by Bruce Barnett](https://www.grymoire.com/Unix/Sed.html#toc_Sed_-_An_Introduction_and_Tutorial_by_Bruce_Barnett)  
 
 ## version
@@ -41,11 +37,21 @@ E-mail bug reports to: <bug-sed@gnu.org>.
 - 执行 `sed --help` 可查看简要帮助（Usage）；  
 - 执行 `man sed` 可查看帮助手册。  
 
+以下是各大平台的 sed 在线手册：
+
+- unix/POSIX - [sed - stream editor](https://pubs.opengroup.org/onlinepubs/9699919799/utilities/sed.html)  
+- FreeBSD/Darwin - [sed -- stream editor](https://www.freebsd.org/cgi/man.cgi?query=sed)  
+
+- linux - [sed - stream editor for filtering and transforming text](http://man7.org/linux/man-pages/man1/sed.1.html)  
+- debian - [sed - stream editor](https://manpages.debian.org/buster/9base/sed.1plan9.en.html)  
+
+- ubuntu - [sed - stream editor](https://manpages.ubuntu.com/manpages/jammy/en/man1/ls.1plan9.html)  
+
 ### macOS
 
 macOS 执行 `sed --help` 可查看帮助概要信息：
 
-```
+```Shell
 faner@FAN-MB1: ~ $ sed --help
 sed: illegal option -- -
 usage: sed script [-Ealn] [-i extension] [file ...]
@@ -55,7 +61,7 @@ FAIL: 1
 
 macOS 执行 `man sed` 可查看详细帮助手册（Manual Page）：
 
-```
+```Shell
 faner@FAN-MB1: ~ $ man sed
 
 SED(1)                    BSD General Commands Manual                   SED(1)
@@ -81,7 +87,7 @@ DESCRIPTION
 
 raspberrypi 执行 `sed --help` 可查看帮助概要信息：
 
-```
+```Shell
 pi@raspberrypi:~ $ sed --help
 
 Usage: sed [OPTION]... {script-only-if-no-other-script} [input-file]...
@@ -128,7 +134,7 @@ E-mail bug reports to: <bug-sed@gnu.org>.
 
 raspberrypi 执行 `man sed` 可查看详细帮助手册（Manual Page）：
 
-```
+```Shell
 pi@raspberrypi:~ $ man sed
 
 SED(1)                                  User Commands                                  SED(1)
@@ -162,7 +168,7 @@ sed 主要有5个常用命令选项：
 
 ### macOS
 
-```
+```Shell
 faner@FAN-MB1: ~ $ man sed
 
      -e command
@@ -184,7 +190,7 @@ faner@FAN-MB1: ~ $ man sed
 
 ### raspberrypi
 
-```
+```Shell
 pi@raspberrypi:~ $ man sed
 
        -n, --quiet, --silent
@@ -203,3 +209,13 @@ pi@raspberrypi:~ $ man sed
 
               edit files in place (makes backup if SUFFIX supplied)
 ```
+
+## notes
+
+[sed 工具](https://dywang.csie.cyut.edu.tw/dywang/linuxProgram/node41.html)
+
+系列笔记章节：
+
+1. [sed-basic](./sed-basic.md)  
+2. [sed-iacds](./sed-iacds.md)  
+3. [sed-NDP](./sed-NDP.md)  

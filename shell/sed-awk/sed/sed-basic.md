@@ -31,7 +31,7 @@ sed 编辑器一般会执行下列操作：
 
 sed 命令的一般格式如下：
 
-```
+```Shell
 sed options command-script input-file
 ```
 
@@ -41,7 +41,7 @@ sed 主要有5个常用命令选项：
 
 选项         | 描述
 ------------|------------------------------------------------
-`-n`        | 不产生命令输出，使用 print 命令来完成输出
+`-n`        | 按行读取输入时，不逐行回显，可使用 print 命令输出指定行
 `-e script` | 在处理输入中，将 script 中指定的命令添加到已有的命令中
 `-f file`   | 在处理输入中，将 file 中指定的命令添加到已有的命令中
 `-E`(`-r`)  | 支持扩展型正则表达式（ERE）
@@ -51,18 +51,68 @@ sed 主要有5个常用命令选项：
 
 #### -n
 
-```
-     -n	     By	default, each line of input is echoed to the standard output
+sed 在逐行读取处理输入文本时，默认会将读取到的每一行回显到标准控制台，再执行处理。
+
+`-n` 选项将禁止 sed 默认的逐行读取回显，但模式匹配后的 `p` 标记可指定输出，二者配合的效果是只输出匹配定位的行。
+
+```Shell
+# macOS/FreeBSD/Darwin
+	-n	     By	default, each line of input is echoed to the standard output
 	     after all of the commands have been applied to it.	 The -n	option
 	     suppresses	this behavior.
+
+# unix/POSIX
+	-n
+	Suppress the default output (in which each line, after it is examined for editing, is written to standard output). Only lines explicitly selected for output are written.
+
+# linux
+       -n, --quiet, --silent
+
+              suppress automatic printing of pattern space
 ```
 
-`-n` 选项将禁止 sed 编辑器输出，即不打印 sed 编辑对象的全部内容。
-但模式匹配后的 `p` 标记会输出修改过的行，将二者配合的效果是只输出匹配定位的行。
+以下在第二行之后追加一行，默认会打印所有行：
+
+```Shell
+# macOS
+$ sed '2 a\
+quote> append one line after second line
+quote> ' data.txt
+
+One line of test text.
+Two lines of test text.
+append one line after second line
+Three lines of test text.
+```
+
+以下脚本原意是打印第二行，但是却打印了所有行，外加打印第二行。
+
+```Shell
+$ cat data.txt
+One line of test text.
+Two lines of test text.
+Three lines of test text.
+
+$ sed '2p' data.txt
+One line of test text.
+Two lines of test text.
+Two lines of test text.
+Three lines of test text.
+```
+
+加上 `-n` 之后，不回显读取的行，只执行p(rint)打印第二行，符合预期。
+
+```Shell
+$ sed -n '2p' data.txt
+Two lines of test text.
+```
 
 #### -i
 
-```
+`-i` 选项支持将编辑操作的结果回写到源文件。
+
+```Shell
+# macOS/FreeBSD/Darwin
      -i	extension
 	     Edit files	in-place similarly to -I, but treat each file indepen-
 	     dently from other files.  In particular, line numbers in each
@@ -70,17 +120,37 @@ sed 主要有5个常用命令选项：
 	     current file, and address ranges are limited to the current file.
 	     (See Sed Addresses.)  The net result is as	though each file were
 	     edited by a separate sed instance.
+
+     -I extension
+             Edit files in-place, saving backups with the specified extension.  If a zero-length extension
+             is given, no backup will be saved.  It is not recommended to give a zero-length extension when
+             in-place editing files, as you risk corruption or partial content in situations where disk
+             space is exhausted, etc.
+
+# linux
+
+       -i[SUFFIX], --in-place[=SUFFIX]
+
+              edit files in place (makes backup if SUFFIX supplied)
 ```
 
-`-i` 选项支持将编辑操作的结果回写到源文件，macOS 上必须要指定一个 extension 参数，指定备份文件的后缀。
+`-i` 参数用于指定备份文件的后缀。
 
-如果不需要备份，直接回写文件，可以则设置一个长度为0的空字符串参数：
+> 当只回写而不需要备份时，Linux/Unix 平台可省略 -i extension 参数。
 
+```Shell
+# macOS、Linux，修改回写之前，先备份 Test.txt.bak
+sed -i '.bak' 's/main/fun/g' 'Test.txt'
 ```
+
+**注意**：在 macOS 平台上，即使不需要备份，也必须指定 -i extension 参数。
+
+此时，可指定长度为0的空字符串：
+
+```Shell
+# macOS
 sed -i '' 's/main/fun/g' 'Test.txt'
 ```
-
-> Linux/Unix 平台，可省略 extension 参数。
 
 ### match
 
@@ -117,7 +187,7 @@ sed 提供了以下编辑命令：
 
 以下命令过滤打印 file.txt 文件中指定行：
 
-```
+```Shell
 # 打印第2行
 $ sed -n '2p' file.txt
 
@@ -143,41 +213,40 @@ $ sed -n '1,$p' file.txt
 
 例如：过滤出 input-file.txt 文件中指定范围的行到 output-file.txt 文件。
 
-```
+```Shell
 $ sed -n '100,199p' input-file.txt > output-file.txt
 ```
 
 或使用 `w` 写入命令：
 
-```
+```Shell
+$ sed -n '100,199 w output-file.txt' input-file.txt
 $ sed -n '100,199w output-file.txt' input-file.txt
 ```
-
-当然，如果向将替换、删除的结果直接回写到源文件，也可以使用 `-i` 选项。
 
 #### 模式匹配示例
 
 示例1：从 bak.code.yml 文件中匹配出 CR owner 规则区块，`-n` 指定只输出匹配结果：
 
-```
+```Shell
 sed -n '/- path: \/Classes\/ui\/DeviceMgr\//,/owner_rule/p' bak.code.yml
 ```
 
 示例2：过滤打印 git 冲突文件中 ours 部分：
 
-```
+```Shell
 $ sed -n '/^<<<<<<< HEAD$/,/^=======$/p' git-Conflict-File.h
 ```
 
 示例3：过滤打印 git 冲突文件中 theirs incoming 结尾分隔行（形如 `>>>>>>> origin/master`）：
 
-```
+```Shell
 $ sed -n '/^>>>>>>> /p' git-Conflict-File.h
 ```
 
 示例4：过滤打印 git 冲突文件中 theirs 部分：
 
-```
+```Shell
 $ sed -n '/^=======$/,/^>>>>>>> /p' git-Conflict-File.h
 ```
 
@@ -189,40 +258,40 @@ $ sed -n '/^=======$/,/^>>>>>>> /p' git-Conflict-File.h
 
 以下示例打印第2行的行号，然后打印第2行的内容：
 
-```
+```Shell
 $ sed -n '2=; 2p' detail.txt
 ```
 
-也可用 `-e` 选项依次逐条输入：
+也可像 grep 那样，通过 `-e` 指定多条命令：
 
-```
+```Shell
 $ sed -n -e '2=' -e '2p' detail.txt
 ```
 
 以下两句 sed 命令等价，都是打印匹配行号和行内容：
 
-```
+```Shell
 sed -n -e '/ID:50/=; /ID:50/p' ss.txt
 sed -n -e '/ID:50/=' -e '/ID:50/p' ss.txt
 ```
 
 在单行上执行多条命令，还可以用花括号（`{}`）将多条命令组合在一起：
 
-```
+```Shell
 sed -n '2{=;p}' detail.txt
 sed -n '/ID:50/{=;p}' ss.txt
 ```
 
 但是 macOS 上不支持这种区块代码在一行执行：
 
-```
+```Shell
 $ sed -n '2{=;p}' detail.txt
 sed: 1: "2{=;p}": extra characters at the end of p command
 ```
 
 需要在 p 命令处换行：换行后会出现 *次提示符*（`qoute> `） ，输入将闭合大括号及封尾单引号，最后输入处理文件参数，换行执行。
 
-```
+```Shell
 $ sed -n '2{=;p
 quote> }' detail.txt
 
@@ -240,7 +309,7 @@ bash shell 命令一旦发现了封尾的单引号，就会执行命令。
 
 也可直接将写好的跨行代码块整体复制粘贴到命令行执行，不用在命令行逐行输入：
 
-```
+```Shell
 sed -n '2{=;p
     }' detail.txt
 
@@ -254,7 +323,7 @@ sed -n '2{
 
 如果不指定行，默认对数据流逐行处理。以下逐行打印行号和内容：
 
-```
+```Shell
 $ sed -n '{
     =
     p
@@ -266,7 +335,7 @@ $ sed -n '{
 如果有大量要处理的 sed 命令，那么可以将它们放进一个单独的脚本文件中。
 sed 命令通过 `-f` 选项来指定从脚本文件读取命令执行。
 
-```
+```Shell
 $ cat script1.sed
 s/brown/green/
 s/fox/elephant/
@@ -279,7 +348,7 @@ The quick green elephant jumps over the lazy cat.
 The quick green elephant jumps over the lazy cat.
 ```
 
-在脚本文件中，不必在每条命令后面添加一个分号。sed 编辑器知道每行都是一条独立的命令。
+在脚本文件中，不必在每条命令后面添加一个分号，sed 编辑器知道每行都是一条独立的命令。
 
 #### shebang
 
@@ -292,7 +361,7 @@ linux: `#!/bin/sed -f`
 
 这样，就可以直接像执行 shell 脚本一样，这样书写：
 
-```
+```Shell
 $ chmod u+x script1.sed
 
 $ ./script1.sed detail.txt
