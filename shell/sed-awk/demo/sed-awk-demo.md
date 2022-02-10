@@ -4,7 +4,7 @@
 
 ## networksetup
 
-以下为 macOS 下执行 `networksetup -listallhardwareports` 输出的网络服务接口信息：
+MacBook/macOS 下执行 `networksetup -listallhardwareports` 列举输出的 hardwareports：
 
 ```Shell
 $ networksetup -listallhardwareports
@@ -18,19 +18,44 @@ Device: en3
 Ethernet Address: 61:e8:2d:ed:34:5f
 ```
 
-如果提取无线网卡（Wi-Fi）的接口名称（en0）呢？
+MacBook/macOS 下执行 `networksetup -listallhardwareports` 列举输出的 networkservice：
 
-### if
+```Shell
+$ networksetup -listnetworkserviceorder
+An asterisk (*) denotes that a network service is disabled.
+(1) Wi-Fi
+(Hardware Port: Wi-Fi, Device: en0)
 
-基本思路：找到 `Wi-Fi` 所在行，略过再对下一行提取第二个域值。
+(2) Bluetooth PAN
+(Hardware Port: Bluetooth PAN, Device: en3)
+
+(3) Thunderbolt Bridge
+(Hardware Port: Thunderbolt Bridge, Device: bridge0)
+```
+
+如果是 iMac，有线网口往往是 en0，无线网口是 en1。
+
+如果提取有线网口（Ethernet）和无线网卡（Wi-Fi）的接口名称呢？
+
+基本思路：
+
+1. networksetup -listallhardwareports：定位到 `Hardware Port: Wi-Fi` 所在行，再对下一行提取第二个域。  
+2. networksetup -listnetworkserviceorder：定位到 `Hardware Port: Wi-Fi` 所在行，提取 Device: 后面的设备名。  
+
+以下以获取 wlan 接口为例，如果要获取 eth 接口，请将 `Wi-Fi` 替换为 `Ethernet` 即可。
+
+### dev
 
 #### sed
 
 可以基于 sed 实现：
 
 ```Shell
-$ networksetup -listallhardwareports | sed -n '/Wi-Fi/{n;p
+$ networksetup -listallhardwareports | sed -n '/Hardware Port: Wi-Fi/{n;p
 pipe quote> }' | sed -n 's/^.*: //p' # sed 's/Device: //'
+en0
+# 先定位 Hardware Port: Wi-Fi 这一行，再管传 sed 提取 Device 后的设备名
+$ networksetup -listnetworkserviceorder | sed -n '/Hardware Port: Wi-Fi/p' | sed 's/.*Device: \(.*\))/\1/'
 en0
 ```
 
@@ -39,11 +64,18 @@ sed 进行替换删减时，替换的部分尽量少用 `Device: ` 这样的具�
 #### awk
 
 ```Shell
-$ networksetup -listallhardwareports | awk '/Wi-Fi/{getline; print $2}'
+$ networksetup -listallhardwareports | awk '/Hardware Port: Wi-Fi/{getline; print $2}'
 en0
+# 基于 sub 把收尾的括号去掉，去最后一个域
+$ networksetup -listnetworkserviceorder | awk '/Hardware Port: Wi-Fi/{sub(/\(/, ""); sub(/\)/, ""); print $NF}'
+# 先定位 Hardware Port: Wi-Fi 这一行，以(,)切割，取第三个域，再取冒号空格后的设备名
+$ networksetup -listnetworkserviceorder | awk -F '[(,)]' '/Hardware Port: Wi-Fi/{print $(NF-1)}' | awk '{print $NF}'
+en0
+# 取巧一下：以(空格)切割，直接取第六个域
+$ networksetup -listnetworkserviceorder | awk -F '[( )]' '/Hardware Port: Wi-Fi/{print $(NF-1)}'
 ```
 
-对于固定格式的字段分割域值提取，还是 awk 更简洁。
+对于固定格式的字段分割域值提取，还是 awk 稍显简洁。
 
 ### SSID
 
@@ -59,15 +91,19 @@ Current Wi-Fi Network: HiWiFi-5
 以上结果重定向给 sed，替换删除掉冒号前面的部分即可提取 SSID：
 
 ```Shell
-sed -n 's/^.*: //p'
+$ | sed -n 's/^.*: //p'
 ```
 
 #### awk
 
 以上结果重定向给 awk，可提取 SSID：
 
-- `awk '{print $4}'`：基于默认的空格分割，取域4；
-- `awk -F ": " '{print $2}'`：基于 `: ` 分割，取域2；  
+```Shell
+# 基于默认的空格分割
+$ | awk '{print $NF}' # $4
+# 基于 `: ` 分割
+$ | awk -F ": " '{print $NF}' # $2
+```
 
 ## airport
 
@@ -147,7 +183,7 @@ $ airport -I | awk -F ': ' '{print $1}' | sed 's/^[ \t]*//;s/[ \t]*$//'
 
 基于 awk 的 sub 函数进行替换：
 
-```
+```Shell
 $ airport -I | awk -F ': ' '{sub(/^[ \t\r\n]+/, "", $1); sub(/[ \t\r\n]+$/, "", $1); print $1}'
 ```
 
@@ -200,7 +236,7 @@ HiWiFi-5
 
 可省掉 grep，进一步简写为基于 awk 进行模式匹配过滤的表达式：
 
-```
+```Shell
 $ airport -I | awk '/ SSID/{print $2}'
 HiWiFi-5
 ```
@@ -230,7 +266,7 @@ $ system_profiler SPAirPortDataType | sed -n '/Current Network Information:/{n;p
 基于 awk 的 sub 函数进行替换；
 
 ```Shell
-system_profiler SPAirPortDataType | awk '/Current Network Information:/{getline; sub(/:/,"",$1); print $1}'
+$ system_profiler SPAirPortDataType | awk '/Current Network Information:/{getline; sub(/:/,"",$1); print $1}'
 ```
 
 ## ifconfig
@@ -259,6 +295,10 @@ $ ifconfig en0 | sed -n '/inet /p' | sed 's/^.*inet //' | sed 's/ netmask.*//'
 ifconfig en0 | awk '/inet /{print $2}'
 192.168.0.107
 ```
+
+### 综合示例
+
+脚本 [get_lan_ip](../../script/codes/get_lan_ip.sh) 将以上串联起来，先获取网口设备名，再判断网口状态，最后获取网络IP地址。
 
 ## udid
 
