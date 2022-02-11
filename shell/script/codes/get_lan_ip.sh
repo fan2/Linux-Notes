@@ -17,10 +17,9 @@ get_lan_ip() {
         local eth_status='inactive'
         local eth_inet=''
         if [ $has_eth = true ]; then
-            eth_dev=$(networksetup -listallhardwareports | awk '/Hardware Port: Ethernet/{getline; print $2}')
+            eth_dev=$(networksetup -listallhardwareports | awk '/Hardware Port: Ethernet/{getline; print $NF}')
             if [ -n $eth_dev ]; then
-                echo "eth_dev 2 = $eth_dev"
-                eth_status=$(ifconfig $eth_dev | awk '/status:/{print $2}')
+                eth_status=$(ifconfig $eth_dev | awk '/status:/{print $NF}')
                 if [ $eth_status = active ]; then
                     eth_inet=$(ifconfig $eth_dev | awk '/inet /{print $2}')
                     echo "Ethernet $eth_dev : status=$eth_status, inet=$eth_inet"
@@ -39,13 +38,13 @@ get_lan_ip() {
         local wlan_status='inactive'
         local wlan_inet=''
         if [ $has_wlan = true ]; then
-            wlan_dev=$(networksetup -listallhardwareports | awk '/Hardware Port: Wi-Fi/{getline; print $2}')
+            wlan_dev=$(networksetup -listallhardwareports | awk '/Hardware Port: Wi-Fi/{getline; print $NF}')
             if [ -n $wlan_dev ]; then
-                wlan_status=$(ifconfig $wlan_dev | awk '/status:/{print $2}')
+                wlan_status=$(ifconfig $wlan_dev | awk '/status:/{print $NF}')
                 if [ $wlan_status = active ]; then
                     # 获取Wi-Fi SSID
                     # local wlan_ssid=$(airport -I | awk '/ SSID/{print $2}')
-                    local wlan_ssid=$(networksetup -getairportnetwork $wlan_dev | awk '{print $4}')
+                    local wlan_ssid=$(networksetup -getairportnetwork $wlan_dev | awk '{print $NF}')
                     # 获取 IPv4 地址
                     wlan_inet=$(ifconfig $wlan_dev | awk '/inet /{print $2}')
                     echo "Wi-Fi $wlan_dev : status=$wlan_status, ssid=$wlan_ssid, inet=$wlan_inet"

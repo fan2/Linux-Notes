@@ -119,6 +119,32 @@ faner@MBP-FAN:~/Music|⇒  popd +3
 [Linux中的pushd和popd](https://www.jianshu.com/p/53cccae3c443)  
 [在命令行中使用pushd和popd进行快速定位](http://blog.sina.com.cn/s/blog_b6b704ef0102wjdk.html)  
 
+### dirname & basename
+
+dirname、basename 用于获取路径字符串的目录和文件部分。
+
+```Shell
+$ man basename
+BASENAME(1)               BSD General Commands Manual              BASENAME(1)
+
+NAME
+     basename, dirname -- return filename or directory portion of pathname
+
+SYNOPSIS
+     basename string [suffix]
+     basename [-a] [-s suffix] string [...]
+     dirname string
+```
+
+[Linux中basename和dirname命令的妙用](https://blog.csdn.net/Jerry_1126/article/details/79872110)
+
+典型应用场景：在sh脚本中，基于 dirname/basename 获取当前脚本的路径和名称。
+
+```Shell
+echo "dirname = $(dirname $0)"
+echo "basename = $(basename $0)"
+```
+
 ## head/tail
 
 head/tail 命令支持查看文件(file)前/后指定字节(-c)或行数(-n)的内容。

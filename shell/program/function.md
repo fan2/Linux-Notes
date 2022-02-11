@@ -116,10 +116,21 @@ my_info output.file    #调用另一个脚本中的函数
 运行 app.bash 时，执行到 source 命令那一行时，就会执行 my_info.bash 脚本。
 在 app.bash 的后续部分，就可以调用 my_info.bash 中的 my_info 函数。
 
-### 脚本封装函数
+如果不是在脚本所在目录，而是在外层目录执行sh，那么 source 引入脚本需要相对路径。
+
+除了绝对路径，安全引入同目录下的其他脚本的写法如下：
+
+```Shell
+#!/bin/bash
+
+source $(dirname $0)/aux_etc.sh
 
 ```
-faner@FAN-MB1:/Users/faner/Downloads/scripts $ cat test-function.sh
+
+### 脚本封装函数
+
+```Shell
+~/Projects/shell | cat test-function.sh
 #!/bin/bash
 
 use_python38()
@@ -131,23 +142,34 @@ use_python38()
 }
 
 file_name=$0
+script_dir=$(dirname $0)
 script_name=$(basename $0)
 echo "file_name=$file_name"
+echo "script_dir=$script_dir"
 echo "script_name=$script_name"
 ```
 
 执行加载脚本到当前 shell：
 
-```
-faner@FAN-MB1:/Users/faner/Downloads/scripts $ . ./test-function.sh
+```Shell
+~/Projects/shell | ./test-function.sh
 file_name=./test-function.sh
+script_dir=.
+script_name=test-function.sh
+
+# 回退一级执行该sh，查验相对路径
+~/Projects/shell | cd ..
+~/Projects | ./shell/test-function.sh
+file_name=./shell/test-function.sh
+script_dir=./shell
 script_name=test-function.sh
 ```
 
-执行脚本中的函数 `use_python38`，当前 shell 启用 python3.8：
+可以在终端命令行source引入脚本然后调用，以便在当前 shell 启用 python3.8：
 
-```
-faner@FAN-MB1:/Users/faner/Downloads/scripts $ use_python38
+```Shell
+~ | source ~/Projects/shell/test-function.sh
+~ | use_python38
 which python3 = /usr/local/bin/python3
 use_python38...
 which python3 = /usr/local/opt/python@3.8/bin/python3
