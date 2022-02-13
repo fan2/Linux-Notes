@@ -8,7 +8,7 @@ bash shell 提供函数支持，方便将代码模块封装为函数，以便复
 1. 函数名加括号；  
 2. 采用关键字 function，后跟函数名；  
 
-```
+```Shell
 #方式1
 name() {
     commands
@@ -17,6 +17,34 @@ name() {
 #方式2
 function name {
     commands
+}
+```
+
+[transfer.sh](https://transfer.sh/) - Easy file sharing from the command line
+
+```Shell
+transfer() {
+    if [ $# -eq 0 ]; then
+        echo "No arguments specified.\nUsage:\n transfer <file|directory>\n ... | transfer <file_name>" >&2
+        return 1
+    fi
+    if tty -s; then
+        file="$1"
+        file_name=$(basename "$file")
+        if [ ! -e "$file" ]; then
+            echo "$file: No such file or directory" >&2
+            return 1
+        fi
+        if [ -d "$file" ]; then
+            file_name="$file_name.zip" ,
+            (cd "$file" && zip -r -q - .) | curl --progress-bar --upload-file "-" "https://transfer.sh/$file_name" | tee /dev/null,
+        else
+            cat "$file" | curl --progress-bar --upload-file "-" "https://transfer.sh/$file_name" | tee /dev/null
+        fi
+    else
+        file_name=$1
+        curl --progress-bar --upload-file "-" "https://transfer.sh/$file_name" | tee /dev/null
+    fi
 }
 ```
 
@@ -29,6 +57,14 @@ function name {
 
 参考 [basic](./basic.md) 中的命令行参数。
 
+在脚本中指定函数时，必须将参数和函数放在同一行，像这样:
+
+```Shell
+    func1 $value1 10
+```
+
+然后函数可以用参数环境变量来获得参数值。
+
 对于脚本，`$0` 为脚本名称；对于函数调用，`$0` 为函数名称。
 空格相间的 $1,...,$9 为函数的位置参数，如果参数个数超过9个，可以以 `${10}`,`${11}` 这种形式引用。
 
@@ -38,7 +74,35 @@ function name {
 
 如果脚本的所有命令行参数，需要传递给函数，可通过 `func $@` 或 `func $*` 形式传递。
 
-### 函数返回
+### 局部变量
+
+函数使用两种类型的变量:
+
+1. 全局变量  
+2. 局部变量  
+
+函数内部可以通过 local 修饰定义局部变量，限定作用域为函数内部。
+调用函数后，变量在后续脚本中不可见，不可以引用访问。
+
+> `local`: can only be used in a function
+
+默认情况下，在脚本中定义的不加 local 修饰的变量都是全局变量。
+调用函数后，变量在后续脚本中可以继续引用访问。
+
+local关键字保证了变量作用域只局限在该函数中。
+如果在脚本中该函数之外有同名的变量， 那么shell将会保持这两个变量的值是分离的。
+这样，你就能很轻松地将函数内部变量和脚本中的其他变量隔离开了，只共享需要共享的全局变量。
+
+以下是脚本 [brew.plugin.zsh](https://github.com/ohmyzsh/ohmyzsh/blob/master/plugins/brew/brew.plugin.zsh) 中的代码片段：
+
+```Shell
+function brews() {
+  local formulae="$(brew leaves | xargs brew deps --installed --for-each)"
+
+}
+```
+
+## 函数返回
 
 bash shell 会把函数当作一个小型脚本，运行结束时会返回一个退出状态码。
 函数的退出状态码，实际上是最后一条命令执行的退出状态。

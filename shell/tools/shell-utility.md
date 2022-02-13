@@ -145,6 +145,13 @@ echo "dirname = $(dirname $0)"
 echo "basename = $(basename $0)"
 ```
 
+例如 [transfer.sh](https://transfer.sh/) 中，从第一个参数中基于 basename 提取纯文件名：
+
+```Shell
+        file="$1"
+        file_name=$(basename "$file")
+```
+
 ## head/tail
 
 head/tail 命令支持查看文件(file)前/后指定字节(-c)或行数(-n)的内容。
