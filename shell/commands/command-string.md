@@ -1,7 +1,7 @@
 
 ## assign
 
-bash shell 中可通过等号（equality sign）赋值定义变量，右值如果没有引号（单/双）引用，默认都是按照字符串类型。
+bash shell 中可通过等号（equality sign）赋值定义变量，右值即使没有引号（单/双）引用，默认视作**字符串**类型。
 
 ```Shell
 faner@MBP-FAN:~|⇒  testString=define
@@ -13,9 +13,9 @@ define
 
 ### meta
 
-当右值句段遇到 **元字符**（metacharacter） 时，将自动截取第一段分组作为右值，后续句段将按照新的命令解析执行。
+当没有引号封闭（*unquoted*），遇到 **元字符**（metacharacter） 时，将自动分割为多条分组命令。
 
-关于 bash shell 的元字符参考 `man 1 bash` 中 DEFINITIONS 部分的定义：
+关于 bash shell 的元字符，参考 `man 1 bash` 中 DEFINITIONS 部分的定义：
 
 ```Shell
 DEFINITIONS
@@ -26,7 +26,7 @@ metacharacter
 | & ; ( ) < > space tab newline
 ```
 
-以下第一个空格将右值截段，实际有效的赋值命令1为 `testString=define` ，正常有效执行；  
+以下第一个空格将右值截断，实际有效的赋值命令1为 `testString=define` ，正常有效执行；  
 string 为命令2，由于找不到 `string` 命令而提示报错。
 
 ```Shell
@@ -53,17 +53,20 @@ faner@MBP-FAN:~/Downloads|⇒
 
 另外一种常见写法是利用单反斜杠 `\\` 转义掉空格等元字符含义，显式声明采用原生字符义。
 
-```Shell
-# 原义空格
-pi@raspberrypi:~ $ testString=define\ string\ in\ shell\ command\ line
-pi@raspberrypi:~ $ echo $testString 
-define string in shell command line
+以下对空格进行转义，当做原义使用时，等号右侧不再分割为多条命令，而是当做一整条字符串。
 
-# 原义空格和分号
+```Shell
+faner@MBP-FAN:~|⇒  testString=define\ string\ in\ shell\ command\ line
+faner@MBP-FAN:~|⇒  echo $testString
+define string in shell command line
+```
+
+以下对分号和空格进行转义，当做原义使用时，不再执行 cd 切换目录。
+
+```Shell
 faner@MBP-FAN:~|⇒  testShellVar=string\;\ cd\ ~/Downloads
-faner@MBP-FAN:~|⇒  echo $testShellVar 
+faner@MBP-FAN:~|⇒  echo $testShellVar
 string; cd ~/Downloads
-faner@MBP-FAN:~|⇒  
 ```
 
 ## QUOTING
@@ -72,7 +75,7 @@ faner@MBP-FAN:~|⇒
 
 通过单引号（`'single_quoting'`）或双引号（`"double_quoting"`）来封闭引用是编程语言中常见的字符串定义方式。
 
-```obc-c
+```Shell
 QUOTING
 
 Quoting is used to remove the special meaning of certain characters or words to the shell. Quoting can be used to disable special treatment for special characters, to prevent reserved words from being recognized as such, and to prevent parameter expansion.
@@ -116,6 +119,34 @@ mv 'a ~file name.txt' another.txt
 
 # 双引号引用
 mv "a ~file name.txt" another.txt
+```
+
+cd 进入包含空格的目录：
+
+```Shell
+faner@MBP-FAN:~|⇒  cd /Applications/Google\ Chrome.app/Contents/MacOS/
+# 或将 cd 到的目录路径字符串整体用引号封闭，就无需对空格进行转义。
+faner@MBP-FAN:~|⇒  cd "/Applications/Google Chrome.app/Contents/MacOS/"
+```
+
+在 `~/.zshrc` 中添加替身命令prefs，以便快捷打开系统偏好设置面板。
+
+```Shell
+alias prefs='open /System/Applications/System\ Preferences.app'
+# 也可将 open 后面的app路径参数整体用双引号封闭
+alias prefs='open "/System/Applications/System Preferences.app"'
+```
+
+在 `~/.zshrc` 中添加替身命令chrome，以便快捷打开 Google Chrome 浏览器，注意空格必须加转义。
+
+```Shell
+alias chrome="/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome"
+```
+
+但是，对于 export 赋值环境变量，如果对右值整体加双引号引用，则其中的空格无需转义。
+
+```Shell
+export CHROME_EXECUTABLE=/Applications/Google\ Chrome.app/Contents/MacOS/launch-unsafe.sh
 ```
 
 ### vs. assign
@@ -191,6 +222,13 @@ pi@raspberrypi:~ $ varLC_CTYPE="LC_CTYPE = \$LC_CTYPE"
 pi@raspberrypi:~ $ echo ${varLC_CTYPE}
 LC_CTYPE = $LC_CTYPE
 ```
+
+在条件测试一节 [test](../../shell/program/test.md) 中，对于 `[ -n $var ]` 或 `[ -z $var ]` 判空字符串时，如果 var 为未定义（unset）状态，那么 `$var` 会当做普通字符串，而不会解引用，导致 `-n` 测试通过！
+
+为了安全起见，对于方括号中对变量的引用判空，建议**加双引号确保解引用**，兼顾变量 unset 的情况。
+
+- [ ] : <s>if [ -n $var ]; then echo "not empty" ; fi</s>  
+- [x] : if [ -n "$var" ]; then echo "not empty" ; fi  
 
 #### demo
 
