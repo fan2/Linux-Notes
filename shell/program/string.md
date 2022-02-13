@@ -2,6 +2,143 @@
 [linux shell 字符串操作详解](https://www.iteye.com/blog/justcoding-1963463)  
 [shell 变量的高级用法](https://www.cnblogs.com/crazymagic/p/11067147.html)  
 
+## 变量替换
+
+参考 man bash - `Parameter Expansion` 章节
+
+```Shell
+$ man bash
+
+       ${parameter:-word}
+              Use Default Values.  If parameter is unset or null, the  expansion  of  word  is  substituted.
+              Otherwise, the value of parameter is substituted.
+       ${parameter:=word}
+              Assign  Default  Values.   If parameter is unset or null, the expansion of word is assigned to
+              parameter.  The value of parameter is then substituted.   Positional  parameters  and  special
+              parameters may not be assigned to in this way.
+       ${parameter:?word}
+              Display  Error  if  Null or Unset.  If parameter is null or unset, the expansion of word (or a
+              message to that effect if word is not present) is written to the standard error and the shell,
+              if it is not interactive, exits.  Otherwise, the value of parameter is substituted.
+       ${parameter:+word}
+              Use  Alternate  Value.   If  parameter is null or unset, nothing is substituted, otherwise the
+              expansion of word is substituted.
+
+```
+
+[shell 编程：:后面跟-=?+的意义](https://handerfly.github.io/shell/2019/04/03/shell%E7%BC%96%E7%A8%8B%E5%86%92%E5%8F%B7%E5%8A%A0-%E7%AD%89%E5%8F%B7-%E5%8A%A0%E5%8F%B7-%E5%87%8F%E5%8F%B7-%E9%97%AE%E5%8F%B7/)  
+[shell之变量替换：:=、=、:-、-、=?、?、:+、+句法](https://www.cnblogs.com/fhefh/archive/2011/04/22/2024750.html)  
+
+[POSIX](https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html#tag_18_06_02) 文档中的这张表说得很清楚：
+
+|    |*parameter*<br>**Set and Not Null** |*parameter*<br>**Set But Null** |*parameter*<br>**Unset** |
+|:--|:--|:--|:--|
+|**${***parameter***:-***word***}** |substitute *parameter* |substitute *word* |substitute *word* |
+|**${***parameter***-***word***}** |substitute *parameter* |substitute null |substitute *word* |
+|**${***parameter***:=***word***}** |substitute *parameter* |assign *word* |assign *word* |
+|**${***parameter***=***word***}** |substitute *parameter* |substitute null |assign *word* |
+|**${***parameter***:?***word***}** |substitute *parameter* |error, exit |error, exit |
+|**${***parameter***?***word***}** |substitute *parameter* |substitute null |error, exit |
+|**${***parameter***:+***word***}** |substitute *word* |substitute null |substitute null |
+|**${***parameter***+***word***}** |substitute *word* |substitute *word* |substitute null |
+
+[shell 脚本 ${1:-"false"}的含义](https://blog.csdn.net/fhaitao2009/article/details/104165211)
+
+如果 $1 存在并且不为空，则 a=$1；未定义或为空，则 a=false;
+
+[Usage of :- (colon dash) in bash](https://stackoverflow.com/questions/10390406/usage-of-colon-dash-in-bash)  
+
+`${PUBLIC_INTERFACE:-eth0}`: If `$PUBLIC_INTERFACE` exists and isn't null, return its value, otherwise return "eth0".
+
+[How variables inside braces are evaluated](https://unix.stackexchange.com/questions/286335/how-variables-inside-braces-are-evaluated)  
+
+Omitting the `:` drops the "or null" part of all these definitions.
+
+This is all described in the [bash(1) manpage](http://man7.org/linux/man-pages/man1/bash.1.html), and in [POSIX](https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html#tag_18_06_02).
+
+1. 变量未定义：
+
+```Shell
+# 未定义变量
+~  $ unset a
+# 变量未定义，返回default
+~  $ echo "${a:-default}"
+default
+# 变量未定义，返回default
+~  $ echo "${a-default}"
+default
+```
+
+2. 变量有定义，但为空值（空字符串）
+
+```Shell
+# 定义变量，但赋值为空
+~  $ a= # a=''
+# 变量a已定义，但值为空，返回a
+~  $ echo "${a:-default}"
+default
+# 变量a已定义，返回a——空值
+~  $ echo "${a-default}"
+
+~  $
+```
+
+3. 定义变量，且非空值
+
+```Shell
+# 定义变量，且有赋值（非空），返回a
+~  $ a=test
+~  $ echo "${a:-default}"
+test
+~  $ echo "${a-default}"
+test
+```
+
+4. 变量未定义或为空，赋默认值
+
+```Shell
+# 变量未定义，赋默认值
+~  $ unset a
+~  $ echo "${a:=default}"
+default
+~  $ echo $a
+default
+
+# 变量为空值，赋默认值
+~ $ echo $a
+default
+~ $ a=''
+~ $ echo "${a:=default}"
+default
+```
+
+The `+` form might seem strange, but it is useful when constructing variables in several steps:
+
+```Shell
+PATH="${PATH}${PATH:+:}/blah/bin"
+```
+
+will add `:` before `/blah/bin` only if PATH is non-empty, which avoids having a path starting with `:`.
+
+- 如果 PATH 未定义或为空，则什么也不做，第一个环境变量不用添加冒号前缀分隔符；  
+- 如果 PATH 有定义或非空，则相当于在现有 PATH 后面追加变量：`PATH=${PATH}:/blash/bin`；  
+
+### demo
+
+in `/etc/zshrc`: If `ZDOTDIR` is unset(or empty), `HOME` is used instead.
+
+```Shell
+$ vim /etc/zshrc
+
+HISTFILE=${ZDOTDIR:-$HOME}/.zsh_history
+```
+
+[zsh-autosuggestions/INSTALL](https://github.com/zsh-users/zsh-autosuggestions/blob/master/INSTALL.md)：如果变量 `ZSH_CUSTOM` 未定义或为空，则替换为 `~/.oh-my-zsh/custom`。
+
+```Shell
+git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+```
+
 ## 字符串长度
 
 字符串长度计算表达式：`${#string}`
@@ -36,29 +173,57 @@ fi
 
 ## 索引区间
 
+> 注意：字符串的索引从0开始。
+
 表达式 | 含义
 -------|---
-`${string:position}`          | 在 $string 中, 从位置 $position 开始提取子串
-`${string:position:length}`   | 在 $string 中, 从位置 $position 开始提取长度为$length的子串
+`${string:offset}`          | 在 $string 中, 从索引位置 position 开始提取子串至末尾
+`${string:offset:length}`   | 在 $string 中, 从索引位置 position 开始提取，总计 length 个字符的子串
 
+```Shell
+$ man bash
+
+       ${parameter:offset}
+       ${parameter:offset:length}
+              Substring Expansion.  Expands to up to length characters of parameter starting at the  charac-
+              ter specified by offset.  If length is omitted, expands to the substring of parameter starting
+              at the character specified by offset.  length  and  offset  are  arithmetic  expressions  (see
+              ARITHMETIC EVALUATION below).  length must evaluate to a number greater than or equal to zero.
+              If offset evaluates to a number less than zero, the value is used as an offset from the end of
+              the  value of parameter.  If parameter is @, the result is length positional parameters begin-
+              ning at offset.  If parameter is an array name indexed by @ or *, the  result  is  the  length
+              members of the array beginning with ${parameter[offset]}.  A negative offset is taken relative
+              to one greater than the maximum index of the specified array.  Note  that  a  negative  offset
+              must  be  separated  from  the colon by at least one space to avoid being confused with the :-
+              expansion.  Substring indexing is zero-based unless the positional  parameters  are  used,  in
+              which case the indexing starts at 1.
 ```
-${var:n1:n2}
+
+从左向右截取子串：
+
+- `${str:0:1}`: 表示从左边第1个字符开始，截取1个字符，即第一个字符。  
+- `${str:0:5}`：表示从左边第1个字符开始，截取5个字符。  
+- `${str:7}`：表示从左边第8个字符开始，一直到结尾。  
+
+从右向左截取子串：
+
+- `${str:0-1:1}`: 表示从右边第1个字符开始，截取1个字符，即最后一个字符。  
+- `${str:0-2:2}`: 表示从右边第2个字符开始，截取2个字符，即末尾两个字符。  
+- `${str:0-5}`：表示从右边第5个字符开始，一直到结尾。  
+- `${str:0-7:5}`：表示从右边第7个字符开始，截取5个字符。  
+
+```Shell
+name="this is my name";
+# 1:4 从第2个开始 到索引4截止
+$ echo ${name:1:5}
+his i
+# 不能省略开始索引
+$ echo ${name::4}
+zsh: closing brace expected
+# ::4 从第一个字符开始 往后截取4个字符
+$ echo ${name:0:4}
+this
 ```
-
-**解释**：截取n1和n2之间的字符串  
-
-例如：
-
-`${var:0:5}`：表示从左边第1个字符开始，截取5个字符。  
-`${var:7}`：表示从左边第8个字符开始，一直到结尾。  
-`${var:0-7:5}`：表示从右边第7个字符开始，截取5个字符。  
-`${var:0-5}`：表示从右边第5个字符开始，一直到结尾。
-
-- `${str:0:1}`: 第一个字符  
-- `${str:0-1:1}`: 最后一个字符  
-- `${str:0-2:2}`: 末尾两个字符  
-
-判断以某个字符开头、结尾？？？
 
 ## 索引位置
 
@@ -224,7 +389,23 @@ fi
 
 ### 截左留右
 
-`#` 和 `##` 号截断左边留取右边子串（非贪婪模式，贪婪模式） 
+`#` 和 `##` 号截断左边留取右边子串（非贪婪模式，贪婪模式）
+
+```Shell
+$ man bash
+
+       ${parameter#word}
+       ${parameter##word}
+              The word is expanded to produce a pattern just as  in  pathname  expansion.   If  the  pattern
+              matches  the  beginning  of  the  value  of parameter, then the result of the expansion is the
+              expanded value of parameter with the shortest matching pattern (the ``#'' case) or the longest
+              matching pattern (the ``##'' case) deleted.  If parameter is @ or *, the pattern removal oper-
+              ation is applied to each positional parameter in turn, and  the  expansion  is  the  resultant
+              list.   If  parameter is an array variable subscripted with @ or *, the pattern removal opera-
+              tion is applied to each member of the array in turn, and the expansion is the resultant  list.
+
+```
+
 表达式 | 含义
 ---------|----------
 `${string#substring}`	| 从变量 $string 的开头, 删除最短匹配 $substring 的子串
@@ -241,7 +422,24 @@ $ echo $suffix
 
 ### 截右留左
 
-`%` 和 `%%` 号截断右边留取左边子串（非贪婪模式，贪婪模式） 
+`%` 和 `%%` 号截断右边留取左边子串（非贪婪模式，贪婪模式）
+
+```Shell
+$ man bash
+
+       ${parameter%word}
+       ${parameter%%word}
+              The  word  is  expanded  to  produce  a pattern just as in pathname expansion.  If the pattern
+              matches a trailing portion of the expanded value of parameter, then the result of  the  expan-
+              sion is the expanded value of parameter with the shortest matching pattern (the ``%'' case) or
+              the longest matching pattern (the ``%%'' case) deleted.  If parameter is @ or *,  the  pattern
+              removal  operation  is  applied to each positional parameter in turn, and the expansion is the
+              resultant list.  If parameter is an array variable  subscripted  with  @  or  *,  the  pattern
+              removal  operation  is  applied  to each member of the array in turn, and the expansion is the
+              resultant list.
+
+```
+
 表达式 | 含义
 ---------|----------
 `${string%substring}`	| 从变量 $string 的结尾, 删除最短匹配 $substring的子串
@@ -274,9 +472,25 @@ $ echo $prefix
 
 ## 字符串替换
 
-[字符串操作 ${} 的截取，删除和替换](https://www.jianshu.com/p/2305fc9351c2)
+[字符串操作 ${} 的截取，删除和替换](https://www.jianshu.com/p/2305fc9351c2)  
+[Shell脚本中替换字符串等操作](https://blog.csdn.net/jeffiny/article/details/83271889)  
 
-[Shell脚本中替换字符串等操作](https://blog.csdn.net/jeffiny/article/details/83271889)
+```Shell
+$ man bash
+
+       ${parameter/pattern/string}
+              The pattern is expanded to produce a pattern just as  in  pathname  expansion.   Parameter  is
+              expanded and the longest match of pattern against its value is replaced with string.  If Ipat-
+              tern begins with /, all matches of pattern are replaced with string.  Normally only the  first
+              match  is  replaced.  If pattern begins with #, it must match at the beginning of the expanded
+              value of parameter.  If pattern begins with %, it must match at the end of the expanded  value
+              of  parameter.   If string is null, matches of pattern are deleted and the / following pattern
+              may be omitted.  If parameter is @ or *, the substitution operation is applied to  each  posi-
+              tional  parameter  in turn, and the expansion is the resultant list.  If parameter is an array
+              variable subscripted with @ or *, the substitution operation is applied to each member of  the
+              array in turn, and the expansion is the resultant list.
+
+```
 
 expr    | note
 --------|--------

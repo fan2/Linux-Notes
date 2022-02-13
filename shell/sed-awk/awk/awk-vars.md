@@ -172,7 +172,7 @@ ifconfig -l | awk 'BEGIN{OFS="\n"} { for (i=1; i<=NF; i++) print $i}'
 ifconfig -l | awk 'BEGIN{RS=" "} {print}'
 ```
 
-**例2**：按行打印输出 `PATH` 中的环境变量。
+**例2**：按行打印输出 `PATH` 中的环境变量（`print -l $PATH`）。
 
 1. `-F` 指定以 `:` 作为字段分割符（FS），然后在BEGIN中指定输出字段分隔符OFS为换行，BODY部分for循环打印各个字段，即实现了按行打印记录。
 

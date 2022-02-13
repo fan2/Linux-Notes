@@ -300,6 +300,24 @@ ifconfig en0 | awk '/inet /{print $2}'
 
 脚本 [get_lan_ip](../../script/codes/get_lan_ip.sh) 将以上串联起来，先获取网口设备名，再判断网口状态，最后获取网络IP地址。
 
+在该脚本中，先使用 `grep -q` 预匹配在役网口列表，以判断是否存在有线网口，存在再获取有线网卡接口名称（eth_dev）。
+
+```Shell
+# get_lan_ip.sh
+get_lan_ip() {
+
+        # 判断是否存在有线网口
+        local has_eth=false
+        networksetup -listallnetworkservices | grep -q 'Ethernet'
+        if [ $? -eq 0 ]; then
+            has_eth=true
+        fi
+
+        # 获取有线网卡接口名称
+
+}
+```
+
 ## udid
 
 `ios-deploy -c` 打印连接的 iOS 设备信息：

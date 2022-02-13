@@ -18,7 +18,7 @@ get_lan_ip() {
         local eth_inet=''
         if [ $has_eth = true ]; then
             eth_dev=$(networksetup -listallhardwareports | awk '/Hardware Port: Ethernet/{getline; print $NF}')
-            if [ -n $eth_dev ]; then
+            if [ -n "$eth_dev" ]; then
                 eth_status=$(ifconfig $eth_dev | awk '/status:/{print $NF}')
                 if [ $eth_status = active ]; then
                     eth_inet=$(ifconfig $eth_dev | awk '/inet /{print $2}')
@@ -39,7 +39,7 @@ get_lan_ip() {
         local wlan_inet=''
         if [ $has_wlan = true ]; then
             wlan_dev=$(networksetup -listallhardwareports | awk '/Hardware Port: Wi-Fi/{getline; print $NF}')
-            if [ -n $wlan_dev ]; then
+            if [ -n "$wlan_dev" ]; then
                 wlan_status=$(ifconfig $wlan_dev | awk '/status:/{print $NF}')
                 if [ $wlan_status = active ]; then
                     # 获取Wi-Fi SSID

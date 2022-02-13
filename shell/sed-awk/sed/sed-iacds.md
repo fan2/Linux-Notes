@@ -275,7 +275,9 @@ sed -i '' '/- path: \/Classes\/ui\/DeviceMgr\//,/owner_rule/d' bak.code.yml
 
 ## s(ubstitue)
 
-替换命令（substitue）在行中替换文本。
+在 [string](../../program/string.md) 提到 bash 支持内置的模式匹配替换（`${parameter/pattern/string}`），详情参考 man bash 中的 Parameter Expansion 一节。
+
+sed支持s命令（substitue），对文本行执行模式匹配和替换。
 
 ```Shell
 s/pattern/replacement/flags
@@ -307,7 +309,22 @@ The quick brown fox jumps over the lazy dog.
 The quick brown fox jumps over the lazy dog.
 The quick brown fox jumps over the lazy dog.
 The quick brown fox jumps over the lazy dog.
+```
 
+基于bash字符串模式匹配替换的写法如下：
+
+```Shell
+$ sentence="The quick brown fox jumps over the lazy dog"
+$ echo $sentence
+The quick brown fox jumps over the lazy dog
+
+$ echo ${sentence/dog/cat}
+The quick brown fox jumps over the lazy cat
+```
+
+基于 sed 的替换命令写法如下：
+
+```Shell
 $ sed 's/dog/cat/' detail.txt
 The quick brown fox jumps over the lazy cat.
 The quick brown fox jumps over the lazy cat.
@@ -320,6 +337,12 @@ The quick brown fox jumps over the lazy cat.
 以下示例将 AAA 替换为空，相当于移除：
 
 ```Shell
+# 基于bash字符串模式匹配替换
+$ test_text="12312312343242AAAdfasdfasdfasdfasdfadAAAfsdgfsdfgfgfgdfgasdfg"
+$ echo ${test_text//AAA/}
+12312312343242dfasdfasdfasdfasdfadfsdgfsdfgfgfgdfgasdfg
+
+# 基于 sed 替换的写法如下
 $ echo "12312312343242AAAdfasdfasdfasdfasdfadAAAfsdgfsdfgfgfgdfgasdfg" | sed 's/AAA//g'
 12312312343242dfasdfasdfasdfasdfadfsdgfsdfgfgfgdfgasdfg
 ```
