@@ -52,7 +52,7 @@ FILES
 ## raspbian
 
 ```Shell
-#man bash on raspbian
+#man bash on ubuntu and raspbian
 
 FILES
        /bin/bash

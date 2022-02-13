@@ -22,6 +22,8 @@
 	 - 如果 `~/.bash_profile` 文件不存在，才会依此类推读取后面的文件。  
 - `~/.bashrc` 没有上述规则，它是 bash shell 打开的时候载入的。  
 
+**关于配置文件的加载顺序**：请重点阅读 `man bash` 手册中的 INVOCATION、RESTRICTED SHELL 和 FILES 等章节。
+
 ## /etc/profile
 
 全局（公有）配置，不管是哪个用户，登录时都会读取该文件。
