@@ -304,6 +304,10 @@ expression 可以是任意的数学赋值或比较表达式。除了test命令�
 
 ![double-parentheses](./images/shell-double-parentheses.png)
 
+注意：双括号中执行运算时，引用变量不用再加 `$` 引用符。
+
+这句代码 `OPTIND=$(($OPTIND + 1))` 将被 ShellCheck 检测报错 [C2004](https://github.com/koalaman/shellcheck/wiki/SC2004): `$`/`${}` is unnecessary on arithmetic variables. 应修改为 `OPTIND=$((OPTIND + 1))`。
+
 ### 双方括号
 
 双方括号命令提供了针对字符串比较的高级特性。

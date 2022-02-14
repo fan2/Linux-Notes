@@ -50,9 +50,25 @@ $ man bash
 
 `${PUBLIC_INTERFACE:-eth0}`: If `$PUBLIC_INTERFACE` exists and isn't null, return its value, otherwise return "eth0".
 
+### demo
+
+in `/etc/zshrc`: If `ZDOTDIR` is unset(or empty), `HOME` is used instead.
+
+```Shell
+$ vim /etc/zshrc
+
+HISTFILE=${ZDOTDIR:-$HOME}/.zsh_history
+```
+
+[zsh-autosuggestions/INSTALL](https://github.com/zsh-users/zsh-autosuggestions/blob/master/INSTALL.md)：如果变量 `ZSH_CUSTOM` 未定义或为空，则替换为 `~/.oh-my-zsh/custom`。
+
+```Shell
+git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+```
+
 [How variables inside braces are evaluated](https://unix.stackexchange.com/questions/286335/how-variables-inside-braces-are-evaluated)  
 
-Omitting the `:` drops the "or null" part of all these definitions.
+Omitting the `:` drops the "*or null*" part of all these definitions.
 
 This is all described in the [bash(1) manpage](http://man7.org/linux/man-pages/man1/bash.1.html), and in [POSIX](https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html#tag_18_06_02).
 
@@ -123,20 +139,40 @@ will add `:` before `/blah/bin` only if PATH is non-empty, which avoids having a
 - 如果 PATH 未定义或为空，则什么也不做，第一个环境变量不用添加冒号前缀分隔符；  
 - 如果 PATH 有定义或非空，则相当于在现有 PATH 后面追加变量：`PATH=${PATH}:/blash/bin`；  
 
-### demo
-
-in `/etc/zshrc`: If `ZDOTDIR` is unset(or empty), `HOME` is used instead.
+以下是一段来自生产实践中的sh脚本，基于 `:=` 来给未定义或空值变量赋默认值兜底：
 
 ```Shell
-$ vim /etc/zshrc
+    # 兜底启动角色和模式
+    echo "role = ${role:=client}"
+    echo "mode = ${mode:=debug}"
 
-HISTFILE=${ZDOTDIR:-$HOME}/.zsh_history
+    # 兜底默认服务和代理端口
+    echo "web_port = ${web_port:=8080}"
+    echo "proxy_port = ${proxy_port:=8010}"
 ```
 
-[zsh-autosuggestions/INSTALL](https://github.com/zsh-users/zsh-autosuggestions/blob/master/INSTALL.md)：如果变量 `ZSH_CUSTOM` 未定义或为空，则替换为 `~/.oh-my-zsh/custom`。
+以下sh脚本中调用get_lan_ip函数，预期其中会定义未export的全局变量lan_ip。
 
 ```Shell
-git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+    get_lan_ip
+    echo "lan_ip = $lan_ip"
+```
+
+由于无法确保第三方脚本中的其他函数是否定义了该变量，ShellCheck 会报引用安全警告：
+
+[SC2154](https://github.com/koalaman/shellcheck/wiki/SC2154): lan_ip is referenced but not assigned.
+
+如果局域网 LAN IP 获取不到，往往意味着网络服务不可用，可以使用 `:?` 进行判空警告。
+
+```Shell
+    echo "lan_ip = ${lan_ip:?unset or null}"
+```
+
+这样，如果 lan_ip 未定义或为空值，则直接报错中止退出（exit 1）。
+
+```
+Wi-Fi en0 : status=inactive
+./scripts/proxy/launch_shelf.sh: line 33: lan_ip: unset or null
 ```
 
 ## 字符串长度

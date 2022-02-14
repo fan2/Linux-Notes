@@ -225,7 +225,9 @@ LC_CTYPE = $LC_CTYPE
 
 在条件测试一节 [test](../../shell/program/test.md) 中，对于 `[ -n $var ]` 或 `[ -z $var ]` 判空字符串时，如果 var 为未定义（unset）状态，那么 `$var` 会当做普通字符串，而不会解引用，导致 `-n` 测试通过！
 
-为了安全起见，对于方括号中对变量的引用判空，建议**加双引号确保解引用**，兼顾变量 unset 的情况。
+> 具体参考 [shellcheck](../program/shellcheck.md)，其中会警告 SC2070 和 SC2086。
+
+为了安全对变量的引用进行判空，建议 Apply fix for SC2086 —— **加双引号确保安全解引用**，兼顾变量 unset 的情况。
 
 - [ ] : <s>if [ -n $var ]; then echo "not empty" ; fi</s>  
 - [x] : if [ -n "$var" ]; then echo "not empty" ; fi  
@@ -289,6 +291,37 @@ faner@FAN-MB0:/usr/local/Homebrew|stable
 ⇒  cd $(brew --repo)/Library/Taps/homebrew/homebrew-core
 faner@FAN-MB0:/usr/local/Homebrew/Library/Taps/homebrew/homebrew-core|master
 ⇒  
+```
+
+#### secondary
+
+考虑这样一种情形：传入参数 `$1` 为运行模式，mode可能取值 debug、profile、release。
+先尝试从对应的配置文件 .env.debug(profile,release) 中读取 AUTH_TOKEN，如果读取不到，再尝试读取环境变量 DEBUG_AUTH_TOKEN（PROFILE_AUTH_TOKEN、RELEASE_AUTH_TOKEN）。
+
+> export DEBUG_AUTH_TOKEN=`****************************************`
+
+如果配置文件中未定义AUTH_TOKEN，首先要将mode（默认为debug）转换为大写的env_mode，再拼接出环境变量名env_token_key（DEBUG_AUTH_TOKEN），然后要读取名为env_token_key的环境变量的值。
+
+如果直接引用 $env_mode_key，则其值为 DEBUG_AUTH_TOKEN。但我们实际，是想读取环境变量 DEBUG_AUTH_TOKEN 的值。
+这里需要读取字符串定义的变量的值，实际上这个问题有点类似C语言中的二级指针解引用。
+
+参考 [How to get a variable value if variable name is stored as string?](https://stackoverflow.com/questions/1921279/how-to-get-a-variable-value-if-variable-name-is-stored-as-string)，可以这样进行二级解引用赋值：`eval "env_token=\$$env_token_key"`。
+
+```Shell
+    # 配置文件未检测到令牌
+    if [ -z "$auth_token" ]; then
+        # 尝试读取环境变量 (DEBUG PROFILE RELEASE)_AUTH_TOKEN
+        local env_mode=''
+        env_mode=$(echo "$mode" | tr '[:lower:]' '[:upper:]')
+        local env_token_key="$env_mode"_AUTH_TOKEN
+        local env_token=''
+        eval "env_token=\$$env_token_key" # string as var name
+        if [ -n "$env_token" ]; then
+            auth_token=$env_token
+        else
+            echo -e "\033[1;31m未检测到访问 CODING API 的身份认证信息\033[0m，\033[1m请按以下步骤申请配置：\033[0m"
+        fi
+    fi
 ```
 
 ### \`
