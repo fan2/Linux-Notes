@@ -38,16 +38,7 @@ faner    ttys006  Dec  9 22:39
 
 [一篇教会你写90%的shell脚本](https://zhuanlan.zhihu.com/p/264346586)
 
-在创建shell脚本文件时，必须在文件的第一行指定要使用的shell。其格式为：
-
-```Shell
-#!/bin/bash
-
-```
-
-在通常的shell脚本中，井号（`#`）用作注释行，shell会忽略脚本中的注释行，不会解释执行。
-然而，shell脚本文件的第一行是个例外，`#!` 告诉系统该脚本用哪种shell来解释执行。
-这意味着，你可以指定 bash 之外的其他 shell 来运行你的脚本。
+可以把要执行的命令写入sh脚本文件中，shell 解释器会根据命令在脚本文件中的顺序解释执行。
 
 ```Shell
 #!/bin/bash
@@ -56,8 +47,74 @@ date
 who
 ```
 
-可以根据需要，使用分号将两个命令放在一行上，但在shell脚本中，你可以在独立的行中书写命令。
-shell 会按根据命令在文件中出现的顺序进行处理。
+### shebang
+
+脚本首行的 [shebang](https://en.wikipedia.org/wiki/Shebang_(Unix))，一般用来告诉系统采用哪种解释器来解释运行该脚本。
+
+在大多数 Linux 和 BSD 发行版中，env 的路径都是 [usr/bin/env](https://www.ltsplus.com/linux/shell-script-portable-with-usr-bin-env)。
+shebang 的一般是以 `#!` 开头，在 `/usr/bin/env` 后面空格接解释器名称。
+
+```Shell
+#!/usr/bin/env interpreter
+
+```
+
+例如，.py 和 .js 文件的sha-bang 申明如下：
+
+- python：`#!/usr/bin/env python`  
+- node js：`#! /usr/bin/env node`  
+
+在创建bash shell脚本时，第一行的 shebang，通常有以下格式为：
+
+```Shell
+#!/bin/sh
+#!/bin/bash
+#!/usr/bin/env sh
+#!/usr/bin/env bash
+```
+
+在通常的shell脚本中，井号（`#`）用作注释行，shell会忽略脚本中的注释行，不会解释执行。
+然而，shell脚本文件的第一行是个例外，`#!` 告诉系统该脚本用哪种shell来解释执行。
+如果写的是zsh脚本，那么 shebang 可以写成 `#!/bin/zsh`。
+
+`/bin/sh` 和 `/bin/bash` 一致：
+
+```Shell
+$ /bin/sh --version
+GNU bash, version 3.2.57(1)-release (x86_64-apple-darwin21)
+Copyright (C) 2007 Free Software Foundation, Inc.
+
+$ /bin/bash --version
+GNU bash, version 3.2.57(1)-release (x86_64-apple-darwin21)
+Copyright (C) 2007 Free Software Foundation, Inc.
+```
+
+关于 #!/bin/bash 和 #!/usr/bin/env bash 这两种 shebang 的区别，可以参考以下话题：
+
+- #!/usr/bin/python 与 #!/usr/bin/env python 的区别：[1](https://www.jianshu.com/p/96d02f07423d)，[2](https://blog.csdn.net/abcdefg90876/article/details/105445579)，[3](https://www.cnblogs.com/gne-hwz/p/8547173.html)。  
+- [#!/bin/bash 和 #!/usr/bin/env bash 的区别](https://blog.csdn.net/qq_37164975/article/details/106181500)  
+- [What is the difference between "#!/usr/bin/env bash" and "#!/usr/bin/bash"?](https://stackoverflow.com/questions/16365130/what-is-the-difference-between-usr-bin-env-bash-and-usr-bin-bash)  
+- [Why is it better to use "#!/usr/bin/env NAME" instead of "#!/path/to/NAME" as my shebang?](https://unix.stackexchange.com/questions/29608/why-is-it-better-to-use-usr-bin-env-name-instead-of-path-to-name-as-my)  
+
+[Bash Shebang 小结 ](https://www.cnblogs.com/sparkdev/p/9843024.html)：
+
+1. `#!/bin/bash` 是指定解释器绝对路径的经典写法，但无法保证所有系统中的 bash 程序都安装在 /bin 目录。
+
+    - 例如 macOS 可能通过 brew 安装了最新的 GNU bash，需要 shebang 替换成新安装的bash路径：`#!/usr/local/bin/bash`。
+
+2. `#!/usr/bin/env bash` 不指定绝对路径，在当前环境中查找程序的默认版本，因此在不同系统上的移植性更好。
+
+    - 可能的安全隐患：用户误创建了名称为 bash 的程序，并把它的路径添加到 PATH 变量的靠前位置，这样就会使用假 bash 来执行脚本！
+
+3. 如果脚本调用了OS特性相关命令，只需在单一系统中执行，无需考虑兼容性，可采用第一种写法。  
+4. 如果目标是面向跨多种类 Unix 系统，则脚本设计需要兼容通用，建议采用可移植性较强的写法。  
+
+另外，sed 和 awk 都支持 `-f` 选项，从指定脚本文件中加载执行命令，也可以在 .sed 和 .awk 脚本开头指定 shebang。
+
+- linux: `#!/bin/sed -f`，`#!/bin/awk -f`  
+- macOS: `#!/usr/bin/sed -f`， `#!/usr/bin/awk -f`  
+
+接下来就可以直接在命令行执行 `./scripts/test.sed`、`./scripts/test.awk` 来加载解释运行 sed/awk 脚本了。
 
 ### 执行权限
 

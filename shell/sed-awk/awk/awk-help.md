@@ -490,6 +490,13 @@ raspberrypi man page 中归纳为数学运算函数和字符串处理函数。
 - [Awk Tutorial Examples](https://www.thegeekstuff.com/tag/awk-tutorial-examples/)  
 - [awk 工具](https://dywang.csie.cyut.edu.tw/dywang/linuxProgram/node49.html)  
 
+经典应用范例：
+
+- [Some Useful Gawk Scripts](https://sites.cs.ucsb.edu/~sherwood/awk/)  
+- [10 Awesome Awk Command Examples](https://linuxhint.com/awk-command-examples/)  
+- [30 Examples for Awk Command in Text Processing](https://likegeeks.com/awk-command/)  
+- [40 Practical and Useful awk Command in Linux and BSD](https://www.ubuntupit.com/useful-awk-command-in-linux-and-bsd/)  
+
 系列笔记章节：
 
 1. [awk-basic](./awk-basic.md)  

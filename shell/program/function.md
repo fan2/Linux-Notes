@@ -136,49 +136,18 @@ dbl 函数会用 echo 语句来显示计算的结果。
 
 ## 跨脚本调用
 
+### source导入引用脚本
+
 [Shell 脚本调用另一个脚本的三种方法](https://blog.csdn.net/K346K346/article/details/86751705)  
-
-source、点号以及sh命令
-
 [在 Shell 脚本中调用另一个 Shell 脚本的三种方式](https://blog.csdn.net/simple_the_best/article/details/76285429)  
 
 - fork: 如果脚本有执行权限的话，`path/to/foo.sh`。如果没有，`sh path/to/foo.sh`。  
 - exec: `exec path/to/foo.sh`  
 - source: `source path/to/foo.sh`  
 
-### 跨脚本调用函数
+`. aux_etc.sh`/`source aux_etc.sh` 的作用是在同一个shell进程中导入另一个文件（bash.sh）中的脚本，以便引用其中的变量，调用其中定义的函数。
 
-[Bash编程入门-4：函数](https://zhuanlan.zhihu.com/p/59528626)
-
-`source` 命令的作用是在同一个进程中执行另一个文件中的Bash脚本。
-在Bash中使用 `source` 命令，可以实现函数的跨脚本调用。
-
-比如说，有两个脚本 `my_info.bash` 和 `app.bash`。
-
-脚本my_info.sh中的内容是：
-
-```Shell
-#!/bin/bash
-
-function my_info()
-{
-    lscpu >> $1
-    uname –a >> $1
-    free –h >> $1
-}
-```
-
-脚本 `app.bash` 中的内容是：
-
-```Shell
-#!/bin/bash
-
-source ./my_info.bash  #引入另一个脚本
-my_info output.file    #调用另一个脚本中的函数
-```
-
-运行 app.bash 时，执行到 source 命令那一行时，就会执行 my_info.bash 脚本。
-在 app.bash 的后续部分，就可以调用 my_info.bash 中的 my_info 函数。
+> 类似 C/C++ 语言中的 `#include <cstdio>`、python 中的 `import os`、nodejs 中的 `const server = require('server');`。
 
 如果不是在脚本所在目录，而是在外层目录执行sh，那么 source 引入脚本需要相对路径。
 
@@ -191,7 +160,25 @@ source $(dirname $0)/aux_etc.sh
 
 ```
 
-### 脚本封装函数
+假如引入的脚本文件路径是拼接的字符串，则 ShellCheck 将会警告 [SC1090](https://github.com/koalaman/shellcheck/wiki/SC1090): Can't follow non-constant source. Use a directive to specify location.
+
+参考 [Source from string? Is there any way in shell?](https://stackoverflow.com/questions/29324463/source-from-string-is-there-any-way-in-shell)，可考虑用 `eval` 来解释执行 source 语句：
+
+> 以下脚本路径为 scripts/proxy/launch.sh，导入配置脚本的路径为 scripts/conf/debug.conf。
+
+```Shell
+    # 导入shell脚本格式的配置文件
+    script_dir="$(dirname "$(dirname "$0")")"
+    conf=$script_dir/config/"${run_mode:=debug}".conf
+    # echo "conf = $conf"
+    if [ -f "$conf" ]; then
+        eval "source $conf"
+    fi
+```
+
+### 终端调用脚本中的函数
+
+假设我们创建了一个脚本 `~/Projects/shell/test-function.sh`，其内容如下：
 
 ```Shell
 ~/Projects/shell | cat test-function.sh
@@ -213,7 +200,22 @@ echo "script_dir=$script_dir"
 echo "script_name=$script_name"
 ```
 
-执行加载脚本到当前 shell：
+在终端执行点或source命令导入加载脚本，然后就可以在当前命令行中引用sh脚本中定义的变量和函数了。
+
+```Shell
+~ | source ~/Projects/shell/test-function.sh
+
+~ | echo $file_name
+/Users/faner/Projects/shell/test-function.sh
+
+~ | use_python38
+which python3 = /usr/local/bin/python3
+use_python38...
+which python3 = /usr/local/opt/python@3.8/bin/python3
+```
+
+需要注意的是，直接在终端执行脚本，会新起子shell进程。
+在执行完sh后，脚本中未export导出的变量，无法再引用！
 
 ```Shell
 ~/Projects/shell | ./test-function.sh
@@ -221,20 +223,36 @@ file_name=./test-function.sh
 script_dir=.
 script_name=test-function.sh
 
-# 回退一级执行该sh，查验相对路径
-~/Projects/shell | cd ..
-~/Projects | ./shell/test-function.sh
-file_name=./shell/test-function.sh
-script_dir=./shell
-script_name=test-function.sh
+# 变量file_name未export，执行完sh后不可见
+~/Projects/shell | echo $file_name
+
 ```
 
-可以在终端命令行source引入脚本然后调用，以便在当前 shell 启用 python3.8：
+### 调用其他脚本中的函数
+
+[Bash编程入门-4：函数](https://zhuanlan.zhihu.com/p/59528626)
+
+假设有两个脚本 `my_info.bash` 和 `app.bash`，内容如下：
 
 ```Shell
-~ | source ~/Projects/shell/test-function.sh
-~ | use_python38
-which python3 = /usr/local/bin/python3
-use_python38...
-which python3 = /usr/local/opt/python@3.8/bin/python3
+$ cat my_info.sh
+#!/bin/bash
+
+function my_info()
+{
+    lscpu >> $1
+    uname –a >> $1
+    free –h >> $1
+}
 ```
+
+```Shell
+$ cat app.bash
+#!/bin/bash
+
+source ./my_info.bash  #引入另一个脚本
+my_info output.file    #调用另一个脚本中的函数
+```
+
+运行 app.bash 时，执行到 source 命令那一行时，就会执行 my_info.bash 脚本。
+在 app.bash 的后续部分，就可以调用 my_info.bash 中的 my_info 函数。
