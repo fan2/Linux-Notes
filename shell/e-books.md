@@ -70,3 +70,5 @@
 [技巧高超的Shell脚本 101个Linux_Mac OS X_Unix系统的脚本](http://download.csdn.net/download/sames/368523)  
 
 - [Linux-101-Hacks.pdf](https://www.programmer-books.com/wp-content/uploads/2018/07/Linux-101-Hacks.pdf)  
+
+[阮一峰](https://www.ruanyifeng.com/blog/2020/04/bash-tutorial.html) - [《Bash 脚本教程》](https://wangdoc.com/bash/index.html)

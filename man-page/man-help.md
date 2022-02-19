@@ -104,6 +104,11 @@ MAN(1)                         手册分页显示工具                         
        man - 在线参考手册的接口
 ```
 
+### options
+
+`−f`: Equivalent to `whatis`.  
+`−k`: Equivalent to `apropos`.  
+
 ## man pager
 
 man 默认使用可翻页查看的 **less** 作为分页器，可指定 `-P pager`（`--pager=pager`） 选项来修改输出分页器程序。
@@ -192,7 +197,7 @@ lines 39-95 (20-49 %) bytes 959-2253 file /Users/faner/.oh-my-zsh/custom/scripts
 
 ### unix.com
 
-[unix.com](https://www.unix.com/) - [Linux and Unix Man Pages](https://www.unix.com/man-page/opensolaris/1/man/)  
+[unix.com](https://www.unix.com/)
 
 - [Unix Commands - Man Pages](https://www.unix.com/unix-commands.php) - [FREEBSD Man Pages](https://www.unix.com/man-page-collection.php?os=freebsd)  
 - [Linux Commands - Man Pages](https://www.unix.com/linux-commands.php) - [LINUX Man Pages](https://www.unix.com/man-page-collection.php?os=linux)  
@@ -432,6 +437,64 @@ macOS 下的 man(1) 版本为比较陈旧的：
 ```Shell
                                   September 19, 2005                            man(1)
 ```
+
+### start section
+
+如何在 man 打开时，直接定位到指定章节呢？
+
+[How to get specific section inside a MAN page?](https://stackoverflow.com/questions/1201880/how-to-get-specific-section-inside-a-man-page)  
+[How to jump to a specific heading in a man page?](https://serverfault.com/questions/206810/how-to-jump-to-a-specific-heading-in-a-man-page)  
+
+`man` 的 `-P` 选项可以在打开时，替代默认的 PAGER。
+
+> `−P` pager: Specify which pager to use. This option overrides the MANPAGER environment variable, which in turn overrides the PAGER variable. By default, man uses `/usr/bin/less -is`.
+
+封装一个shell函数 man2，在原有 man 命令最后追加一个 `--CS` 选项，指定参数值为 Conventional Section Name，这样打开 manpage 时将跳转到对应章节标题处。
+
+```Shell
+#!/usr/bin/env bash
+
+man2() {
+    # set -x
+    if [ $# -ge 3 ]; then
+        local lastOptArgIndex=$#
+        local lastOptKeyIndex=$((lastOptArgIndex - 1))
+        local optKey=${!lastOptKeyIndex}
+        local optArg=${!lastOptArgIndex}
+        if [ $optKey = '--CS' ] && [ -n "$optArg" ]; then
+            # for GNU: man --pager=
+            man -P "less -p ^\\${optArg}" "${@:1:$((lastOptArgIndex - 2))}"
+        elif [ $optArg = '--CS' ]; then
+            echo "PLS assign Conventional Section!"
+        else
+            man "$@"
+        fi
+    else
+        man "$@"
+    fi
+    # set +x
+}
+
+man2 "$@"
+```
+
+将以上sh脚本保存，并在 `~/.zshrc` 中创建替身命令：
+
+```Shell
+$ chmod +x /usr/local/etc/man2.sh
+$ echo "alias man2=/usr/local/etc/man2.sh" >> ~/.zshrc
+```
+
+然后，我们就可以用 man2 代替 man，通过 `--CS` 指定打开指定章节。
+
+例如：
+
+- man2 1 bash --CS ENVIRONMENT
+- man2 bash --CS "SHELL\ GRAMMAR"
+- man2 bash --CS QUOTING
+- man2 bash --CS PARAMETERS
+- man2 bash --CS EXPANSION
+- man2 bash --CS REDIRECTION
 
 ## [man.vim](http://www.vim.org/scripts/script.php?script_id=5615)
 
