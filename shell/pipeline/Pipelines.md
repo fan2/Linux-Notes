@@ -34,106 +34,6 @@ If **`|&`** is used, *`command`*'s standard error, in addition to its standard o
 mkdir homebrew && curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip 1 -C homebrew
 ```
 
-## cut
-
-cut 可以基于分隔符（separator/delimiter）将行内数据进行切割，分解出所需的信息列。
-
-执行 `cut --version` 查看版本信息：
-
-```Shell
-pi@raspberrypi:~ $ cut --version
-cut (GNU coreutils) 8.26
-Copyright (C) 2016 Free Software Foundation, Inc.
-License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.
-This is free software: you are free to change and redistribute it.
-There is NO WARRANTY, to the extent permitted by law.
-
-Written by David M. Ihnat, David MacKenzie, and Jim Meyering.
-```
-
-执行 `cut --help` 可查看简要帮助（Usage）。
-
-```Shell
--c, --characters=LIST   select only these characters
--d, --delimiter=DELIM   use DELIM instead of TAB for field delimiter
--f, --fields=LIST       select only these fields;
-```
-
-执行 `man cut` 可查看详细帮助手册（Manual Page）：
-
-```Shell
-pi@raspberrypi:~ $ man cut
-
-CUT(1)                                  User Commands                                  CUT(1)
-
-NAME
-       cut - remove sections from each line of files
-
-SYNOPSIS
-       cut OPTION... [FILE]...
-
-DESCRIPTION
-       Print selected parts of lines from each FILE to standard output.
-
-       With no FILE, or when FILE is -, read standard input.
-
-       Mandatory arguments to long options are mandatory for short options too.
-```
-
-### PATH
-
-PATH 环境变量是以 `:` 分隔多个路径，可以使用 cut 命令提取其中部分路径。
-
-```Shell
-faner@MBP-FAN:~|⇒  echo $PATH
-/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin
-faner@MBP-FAN:~|⇒  echo $PATH | cut -d ':' -f 3  
-/bin
-faner@MBP-FAN:~|⇒  echo $PATH | cut -d ':' -f 5
-/sbin
-faner@MBP-FAN:~|⇒  echo $PATH | cut -d ':' -f 3,5
-/bin:/sbin
-```
-
-不小心向 PATH 重复追加了 `/usr/local/sbin`：
-
-```Shell
-pi@raspberrypi:~ $ echo $PATH
-/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/games:/usr/games
-pi@raspberrypi:~ $ PATH=$PATH:/usr/local/sbin
-pi@raspberrypi:~ $ echo $PATH 
-/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/games:/usr/games:/usr/local/sbin
-```
-
-如何删除刚才追加重复的 `/usr/local/sbin`？
-
-直接 `PATH=` 赋值修改前的值 `/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/games:/usr/games`。
-
-执行 `PATH=$(echo $PATH | cut -d : -f 1,3-)` 可移除第2项；
-
-### export
-
-export 声明变量排列整齐，可据此以字符为单位提取固定字符位置区间：
-
-```Shell
-# 获取 export 前4条
-pi@raspberrypi:~ $ export | head -n 4
-declare -x DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/1000/bus"
-declare -x HOME="/home/pi"
-declare -x INFINALITY_FT_AUTOHINT_HORIZONTAL_STEM_DARKEN_STRENGTH="10"
-declare -x INFINALITY_FT_AUTOHINT_INCREASE_GLYPH_HEIGHTS="true"
-
-# 提取12个字符及其后的部分（移除行首的11个字符(declare -x )）
-## 12为起始位置，-后面未指定结束位置，表示至行尾
-pi@raspberrypi:~ $ export | head -n 4 | cut -c 12-
-DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/1000/bus"
-HOME="/home/pi"
-INFINALITY_FT_AUTOHINT_HORIZONTAL_STEM_DARKEN_STRENGTH="10"
-INFINALITY_FT_AUTOHINT_INCREASE_GLYPH_HEIGHTS="true"
-```
-
-其他像 ps、last 等命令输出都由空白（空格或tab 制表符）控制排版格式，连续空白较难合适分割。
-
 ## wc,sort,uniq
 
 ### wc
@@ -213,6 +113,414 @@ faner@MBP-FAN:~/Projects/git/framework/mars/mars/stn/src|master⚡
    2 timing_sync
    2 zombie_task_manager
 ```
+
+## cut
+
+`cut` 命令可基于索引或分隔符（separator/delimiter）将文件或stdin文本行内数据进行切割提取，获取所需的信息域。
+
+在 macOS 终端执行 cut 将显示 usage 简要说明，执行 `man cut` 可查看详细帮助手册（Manual Page）：
+
+```Shell
+faner@MBP-FAN $ man cut
+CUT(1)                    BSD General Commands Manual                   CUT(1)
+
+NAME
+     cut -- cut out selected portions of each line of a file
+
+SYNOPSIS
+     cut -b list [-n] [file ...]
+     cut -c list [file ...]
+     cut -f list [-d delim] [-s] [file ...]
+
+DESCRIPTION
+     The cut utility cuts out selected portions of each line (as specified by list) from each file and
+     writes them to the standard output.  If no file arguments are specified, or a file argument is a single
+     dash (`-'), cut reads from the standard input.  The items specified by list can be in terms of column
+     position or in terms of fields delimited by a special character.  Column numbering starts from 1.
+
+     The list option argument is a comma or whitespace separated set of numbers and/or number ranges.  Num-
+     ber ranges consist of a number, a dash (`-'), and a second number and select the fields or columns from
+     the first number to the second, inclusive.  Numbers or number ranges may be preceded by a dash, which
+     selects all fields or columns from 1 to the last number.  Numbers or number ranges may be followed by a
+     dash, which selects all fields or columns from the last number to the end of the line.  Numbers and
+     number ranges may be repeated, overlapping, and in any order.  If a field or column is specified multi-
+     ple times, it will appear only once in the output.  It is not an error to select fields or columns not
+     present in the input line.
+
+     The options are as follows:
+
+     -b list
+             The list specifies byte positions.
+
+     -c list
+             The list specifies character positions.
+
+     -d delim
+             Use delim as the field delimiter character instead of the tab character.
+
+     -f list
+             The list specifies fields, separated in the input by the field delimiter character (see the -d
+             option.)  Output fields are separated by a single occurrence of the field delimiter character.
+
+     -n      Do not split multi-byte characters.  Characters will only be output if at least one byte is
+             selected, and, after a prefix of zero or more unselected bytes, the rest of the bytes that form
+             the character are selected.
+
+     -s      Suppress lines with no field delimiter characters.  Unless specified, lines with no delimiters
+             are passed through unmodified.
+```
+
+### bytes
+
+`-b`, --bytes=LIST：select only these bytes，按二进制解析处理，提取指定索引的字节。
+
+```Shell
+# 提取第4个字节
+faner@MBP-FAN $ echo "/usr/local/bin" | cut -b 4
+r
+# 提取开头（第1个）至第4个字节
+faner@MBP-FAN $ echo "/usr/local/bin" | cut -b -4
+/usr
+# 提取第2个、第6个这两个字节
+faner@MBP-FAN $ echo "/usr/local/bin" | cut -b 2,6
+ul
+# 提取第6个至末尾的字节
+faner@MBP-FAN $ echo "/usr/local/bin" | cut -b 6-
+local/bin
+```
+
+### characters
+
+对于英语 ASCII 码，一个字符占一个字节，对于 CJK 等多字符集，一个字符的Unicode编码占用2~4个字节。
+如果以可视字符作为索引定位，则需要改用 `-c` 选项。
+
+`-c`, --characters=LIST：select only these characters
+
+对于混合了字母和汉字的字符串 `w我m们d的a爱`，当其按照 `-b` 索引时，第二个`我`字占据第2~4个字节位置。
+
+```Shell
+faner@MBP-FAN $ echo "w我m们d的a爱" | cut -b 1
+w
+faner@MBP-FAN $ echo "w我m们d的a爱" | cut -b 2
+�
+faner@MBP-FAN $ echo "w我m们d的a爱" | cut -b 2,3
+�
+faner@MBP-FAN $ echo "w我m们d的a爱" | cut -b 2,3,4
+我
+faner@MBP-FAN $ echo "w我m们d的a爱" | cut -b 2,3,4,5
+我m
+```
+
+可以通过 `hexdump` 或 `od` 查看其二进制编码，可见这几个汉字每个占据3个字节。
+
+```Shell
+faner@MBP-FAN $ echo "w我m们d的a爱" | hexdump -C
+00000000  77 e6 88 91 6d e4 bb ac  64 e7 9a 84 61 e7 88 b1  |w...m...d...a...|
+00000010  0a                                                |.|
+00000011
+faner@MBP-FAN $ echo "w我m们d的a爱" | od -N 18 -A x -t xCa
+0000000    77  e6  88  91  6d  e4  bb  ac  64  e7  9a  84  61  e7  88  b1
+           w   �  88  91   m   �   �   �   d   �  9a  84   a   �  88   �
+0000010    0a
+          nl
+0000011
+```
+
+通常，使用 `-c` 选项，按照可视字符定位提取的场景更多一点。
+
+```Shell
+# 提取第2个字符
+faner@MBP-FAN $ echo "w我m们d的a爱" | cut -c 2
+我
+# 提取第2个和第3个字符
+faner@MBP-FAN $ echo "w我m们d的a爱" | cut -c 2,3
+我m
+```
+
+export 声明变量排列整齐，可据此以字符为单位提取固定字符位置区间：
+
+```Shell
+# 获取 export 前4条
+pi@raspberrypi:~ $ export | head -n 4
+declare -x DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/1000/bus"
+declare -x HOME="/home/pi"
+declare -x INFINALITY_FT_AUTOHINT_HORIZONTAL_STEM_DARKEN_STRENGTH="10"
+declare -x INFINALITY_FT_AUTOHINT_INCREASE_GLYPH_HEIGHTS="true"
+
+# 提取12个字符及其后的部分（移除行首的11个字符(declare -x )）
+## 12为起始位置，-后面未指定结束位置，表示至行尾
+pi@raspberrypi:~ $ export | head -n 4 | cut -c 12-
+DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/1000/bus"
+HOME="/home/pi"
+INFINALITY_FT_AUTOHINT_HORIZONTAL_STEM_DARKEN_STRENGTH="10"
+INFINALITY_FT_AUTOHINT_INCREASE_GLYPH_HEIGHTS="true"
+```
+
+其他像 ps、last 等命令输出都由空白（空格或tab 制表符）控制排版格式，连续空白较难合适分割。
+
+以下来自 manpage 的示例，相当于提取两个range的子串：
+
+```Shell
+# Show the names and login times of the currently logged in users:
+faner@MBP-FAN $ who | cut -c 1-16,26-38
+```
+
+### delimiter
+
+除了 `-b`、`-c` 按照字节、字符索引提取文本行，还有一个更常用的 `-d` 支持按分割符提取域。
+
+`-d`, --delimiter=DELIM：use DELIM instead of TAB for field delimiter
+
+一般使用 `-d` 指定 DELIM 对文本行进行分割后，往往搭配使用 `-f` 选项提取指定索引域。
+
+`-f`, --fields=LIST：select only these fields; also print any line that contains no delimiter character, unless the -s option is specified
+
+> `cut -d` 可替代 awk 适用一些简单的切割提取场景，`-d` 选项相当于 awk 的 `-F`（`FS`），`-f` 则相当于 `$NF` 引用取域。
+
+---
+
+提取 /etc/passwd 文件中文本行第1个域和第7个域：
+
+```Shell
+faner@MBP-FAN $ echo "nobody:*:-2:-2:Unprivileged User:/var/empty:/usr/bin/false" | cut -d : -f 1,7
+nobody:/usr/bin/false
+
+# 对整个文件文本行进行提取域1和域7
+# Extract users' login names and shells from the system passwd(5) file as ``name:shell'' pairs:
+faner@MBP-FAN $ cut -d : -f 1,7 /etc/passwd | head -20
+```
+
+PATH 环境变量是以 `:` 分隔多个路径，可以使用 cut 命令提取其中部分路径。
+
+```Shell
+faner@MBP-FAN $ echo $PATH
+/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin
+faner@MBP-FAN $ echo $PATH | cut -d ':' -f 3
+/bin
+faner@MBP-FAN $ echo $PATH | cut -d ':' -f 5
+/sbin
+faner@MBP-FAN $ echo $PATH | cut -d ':' -f 3,5
+/bin:/sbin
+```
+
+不小心向 PATH 重复追加了 `/usr/local/sbin`：
+
+```Shell
+pi@raspberrypi:~ $ echo $PATH
+/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/games:/usr/games
+pi@raspberrypi:~ $ PATH=$PATH:/usr/local/sbin
+pi@raspberrypi:~ $ echo $PATH 
+/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/games:/usr/games:/usr/local/sbin
+```
+
+如何删除刚才追加重复的 `/usr/local/sbin`？
+
+直接 `PATH=` 赋值修改前的值 `/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/games:/usr/games`。
+
+执行 `PATH=$(echo $PATH | cut -d : -f 1,3-)` 可移除第2项。
+
+## tr
+
+`tr`（translate）命令支持对stdin进行替换或删除，一般用于删除文件中控制字符或进行字符转换。
+使用tr时一般涉及两个字符串：字符串1用于查询，字符串2用于处理各种转换。
+tr刚执行时，字符串1中的字符被映射到字符串2中的字符，然后开始执行转换。
+
+在 macOS 终端执行 `man tr` 可查看详细帮助手册（Manual Page）：
+
+```Shell
+faner@MBP-FAN $ man tr
+TR(1)                     BSD General Commands Manual                    TR(1)
+
+NAME
+     tr -- translate characters
+
+SYNOPSIS
+     tr [-Ccsu] string1 string2
+     tr [-Ccu] -d string1
+     tr [-Ccu] -s string1
+     tr [-Ccu] -ds string1 string2
+
+DESCRIPTION
+     The tr utility copies the standard input to the standard output with substitution or deletion of
+     selected characters.
+
+     The following options are available:
+
+     -C      Complement the set of characters in string1, that is ``-C ab'' includes every character except
+             for `a' and `b'.
+
+     -c      Same as -C but complement the set of values in string1.
+
+     -d      Delete characters in string1 from the input.
+
+     -s      Squeeze multiple occurrences of the characters listed in the last operand (either string1 or
+             string2) in the input into a single instance of the character.  This occurs after all deletion
+             and translation is completed.
+
+     -u      Guarantee that any output is unbuffered.
+```
+
+- `-c`, -C, --complement: use the complement of SET1. 反选设定字符，也就是符合 SET1 的部份不做处理，不符合的剩余部份才进行转换。
+- `-d`, --delete: delete characters in SET1, do not translate. 删除指令字符。  
+- `-s`, --squeeze-repeats: replace  each  sequence of a repeated character that is listed in the last specified SET, with a single
+occurrence of that character. 缩减连续重复的字符成指定的单个字符。  
+
+### substite
+
+没有指定任何选项时，一般表示替换string1中的字符序列为string2中的字符（序列）。
+
+最典型地应用是大小写转换：
+
+- [convert to Uppercase in shell](https://stackoverflow.com/questions/13700632/convert-to-uppercase-in-shell)  
+- [Changing to Uppercase or Lowercase](https://www.shellscript.sh/tips/case/)  
+- [Shell Scripting: Convert Uppercase to Lowercase](https://www.cyberciti.biz/faq/linux-unix-shell-programming-converting-lowercase-uppercase/)  
+
+```Shell
+# 将文件 testfile 中的大写字母全部转换为小写
+faner@MBP-FAN $ cat testfile | tr A-Z a-z
+
+# 将小写字母全部转换为大写字母
+# 等效实现：awk 'BEGIN { getline; print toupper($0) }'
+faner@MBP-FAN $ echo "dos2unix" | tr '[:lower:]' '[:upper:]'
+DOS2UNIX
+```
+
+以下为 manpage 中的示例，将含附加标号的英文字母（参考 [Diacritic](https://en.wikipedia.org/wiki/Diacritic)）替换为普通字母。
+
+- 拉丁文中的字母：ùúûü  
+- 汉语拼音字母：ūúǔùǖǘǚǜü  
+
+```Shell
+# 将拉丁字母中的变种u替换为普通u
+faner@MBP-FAN $ tr "[=u=]" "u" <<< ùúûü
+uuuu
+# 移除字母e的变种标号，替换为普通e
+faner@MBP-FAN $ tr "[=e=]" "e" <<< "hëhë, hēcha, héliu, êxin, hèka, ęě"
+hehe, hēcha, heliu, exin, heka, ęě
+# 将文件file1中的变种e普通化后保存到file2
+faner@MBP-FAN $ tr "[=e=]" "[e*]" <file1 >file2
+```
+
+以下示例将文件1中的大括号替换为小括号，然后保存输出到 file2。
+
+> 注意这里左右括号的对应替换顺序。
+
+```Shell
+faner@MBP-FAN $ tr '{}' '()' < file1 > file2
+```
+
+以下示例将字符串中的空格转换为制表符，默认每个空格都会转换。
+
+```Shell
+faner@MBP-FAN $ echo "This is a  test" | tr '[:space:]' '\t'
+This    is      a               test    %
+```
+
+指定 `-s` 选项，可压缩这些重复的空格：
+
+```Shell
+faner@MBP-FAN $ echo "This is a  test" | tr -s '[:space:]' '\t'
+This    is      a       test    %
+```
+
+以下使用 `-s` 选项去除重复字母，或将相同字母进行压缩。
+
+```Shell
+faner@MBP-FAN $  cat oops.txt
+And the cowwwwws went homeeeeeeee
+Or did theyyyy
+
+faner@MBP-FAN $  tr -s '[a-z]' < oops.txt
+And the cows went home
+Or did they
+```
+
+以下使用 `-s` 选项移除文件中的空行。
+
+> `-d` 会移除所有文本行结尾的换行符。
+
+```Shell
+# tr -s "[\012]" < oops.txt
+faner@MBP-FAN $ tr -s "[\n]" < oops.txt
+```
+
+利用 `tr -s` 替换回车换行符（`\r\n`）为换行符（`\n`），实现dos2unix（crlf->lf）：
+
+```Shell
+faner@MBP-FAN $ tr -s "[\r\n]" "[\n*]" < include/litestd.h
+faner@MBP-FAN $ tr -s "[\015\012]" "[\012*]" < include/litestd.h
+```
+
+来自 unix/POSIX - [tr](https://pubs.opengroup.org/onlinepubs/9699919799/utilities/tr.html) manpage 的一个样例：
+
+```Shell
+# creates a list of all words in file1 one per line in file2, where a word is taken to be a maximal string of letters.
+tr -cs "[:alpha:]" "[\n*]" <file1 >file2
+```
+
+下面的文件包含一个星期的日程表，需要从其中删除所有数字，只保留日期。
+
+```Shell
+faner@MBP-FAN $ $ cat diary.txt
+Monday     08:00
+Tuesday    08:10
+wednesday  08:20
+Thursday   08:30
+friday     08:40
+Saturday   08:50
+sunday     09:00
+```
+
+基于 `-c` 的补集思路：把星期之外的非字母替换为换行符，相当于移除星期之后的部分。
+
+```Shell
+# cat diary.txt | tr -cs "[a-z][A-Z]" "[\n*]"
+faner@MBP-FAN $ cat diary.txt | tr -cs "[:alpha:]" "[\n*]"
+Monday
+Tuesday
+Wednesday
+Thursday
+Friday
+Saturday
+Sunday
+```
+
+文件每行所有不包含在大小写字母集合 `[a-z]` 或 `[A-Z]` 中的字符串放在字符串1中并转换为新行。
+
+> `-c` 表明保留所有字母不动，取其补集；`-s` 选项表明压缩所有新行。
+
+### delete
+
+使用 `-d` 选项可以删除指定的字符（集），例如 `tr -d '[:space:]'`（`tr -d ' '`） 删除空格。
+
+```Shell
+# 删除所有的小写字母
+faner@MBP-FAN $ echo 'Hua Wei' | tr -d a-z
+H W
+```
+
+使用 `-cd` 组合选项，则删除指定的字符（集）之外的其他字符，以下为 manpage 示例。
+
+```Shell
+# 删除可打印字符的补集，即删除不可打印字符。
+faner@MBP-FAN $ tr -cd "[:print:]" < file1
+```
+
+dos2unix（crlf->lf）的另外一种实现是利用 `tr -d`，删除回车控制字符（`\r`），并输出到新文件：
+
+```Shell
+faner@MBP-FAN $ cat include/litestd.h | tr -d '[\r]' > include/litestd2.h
+faner@MBP-FAN $ tr -d '[\r]' < include/litestd.h > include/litestd2.h
+faner@MBP-FAN $ tr -d "[\015]" < include/litestd.h | tee include/litestd2.h
+```
+
+上面示例基于补集替换提取 diary.txt 中的日期列，另一种思路是基于 `-d` 删除除星期之外的所有字符，包括空格、数字和冒号。
+
+```Shell
+faner@MBP-FAN $ cat diary.txt | tr -d "[0-9][: ]"
+```
+
+**注意**：`tr -cd "[:alpha:]"` 会将末尾的换行符也删除，`tr -cd "[:alpha:][\n]"` 符合预期。
 
 ## xargs
 
@@ -311,9 +619,9 @@ xargs 命令一般紧跟在管道操作符之后，以标准输入作为主要�
 brew list --cask | xargs -t brew upgrade --cask
 ```
 
-xargs 和 find 算是一对死党，两者结合使用可以让任务变得更轻松。
+xargs 和 find 算是一对死党，两者结合使用可以让任务变得更轻松，详情参考 [find](../commands/find.md)。
 
-#### tricks
+### tricks
 
 无法通过 xargs 传递数值做正确的算术扩展：
 
