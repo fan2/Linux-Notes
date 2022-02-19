@@ -141,6 +141,16 @@ $ find . \! -iname "*.c"
              Print out a list of all the files which are not both newer than ttt and owned by ``wnj''.
 ```
 
+以下示例，同时指定符合和不符合的条件：
+
+```Shell
+# 查找 *.txt 文件，但是忽略 .txt、.vimrc、.data 等隐藏文件（hidden dot files）。
+$ find . -type f \( -iname "*.txt" ! -iname ".*" \)
+
+# 查找所有的点隐藏文件（hidden dot files），但是忽略 .htaccess 文件。
+$ find . -type f \( -iname ".*" ! -iname ".htaccess" \)
+```
+
 #### or
 
 `-name ` 每次只能指定一种文件名通配规则，如果要复合匹配多个规则，可使用逻辑运算符。
@@ -165,13 +175,15 @@ $ find . -iname "*.txt" -o -iname "*.pdf"
 
 当带有多个同类条件时，也可通过括号将同类条件（-iname）括起来，方便归拢逻辑和提高阅读体验。
 
-> `\(` 以及 `\)` 用于将 `-name "*.txt" -o -name "*.pdf` 视为一个整体。
+> `\(` 以及 `\)` 用于将 `-name "*.txt" -o -name "*.pdf` 视为一个逻辑整体。
 
 ```Shell
 $ find . \( -iname "*.txt" -o -iname "*.pdf" \)
 ```
 
-当把 find 结果传给 -exec 执行或管传给 xargs 执行时，如果不加括号，则实际效果看起来只传参了匹配 -o 后面的那一部分！？
+---
+
+当把 find 结果传给 -exec 执行或管传给 xargs 执行时，**如果不加括号**，则实际效果看起来只传参了匹配 -o 后面的那一部分！？
 
 以下脚本本意是删除 testDir1 目录下的所有文件夹 __MACOSX 和隐藏文件 .DS_Store，实际只删除了 .DS_Store：
 
@@ -402,6 +414,63 @@ $ find . -maxdepth 1 -name "f*" -print
 $ find . -mindepth 2 -name "f*" -print
 ```
 
+查找一级目录和二级目录下的 conf 文件：
+
+```Shell
+$ find / -type f -name "*.conf" -not -path "/etc/fonts/*" ! -path "*/tmpfiles.d/*" -maxdepth 2 2>/dev/null
+```
+
+部分结果如下：
+
+```Shell
+/etc/deluser.conf
+/etc/sudo.conf
+/etc/fuse.conf
+/etc/overlayroot.conf
+/etc/host.conf
+/etc/adduser.conf
+/etc/multipath.conf
+/etc/ca-certificates.conf # line
+/etc/sysctl.conf
+/etc/ucf.conf
+```
+
+查找三级目录下的 conf 文件：
+
+```Shell
+$ find / -type f -name "*.conf" -not -path "/etc/fonts/*" ! -path "*/tmpfiles.d/*" -mindepth 3 -maxdepth 3 2>/dev/null
+```
+
+部分结果如下：
+
+```Shell
+/etc/avahi/avahi-daemon.conf
+/etc/ldap/ldap.conf
+/etc/pulse/client.conf
+/etc/dhcp/dhclient.conf
+/etc/ufw/ufw.conf
+/etc/ufw/sysctl.conf
+/etc/systemd/user.conf
+/etc/systemd/resolved.conf
+/etc/systemd/system.conf
+/etc/systemd/sleep.conf
+/etc/systemd/networkd.conf
+/etc/udev/udev.conf
+/etc/PackageKit/Vendor.conf
+/etc/PackageKit/PackageKit.conf
+/etc/lvm/lvm.conf
+```
+
+查找限定四级目录下的部分结果：
+
+```Shell
+/run/NetworkManager/conf.d/netplan.conf
+/run/systemd/resolve/resolv.conf
+/usr/lib/systemd/resolv.conf
+/usr/share/ufw/ufw.conf
+/usr/share/adduser/adduser.conf
+```
+
 #### -prune
 
 使用 `-prune` 选项可使 find 命令不在当前指定的目录中查找。
@@ -568,6 +637,7 @@ $ find . -type d -name DerivedData | xargs du -hs
 
 ```Shell
 # 需要先 cd 到 OfflineFile 目录
+# cat 找到的所有 cpp 文件，都重定向到 all 文件，相当于拼接
 $ ls -R | grep '.*\.cpp$' | xargs cat > all_cpp_codes.cpp
 # or
 $ find OfflineFile -type f -iname "*.cpp" | xargs cat > all_cpp_codes.cpp
@@ -771,6 +841,110 @@ $ find . -type f -size +1M -print0 | xargs -0 du -csh | sort -rh
 为安全起见，建议后续都配套采用 `find -print0 | xargs -0` 解析模式。
 
 ### demos
+
+#### exclude dir
+
+需求：find 查找 / 四级以内目录下的的所有 conf 文件，排除 /etc/fonts/ 和路径包含 tmpfiles.d 的目录，如下：
+
+- ./etc/fonts/  
+- ./etc/tmpfiles.d/  
+- ./usr/lib/tmpfiles.d/  
+
+[Exclude Certain Paths With the find Command](https://www.baeldung.com/linux/find-exclude-paths)  
+
+```Shell
+# 2. Using the -prune Option
+$ find . \( -path ./jpeg -prune -o -path ./mp3 -prune \) -o -print
+# 3,4. Using the -not/! Operator; 
+$ find . -type f -not -path '*/mp3/*'
+```
+
+[Find command Exclude or Ignore Files (e.g. Ignore All Hidden .dot Files )](https://www.cyberciti.biz/faq/find-command-exclude-ignore-files/)  
+
+```Shell
+# find all *.txt files in the current directory but exclude ./Movies/, ./Downloads/, and ./Music/ folders:
+$ find . -type f -name "*.txt" ! -path "./Movies/*" ! -path "./Downloads/*" ! -path "./Music/*" 
+```
+
+实测：
+
+```Shell
+# 仅忽略了 /etc/fonts/*/*，还是打印 /etc/fonts/conf.avail,/etc/fonts/fonts.conf,/etc/fonts/conf.d
+$ find / \( -path "/etc/fonts/*" -prune -o -path "*/tmpfiles.d/*" -prune \) -o -name "*.conf" -maxdepth 4
+$ find / -type d \( -path "/etc/fonts/*" -o -path "*/tmpfiles.d/*" \) -prune -o -name "*.conf" -maxdepth 4
+# 找到了路径匹配了两个目录，且后缀为conf的文件，与预期相反的结果
+$ find / \( -path "/etc/fonts/*" -prune -o -path "*/tmpfiles.d/*" -prune \) -name "*.conf" -maxdepth 4
+$ find / \( -path "/etc/fonts/*" -o -path "*/tmpfiles.d/*" \) -prune -name "*.conf" -maxdepth 4
+# 符合预期！
+$ find / -type f -name "*.conf" -not -path "/etc/fonts/*" ! -path "*/tmpfiles.d/*" -maxdepth 4
+```
+
+[How to exclude a directory in find . command](https://stackoverflow.com/questions/4210042/how-to-exclude-a-directory-in-find-command)  
+
+https://stackoverflow.com/a/15736463
+
+If -prune doesn't work for you, this will:
+
+```Shell
+$ find -name "*.js" -not -path "./directory/*"
+```
+
+https://stackoverflow.com/a/4210072
+
+```Shell
+# Use the -prune primary. For example, if you want to exclude ./misc:
+$ find . -path ./misc -prune -o -name '*.txt' -print
+
+# To exclude multiple directories, OR them between parentheses.
+$ find . -type d \( -path ./dir1 -o -path ./dir2 -o -path ./dir3 \) -prune -o -name '*.txt' -print
+
+# And, to exclude directories with a specific name at any level, use the -name primary instead of -path.
+$ find . -type d -name node_modules -prune -o -name '*.json' -print
+
+# From ~/ on my macOS cleans it up nicely ?
+$ find . -type d \( -path "./Library/*" -o -path "./.Trash" \) -prune -o -name '.DS_Store' -print0 | xargs -0 rm
+```
+
+https://stackoverflow.com/a/16595367
+
+```Shell
+# I find the following easier to reason about than other proposed solutions:
+$ find build -not \( -path build/external -prune \) -name \*.js
+# you can also exclude multiple paths
+$ find build -not \( -path build/external -prune \) -not \( -path build/blog -prune \) -name \*.js
+```
+
+https://stackoverflow.com/a/4210234
+
+I prefer the -not notation ... it's more readable:
+
+```Shell
+$ find . -name '*.js' -and -not -path directory
+```
+
+https://stackoverflow.com/a/49296451
+
+This is the only one that worked for me.
+
+```Shell
+# Searching for "MyFile" excluding "Directory".
+# Give emphasis to the stars * .
+# works on macOS
+$ find / -name MyFile ! -path '*/Directory/*'
+# locate native package.json
+$ find . -name package.json ! -path '*/node_modules/*'
+```
+
+另外，find / 还会有大量访问权限受限的错误提示：`find: ‘/lost+found’: Permission denied`。
+
+[How can I exclude all "permission denied" messages from "find"?](https://stackoverflow.com/questions/762348/how-can-i-exclude-all-permission-denied-messages-from-find)
+
+所以最终的答案如下：
+
+```Shell
+$ find / -type f -name "*.conf" -not -path "/etc/fonts/*" ! -path "*/tmpfiles.d/*" -maxdepth 4 2>/dev/null
+$ find / -not \( -path "/etc/fonts/*" -prune \) -not \( -path "*/tmpfiles.d/*" -prune \) -name "*.conf" -maxdepth 4 2>/dev/null
+```
 
 #### delete file
 
