@@ -162,14 +162,14 @@ eval opt3="\$$index"
 echo "$opt3"
 ```
 
----
+#### \$@ 和 \$*
 
 有时候需要抓取命令行上提供的所有参数，不需要基于变量个数 `$#` 进行遍历，而是可以基于特殊变量来解决这个问题。
 `$*` 和 `$@` 这两个变量都能够在单个变量中存储所有的命令行参数，使得我们可以轻松访问所有的命令行参数。
 
 `$*` 变量会将命令行上提供的所有参数当作一个单词保存，这个单词包含了命令行中出现的每一个参数值。也就是说，`$*` 变量会将这些参数视为一个整体，而不是多个个体。
 `$@` 变量会将命令行上提供的所有参数当作同一字符串中的多个独立的单词，这样你就能够通过for遍历读取每个参数。
-这两个变量的工作方式不太容易理解，通过下面的示例，可以帮助我们更好地理解二者之间的区别。
+这两个变量的工作方式不太容易理解，通过下面的示例演绎，可以帮助我们更好地理解二者之间的区别。
 
 > 但是在脚本中，对于参数数组的切片写法 `${*:2:3}` 和 `${@:2:3}` 是等效的，都是读取 $2 开始的3个元素。
 
@@ -208,7 +208,7 @@ count=1
 #
 for param in "$*"; do
     echo "\$* Parameter #$count = $param"
-    count=$(($count + 1))
+    count=$((count + 1))
 done
 #
 echo
@@ -216,7 +216,7 @@ count=1
 #
 for param in "$@"; do
     echo "\$@ Parameter #$count = $param"
-    count=$(($count + 1))
+    count=$((count + 1))
 done
 ```
 
@@ -236,6 +236,87 @@ $@ Parameter #4 = jessica
 通过使用for命令遍历这两个特殊变量，可以看到它们是如何不同地处理命令行参数的。
 `$*` 变量会将所有参数当成单个参数；而 `$@` 变量会单独处理每个参数。
 故通常基于 `$@` 遍历读取命令行参数。
+
+我们再来看看下列测试程序
+
+```Shell
+#!/usr/bin/env bash
+
+mainAt() {
+  echo "mainAt param count = $#"
+  count=1
+  for param in "$@"; do
+    echo "\$@ Parameter #$count = $param"
+    count=$((count + 1))
+  done
+}
+
+mainAs() {
+  echo "mainAs param count = $#"
+  count=1
+  # for 1
+  for param in $*; do
+  # for 2
+  # for param in "$*"; do
+    echo "\$* Parameter #$count = $param"
+    count=$((count + 1))
+  done
+}
+
+mainAt "$@"
+# mainAs 1
+mainAs $*
+# mainAs 2
+# mainAs "$*"
+```
+
+从运行结果可知，当给函数传递 `$*` 和 for 循环中引用 `$*` 时，都没加引号，for遍历效果才符合预期。
+
+如果给函数传递 `"$*"`加了双引号，或在for循环的 `$*` 加了双引号，那么将会被当成一个字符串，不会按空格切割数组。
+
+> [SC2066](https://github.com/koalaman/shellcheck/wiki/SC2066): Since you double quoted this, it will not word split, and the loop will only run once.
+
+```Shell
+# mainAs 1, for 1
+$ ./test-array-param.sh p q r
+mainAt param count = 3
+$@ Parameter #1 = p
+$@ Parameter #2 = q
+$@ Parameter #3 = r
+mainAs param count = 3
+$* Parameter #1 = p
+$* Parameter #2 = q
+$* Parameter #3 = r
+
+# mainAs 2, for 1
+$ ./test-array-param.sh p q r
+mainAt param count = 3
+$@ Parameter #1 = p
+$@ Parameter #2 = q
+$@ Parameter #3 = r
+mainAs param count = 1
+$* Parameter #1 = p
+$* Parameter #2 = q
+$* Parameter #3 = r
+
+# mainAs 1, for 2
+$ ./test-array-param.sh p q r
+mainAt param count = 3
+$@ Parameter #1 = p
+$@ Parameter #2 = q
+$@ Parameter #3 = r
+mainAs param count = 3
+$* Parameter #1 = p q r
+
+# mainAs 2, for 2
+$ ./test-array-param.sh p q r
+mainAt param count = 3
+$@ Parameter #1 = p
+$@ Parameter #2 = q
+$@ Parameter #3 = r
+mainAs param count = 1
+$* Parameter #1 = p q r
+```
 
 ## 用户输入参数
 

@@ -295,24 +295,51 @@ bash shell 提供了两项可在 if-then 语句中使用的高级特性：
 
 ### 双括号
 
-双括号命令允许你在比较过程中使用高级数学表达式。
+双括号命令 `(( expression ))` 支持更多的数学运算符。
+双括号表达式有状态返回码，当运算结果非零时，返回0；否则，返回1。
+相比test命令只能使用简单的算术操作，双括号命令允许在比较过程中使用高级数学表达式。
 
-双括号命令的格式如下：`(( expression ))`
+```Shell
+$ man bash
 
-expression 可以是任意的数学赋值或比较表达式。除了test命令使用的标准数学运算符，还支持其他运算符。  
-可以在if语句中用双括号命令，也可以在脚本中的普通命令里使用来赋值。  
+((expression))
+
+The expression is evaluated according to the rules described below under ARITHMETIC EVALUATION. If the value of the expression is non-zero, the return status is 0; otherwise the return status is 1. This is exactly equivalent to let "expression".
+```
 
 ![double-parentheses](./images/shell-double-parentheses.png)
 
-注意：双括号中执行运算时，引用变量不用再加 `$` 引用符。
+可以在脚本中使用双括号来执行数学运算，也可以使用if判断计算结果状态。
 
-这句代码 `OPTIND=$(($OPTIND + 1))` 将被 ShellCheck 检测报错 [C2004](https://github.com/koalaman/shellcheck/wiki/SC2004): `$`/`${}` is unnecessary on arithmetic variables. 应修改为 `OPTIND=$((OPTIND + 1))`。
+```sh
+#!/bin/bash
+
+n=0
+(( n += 1 )) #Increment
+echo $? # 返回0
+(( n -= 1))
+echo $? # 返回1
+echo "n = $n"
+
+val1=10
+
+if (( $val1 ** 2 > 90 ))
+then (( val2 = $val1 ** 2 ))
+    echo "The square of $val1 is $val2"
+fi
+```
 
 ### 双方括号
 
-双方括号命令提供了针对字符串比较的高级特性。
+双方括号表达式 `[[ expression ]]` 提供了针对字符串比较的高级特性。
 
-双方括号命令的格式如下：`[[ expression ]]`
+```Shell
+$ man bash
+
+[[ expression ]]
+
+Return a status of 0 or 1 depending on the evaluation of the conditional expression expression.
+```
 
 双方括号里的expression使用了test命令中采用的标准字符串比较。但它提供了test命令未提供的另一个特性——**模式匹配**（pattern matching）。
 

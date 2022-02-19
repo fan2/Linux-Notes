@@ -1,4 +1,4 @@
-## 运算表达式
+# 表达式
 
 [Difference between let, expr and $[]](https://askubuntu.com/questions/939294/difference-between-let-expr-and)
 
@@ -22,7 +22,7 @@ zsh: command not found: 6
 
 在 bash shell 脚本中有以下几种运算表达式的书写方式。
 
-### expr
+## expr
 
 最开始，Bourne shell 提供了一个特别的命令用来处理数学表达式。
 expr 命令允许在命令行上处理数学表达式，但是特别笨拙。
@@ -80,7 +80,68 @@ z=6
 前两种运算符与算子之间没有空格，被当成了字符串拼接。
 第三种是正确的 expr 算术表达式写法，结果符合预期。
 
-### $[]
+## let
+
+`let` command performs arithmetic evaluation and is a shell built-in.
+
+bash shell 内置支持的 let 表达式，直接引用变量，而无需美元符号解引用，更接近于 C 等现代编程语言里面的自然表达式。
+
+范式：`let var3=var1+var2`
+
+```sh
+$ z=0
+$ let z=z+3 # 等效: let z+=3
+$ let "z += 3"
+$ echo "z = $z"
+6
+
+$ let 'sum=10+1'
+$ echo "sum = $sum"
+sum = 11
+```
+
+综合示例：
+
+```sh
+$ var1=5
+$ var2=1
+$ let x=var1+var2
+$ echo "x=$x"
+x=6
+
+$ let "y=var1+var2"
+$ echo "y=$y"
+y=6
+```
+
+let 表达式更自然，算子引用的变量直接采用变量名，无需添加美元符号，推荐使用。
+
+以下用 `let` 表达式实现 for 循环中记录递增的索引：
+
+```sh
+$ i=0
+$ let index=i+1
+$ echo $i $index
+0 1
+
+$ let i++
+$ echo $i
+1
+
+$ let i+=1
+$ echo $i
+2
+
+$ let index=i++
+$ echo $i $index
+3 2
+
+$ let index=++i
+$ echo $i $index
+4 4
+```
+
+## $[]
 
 bash shell 为了保持跟 Bourne shell 的兼容而包含了 expr 命令，但同时提供了一种更简单的方法来执行数学表达式。
 在 bash 中，在将一个数学运算结果赋给某个变量时，可以用美元符号和方括号（`$[operation]`）将数学表达式围起来。
@@ -151,94 +212,26 @@ $ echo The final result is $var4
 如果需要在shell脚本中进行浮点数运算，可以考虑看看 z shell，zsh 提供了完整的浮点数算术操作。  
 也可将表达式重定向到 bash 内置计算器 `bc` 做计算，参考 REDIRECTION 相关议题。
 
-### let
+## (())
 
-`let` command performs arithmetic evaluation and is a shell built-in.
-
-bash shell 内置支持的 let 表达式，直接引用变量，而无需美元符号解引用，更接近于 C 等现代编程语言里面的自然表达式。
-
-范式：`let var3=var1+var2`
-
-```sh
-$ z=0
-$ let z=z+3 # 等效: let z+=3
-$ let "z += 3"
-$ echo "z = $z"
-6
-
-$ let 'sum=10+1'
-$ echo "sum = $sum"
-sum = 11
-```
-
-综合示例：
-
-```sh
-$ var1=5
-$ var2=1
-$ let x=var1+var2
-$ echo "x=$x"
-x=6
-
-$ let "y=var1+var2"
-$ echo "y=$y"
-y=6
-```
-
-let 表达式更自然，算子引用的变量直接采用变量名，无需添加美元符号，推荐使用。
-
-以下用 `let` 表达式实现 for 循环中记录递增的索引：
-
-```sh
-$ i=0
-$ let index=i+1
-$ echo $i $index
-0 1
-
-$ let i++
-$ echo $i
-1
-
-$ let i+=1
-$ echo $i
-2
-
-$ let index=i++
-$ echo $i $index
-3 2
-
-$ let index=++i
-$ echo $i $index
-4 4
-```
-
-### (())
-
-test 命令只能在比较中使用简单的算术操作。
-双括号命令允许你在比较过程中使用高级数学表达式。
-双括号命令提供了更多的数学符号，这些符号对于用过其他编程语言的程序员而言并不陌生。
-
-双括号命令的格式如下：
-
-```sh
-(( expression ))
-```
-
-双括号表达式，实际上等效于 let 表达式。
-
-> This is exactly equivalent to `let` "expression"
+双括号命令 `(( expression ))` 支持更多的数学运算符。
+双括号表达式有状态返回码，当运算结果非零时，返回0；否则，返回1。
+相比test命令只能使用简单的算术操作，双括号命令允许在比较过程中使用高级数学表达式。
 
 表12-4列出了双括号命令中会用到的其他运算符：
 
 ![double-parentheses](./images/shell-double-parentheses.png)
 
-可以在if语句中用双括号命令，也可以在脚本中的普通命令里使用来赋值。
+可以在脚本中使用双括号来执行数学运算，也可以使用if判断计算结果状态。
 
 ```sh
 #!/bin/bash
 
 n=0
 (( n += 1 )) #Increment
+echo $? # 返回0
+(( n -= 1))
+echo $? # 返回1
 echo "n = $n"
 
 val1=10
@@ -248,10 +241,6 @@ then (( val2 = $val1 ** 2 ))
     echo "The square of $val1 is $val2"
 fi
 ```
-
-双括号内的算式中，解引用变量时可不添加美元符号。
-
-> Within double parentheses, parameter dereferencing is optional.
 
 关于双括号的场景，参考bash中C语言风格的for循环格式：
 
@@ -269,7 +258,7 @@ for (( a = 1; a < 10; a++ ))
 - 条件中的变量不以美元符开头  
 - 迭代过程的算式未用expr命令格式。  
 
-#### arithexp
+### $(())
 
 [Arithmetic Expansion](https://www.tldp.org/LDP/abs/html/arithexp.html)
 
@@ -290,6 +279,18 @@ for (( a = 1; a < 10; a++ ))
        TION.  If expression is invalid, bash prints a message indicating failure and no substi-
        tution occurs.
 ```
+
+根据 Shell Check 建议，在做数学运算时，应采用 `$(())` 代替 `expr` 和 `let` 表达式以及 `$[ ]`。
+
+- [SC2003](https://github.com/koalaman/shellcheck/wiki/SC2003): `expr` is antiquated. Consider rewriting this using `$((..))`, `${}` or `[[ ]]`.  
+- [SC2007](https://github.com/koalaman/shellcheck/wiki/SC2007): Use `$((..))` instead of deprecated `$[..]`.  
+- [SC2219](https://github.com/koalaman/shellcheck/wiki/SC2219): Instead of `let` expr, prefer `(( expr ))` .
+
+**注意**：双括号中的表达式，解引用变量时可不添加美元符号。
+
+> Within double parentheses, parameter dereferencing is optional.
+
+表达式 `OPTIND=$(($OPTIND + 1))` 将被 ShellCheck 检测报错 [C2004](https://github.com/koalaman/shellcheck/wiki/SC2004): `$`/`${}` is unnecessary on arithmetic variables. 应修改为 `OPTIND=$((OPTIND + 1))`。
 
 示例：
 

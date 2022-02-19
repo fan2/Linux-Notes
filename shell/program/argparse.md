@@ -29,7 +29,7 @@ echo
 count=1
 while [ -n "$1" ]; do
     echo "Parameter #$count = $1"
-    count=$(($count + 1))
+    count=$((count + 1))
     shift
 done
 ```
@@ -146,7 +146,7 @@ done
 count=1
 for param in $@; do
     echo "Parameter #$count: $param"
-    count=$(($count + 1))
+    count=$((count + 1))
 done
 ```
 
@@ -216,7 +216,7 @@ done
 count=1
 for param in "$@"; do
     echo "Parameter #$count: $param"
-    count=$(($count + 1))
+    count=$((count + 1))
 done
 ```
 
@@ -345,7 +345,7 @@ done
 count=1
 for param in "$@"; do
     echo "Parameter #$count: $param"
-    count=$(($count + 1))
+    count=$((count + 1))
 done
 ```
 
@@ -518,13 +518,13 @@ while getopts :ab:cd opt; do
     esac
 done
 #
-shift $(($OPTIND - 1))
+shift $((OPTIND - 1))
 #
 echo
 count=1
 for param in "$@"; do
     echo "Parameter $count: $param"
-    count=$(($count + 1))
+    count=$((count + 1))
 done
 ```
 
@@ -633,7 +633,7 @@ Parameter 5: test4
 5. getopts 继续解析 OPTIND 索引的第五个选项 `-e`，非预期参数，解析后 OPTIND++=6；  
 6. getopts 继续解析 OPTIND 索引的第六个选项 `test2`，非破折线单字母，选项解析完毕，后面视作普通参数。  
 
-最后执行 `shift $(($OPTIND - 1))` 或 `shift $[ $OPTIND - 1 ]`，将 test2 左移五位到 -a 原来的位置 `$1`。
+最后执行 `shift $((OPTIND - 1))` 或 `shift $[ $OPTIND - 1 ]`，将 test2 左移五位到 -a 原来的位置 `$1`。
 
 ### 处理长选项
 
