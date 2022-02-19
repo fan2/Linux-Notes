@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=2034
+
 # https://stackoverflow.com/questions/402377/using-getopts-to-process-long-and-short-command-line-options
 # Adam Katz - https://stackoverflow.com/a/28466267
 
@@ -43,17 +45,16 @@ while getopts ab:c:d:e:-: OPT; do
             # 无论是否带参数都不影响
             echo ">>> long option: '--${OPTARG}'" >&2
             OPT="${OPTARG%%=*}"     # extract long option name on left of `=`
-            OPTARG="${OPTARG#$OPT}" # extract long option argument (may be empty) on right of OPT
+            OPTARG="${OPTARG#"$OPT"}" # extract long option argument (may be empty) on right of OPT
             OPTARG="${OPTARG#=}"    # if long option argument, remove assigning `=`
         else
             OPT=$OPTARG
             # 检测长选项是否要带参数
-            need_arg $OPT
-            if [ $? -eq 0 ]; then
+            if need_arg "$OPT"; then
                 # 将后一个选项，当做该选项的参数
                 OPTARG="${!OPTIND}"
                 echo ">>> long option: '--${OPT} ${OPTARG}'" >&2
-                OPTIND=$(($OPTIND + 1))
+                OPTIND=$((OPTIND + 1))
             else
                 echo ">>> long option: '--${OPT}'" >&2
             fi

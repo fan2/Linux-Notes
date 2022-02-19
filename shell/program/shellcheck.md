@@ -1,15 +1,20 @@
 
 ## Android Studio
 
-Android Studio 安装 `Shell Script` 插件。
-
-[shell-script](https://plugins.jetbrains.com/plugin/13122-shell-script):
+Android Studio 打开 sh 脚本时，会建议安装 [Shell Script](https://plugins.jetbrains.com/plugin/13122-shell-script) 插件。
 
 Integration with external tools:
 
 - [ShellCheck](https://github.com/koalaman/shellcheck),  
 - [Shfmt](https://github.com/mvdan/sh),  
 - [Explainshell](https://explainshell.com/)  
+
+### Reformat
+
+Android Studio 通过菜单 Code - Reformat 可格式化当前文档，macOS 下的 [键盘快捷键](https://developer.android.com/studio/intro/keyboard-shortcuts) 为 ⌘⌥L。
+执行格式化当前sh脚本时，会查找当前语言的格式化工具，下载安装 shell script formatter - shfmt。
+
+Shell Script 插件设置的默认缩进为2个空格，可考虑对齐 vscode 等编辑器 [use 4-space wide tab](https://stackoverflow.com/questions/61578404/how-to-use-4-space-wide-tab-character-in-android-studio)，具体到 Prefs Settings -> Editor -> Code Style -> Shell Script 修改 Tab Size 和 Indent 为 4。
 
 ## vscode
 

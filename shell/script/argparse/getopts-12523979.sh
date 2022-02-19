@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# shellcheck disable=2034
+
 # https://stackoverflow.com/questions/402377/using-getopts-to-process-long-and-short-command-line-options
 # RapaNui - https://stackoverflow.com/a/12523979
 
@@ -75,10 +77,10 @@ while getopts ':bfh-A:BF' OPTION; do
         sfoobar=yes
         ;;
     -)
-        [ $OPTIND -ge 1 ] && optind=$(expr $OPTIND - 1) || optind=$OPTIND
+        [ $OPTIND -ge 1 ] && optind=$((OPTIND - 1)) || optind=$OPTIND
         eval OPTION="\$$optind"
-        OPTARG=$(echo $OPTION | cut -d'=' -f2)
-        OPTION=$(echo $OPTION | cut -d'=' -f1)
+        OPTARG=$(echo "$OPTION" | cut -d'=' -f2)
+        OPTION=$(echo "$OPTION" | cut -d'=' -f1)
         case $OPTION in
         --foo)
             echo "Found option '${OPTION}'" >&2
