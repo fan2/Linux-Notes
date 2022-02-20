@@ -848,3 +848,24 @@ SYNOPSIS
                [--help] [--version] file...
 
 ```
+
+## 其他
+
+### rev
+
+```Shell
+NAME
+     rev -- reverse lines of a file
+
+SYNOPSIS
+     rev [file ...]
+
+DESCRIPTION
+     The rev utility copies the specified files to the standard output, reversing the order of characters in
+     every line.  If no files are specified, the standard input is read.
+```
+
+```Shell
+echo "Bash Shell" | rev
+llehS hsaB
+```

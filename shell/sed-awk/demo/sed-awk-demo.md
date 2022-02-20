@@ -187,24 +187,6 @@ $ airport -I | awk -F ': ' '{print $1}' | sed 's/^[ \t]*//;s/[ \t]*$//'
 $ airport -I | awk -F ': ' '{sub(/^[ \t\r\n]+/, "", $1); sub(/[ \t\r\n]+$/, "", $1); print $1}'
 ```
 
-或编写 awk [trim](https://gist.github.com/andrewrcollins/1592991) 函数。
-
-```Shell
-$ airport -I | awk -F ': ' '
-    function ltrim(s) {
-        sub(/^[ \t\r\n]+/, "", s)
-        return s
-    }
-    function rtrim(s) {
-        sub(/[ \t\r\n]+$/, "", s)
-        return s
-    }
-    function trim(s) {
-        return rtrim(ltrim(s))
-    }
-    { print trim($1) }'
-```
-
 ### SSID
 
 进一步思考，如何提取指定域 SSID 的值，即获取当前连接的 Wi-Fi 名称呢？
