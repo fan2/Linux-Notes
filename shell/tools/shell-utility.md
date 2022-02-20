@@ -314,11 +314,13 @@ The `tree` command is a recursive directory listing program that produces a dept
 tree --du -h /opt/ktube-media-downloader
 ```
 
-## [bc](https://en.wikipedia.org/wiki/Bc_(programming_language))
+## bc
 
 [bc](https://www.gnu.org/software/bc/manual/html_mono/bc.html)(basic calculator) - An arbitrary precision calculator language  
 
 bc is typically used as either a `mathematical scripting language` or as an `interactive mathematical shell`.  
+
+> 关于 bc 表达式语言，参考 wiki - [bc](https://en.wikipedia.org/wiki/Bc_(programming_language))。
 
 There are four special variables, `scale`, `ibase`, `obase`, and `last`.  
 
@@ -630,6 +632,47 @@ faner@FAN-MB0:~/Downloads/crx|
 [Why use SHA256 instead of SHA1?](https://www.ibm.com/support/pages/why-use-sha256-instead-sha1)  
 [Re-Hashed: The Difference Between SHA-1, SHA-2 and SHA-256 Hash Algorithms](https://www.thesslstore.com/blog/difference-sha-1-sha-2-sha-256-hash-algorithms/)  
 
+## binhex
+
+[Convert binary data to hexadecimal in a shell script](https://stackoverflow.com/questions/6292645/convert-binary-data-to-hexadecimal-in-a-shell-script)  
+[Binary to hexadecimal and decimal in a shell script](https://unix.stackexchange.com/questions/65280/binary-to-hexadecimal-and-decimal-in-a-shell-script)  
+
+第一种方式是基于 printf 函g格式化输出：
+
+```Shell
+# binary to hexadecimal
+$ printf '%x\n' "$((2#101010101))"
+155
+# hexadecimal to decimal
+$ printf '%d\n' 0x24
+36
+```
+
+第二种方式是基于 `$((...))` 表达式，将其他进制转换为十进制：
+
+```Shell
+# binary to decimal
+$ echo "$((2#101010101))"
+341
+# hexadecimal to decimal
+$ echo "$((16#FF))"
+255
+```
+
+第三种方式是基于上文提到的bc计算器，实现任意进制间互转：
+
+```Shell
+# binary to decimal
+$ echo 'obase=10;ibase=2;101010101' | bc
+341
+# decimal to hexadecimal
+$ bc <<< 'obase=16;ibase=10;254'
+FE
+# hexadecimal to decimal
+$ bc <<< 'obase=10;ibase=16;FE'
+254
+```
+
 ## hexdump
 
 ### od
@@ -701,6 +744,45 @@ faner@MBP-FAN:~/Downloads|⇒  od -N 64 -A x -t x1a tuple.h
 0000030    2f  20  e5  85  83  e7  bb  84  28  54  75  70  6c  65  29  e6
            /  sp   ?  85  83   ?   ?  84   (   T   u   p   l   e   )   ?
 0000040
+```
+
+### xxd
+
+还有一个od类似的命令行工具是xxd。
+
+```Shell
+XXD(1)                                                                                                XXD(1)
+
+
+
+NAME
+       xxd - make a hexdump or do the reverse.
+
+SYNOPSIS
+       xxd -h[elp]
+       xxd [options] [infile [outfile]]
+       xxd -r[evert] [options] [infile [outfile]]
+
+DESCRIPTION
+       xxd creates a hex dump of a given file or standard input.  It can also convert a hex dump back to its
+       original binary form.  Like uuencode(1) and uudecode(1) it allows the transmission of binary data  in
+       a  `mail-safe' ASCII representation, but has the advantage of decoding to standard output.  Moreover,
+       it can be used to perform binary file patching.
+```
+
+[dstebila/bin2hex.sh](https://gist.github.com/dstebila/1731faaad1da66475db1)
+
+```Shell
+#!/bin/bash
+
+# Read either the first argument or from stdin
+cat "${1:-/dev/stdin}" | \
+# Convert binary to hex using xxd in plain hexdump style
+xxd -ps | \
+# Put spaces between each pair of hex characters
+sed -E 's/(..)/\1 /g' | \
+# Merge lines
+tr -d '\n'
 ```
 
 ### hexdump

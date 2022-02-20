@@ -275,6 +275,46 @@ delimiter
 
 以下示例中当输入 `eof` 时，则结束输入。
 
+在使用tr进行转换时，需要接受stdin输入，通常是echo string或cat file管道传给tr处理。
+如果多次复制的段落中有空格需要移除，可以在预设命令末尾指定 `command << eof`。
+采用heredoc逐行粘贴待处理文本，最后一行输入eof结束输入执行处理。
+
+```Shell
+$ tr -d '[:space:]' << eof
+heredoc> 我 们 的 爱
+heredoc> 一旦 错过 就 不再
+heredoc> eof
+我们的爱一旦错过就不再%
+```
+
+这样在命令行输入shell指令后，对即时输入的文本行（段落）做一些处理，比每次先保存临时文件再cat管传方便得多！
+
+#### cat
+
+以下函数用于输出一段信息，通过getopts捕获到用户输入`-h, --help`选项时，向屏幕打印Usage帮助信息。
+
+> 这样写的好处是可以保持排版格式。
+
+```Shell
+show_help() {
+    cat <<EOF
+$(basename "$0") version: 1.0.0
+Usage: $(basename "$0") [-?hvSPdpr]
+
+Options:
+    -?,-h,--help            : show help and exit
+    -v, --version           : show version and exit
+    -S, --server            : start as server, default
+    -P, --proxy             : start as proxy daemon
+    -d, --debug             : run in debug mode, default
+    -p, --profile           : run in profile mode
+    -r, --release           : run in release mode
+EOF
+}
+```
+
+在以上案例基础上，加个重定向将键盘输入打印到屏幕上，同时也保存到文件catfile中。
+
 ```Shell
 # 用 stdin 替代键盘的输入以创建新文件
 cat > catfile << "eof"
@@ -295,43 +335,23 @@ line2
 line3
 ```
 
-以下函数用于输出一段帮助信息（Usage），这样写的好处是可以保持排版格式：
+我们经常在网上看到一段脚本，想复制下来保存为本地sh文件，再执行调试。
+在命令行按照以下格式，修改脚本名称，粘贴内容到EOF中间，执行完脚本文件即保存到了当前目录下。
+
+> 遗留问题：引用变量部分被执行了非预期替换？
 
 ```Shell
-show_help() {
-    cat <<EOF
-$(basename "$0") version: 1.0.0
-Usage: $(basename "$0") [-?hvSPdpr]
-
-Options:
-    -?,-h,--help            : show help and exit
-    -v, --version           : show version and exit
-    -S, --server            : start as server, default
-    -P, --proxy             : start as proxy daemon
-    -d, --debug             : run in debug mode, default
-    -p, --profile           : run in profile mode
-    -r, --release           : run in release mode
+cat > reader.sh << EOF
+#!/bin/bash
+while read line; do
+  echo "reading: ${line}"
+done < /dev/stdin
 EOF
-}
 ```
-
-在使用tr进行转换时，需要接受stdin输入，通常是echo string或cat file管道传给tr处理。
-如果多次复制的段落中有空格需要移除，可以在预设命令末尾指定 `command << eof`。
-采用heredoc逐行粘贴待处理文本，最后一行输入eof结束输入执行处理。
-
-```Shell
-$ tr -d '[:space:]' << eof
-heredoc> 我 们 的 爱
-heredoc> 一旦 错过 就 不再
-heredoc> eof
-我们的爱一旦错过就不再%
-```
-
-这样在命令行输入预处理shell指令后，即时输入文本行（段落）做一些预处理，比每次先保存临时文件再cat管传方便得多！
 
 #### bc
 
-另外一个经典的例子是，字符串表达式传给 `bc` 执行数学运算。
+另外一个经典的例子是，基于内联输入重定向，将表达式字符串传给 `bc` 执行数学运算。
 
 ```
 $ bc <<< "scale=4;3.44/5"
@@ -391,11 +411,43 @@ The word is expanded and supplied to the command on its standard input.
 在使用tr进行转换时，需要接受stdin输入，通常是echo string或cat file管道传给tr处理。
 如果有字符串文本行需要执行一些转换处理，可以采用herestr在预设命令末尾输入待处理字符串。
 
-```Shell
-# echo "dos2unix" | tr '[:lower:]' '[:upper:]'
-$ tr '[:lower:]' '[:upper:]' <<< "dos2unix"
-```
-
-这样先在命令行输入预处理shell指令后，即时输入字符串做一些预处理，比每次echo管传方便得多！
+这样在命令行输入shell指令后，对即时输入的字符串做一些处理，比每次echo管传方便得多！
 
 > Here Documents 和 Here Strings 机制实现了类似read等待用户输入待处理数据的效果。
+
+案例一：调用 tr 进行一些简单的字符替换：
+
+```Shell
+# echo 我 们 的 爱 | tr -d '[:space:]'
+$ tr -d '[:space:]' <<< '我 们 的 爱' # 有空格，注意加引号
+
+# echo dos2unix | tr '[:lower:]' '[:upper:]'
+$ tr '[:lower:]' '[:upper:]' <<< dos2unix
+```
+
+案例二：bc运行即时输入的表达式执行运算：
+
+```Shell
+# echo "5 * 7 /3" | bc
+$ bc <<< "5 * 7 /3"
+# 十进制转十六进制
+$ bc <<< 'obase=16;ibase=10;254'
+# 十六进制转十进制
+$ bc <<< 'obase=10;ibase=16;FE'
+```
+
+其他案例：
+
+```Shell
+# 便捷计算字符串的SHA-1
+$ shasum <<< "How many roads must a man walk down"
+5d9678bcd687051fa93b14fe8d21c681c7eecbc0  -
+```
+
+脚本 [read_by_line.sh](../script/codes/read_by_line.sh) 用于测试用户输入参数。
+如果传入了参数$1，则将其作为read输入，否则等待接收stdin标准输入。四种测试用例如下：
+
+1. `./read_by_line.sh README.md`：读取打印文件。  
+2. `./read_by_line.sh`：等待键盘输入，然后回显。  
+3. `./read_by_line.sh << eof`：等待键盘输入内容，输入eof结束，然后回显。  
+4. `./read_by_line.sh <<< hello`：打印回显。  

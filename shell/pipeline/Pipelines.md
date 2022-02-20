@@ -48,6 +48,34 @@ $ curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.
 mkdir homebrew && curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip 1 -C homebrew
 ```
 
+以下是来自 stackoverflow 上 [Amir Mehler](https://stackoverflow.com/a/22671136) 对问题 [How to read from a file or standard input in Bash](https://stackoverflow.com/questions/6980090/how-to-read-from-a-file-or-standard-input-in-bash) 的回答。
+
+```Shell
+$ cat reader.sh
+#!/bin/bash
+while read line; do
+  echo "reading: ${line}"
+done < /dev/stdin
+
+$ cat writer.sh
+#!/bin/bash
+for i in {0..5}; do
+  echo "line ${i}"
+done
+```
+
+该案例直观阐述了管道的运行机制：
+
+```Shell
+$ ./writer.sh | ./reader.sh
+reading: line 0
+reading: line 1
+reading: line 2
+reading: line 3
+reading: line 4
+reading: line 5
+```
+
 ## tee
 
 如果对stderr或stdout进行重定向，被重定向的文本会传入文件。
@@ -695,6 +723,13 @@ man 推荐使用 `-I` 代替 `-i`，但是一般都使用 `-i` 图个简单，�
 `xargs` 是构建单行命令的重要组件之一，它擅长将标准输入数据转换成命令行参数。  
 xargs 命令一般紧跟在管道操作符之后，以标准输入作为主要的源数据流。它使用 stdin 并通过提供 *命令行参数* 来执行其他命令。  
 默认情况下 xargs 将其标准输入中的内容以空白(包括空格、tab、回车换行等)分割成多个 arguments 之后当作命令行参数传递给其后面的命令。也可以使用 `-d` 命令指定特定分隔符（macOS 貌似不支持该选项）。  
+
+md5 命令支持计算指定文件或字符串的MD5值，但不支持从stdin输入，因此无法将字符串管传给md5执行计算。
+此时可考虑基于 `| xargs md -s` 变通实现：
+
+```Shell
+$ echo 'How many roads must a man walk down' | xargs md5 -s
+```
 
 以下通过 `brew list --cask` 列举所有brew安装的cask应用，然后通过管道 xargs 传参给 `brew upgrade --cask` 执行升级：
 

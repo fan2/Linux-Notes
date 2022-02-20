@@ -379,6 +379,78 @@ echo $i
 
 如果 read 不指定变量，则默认放进环境变量 `REPLY` 中。
 
+### read file or stdin
+
+很多系统自带命令的设计时，实现了很灵活的传参机制，除了支持读取文件数据进行处理外，也可支持读取键盘输入stdin作为待处理数据。
+
+- `xxd`: If no infile is given, standard input is read.
+- `hexdump`: displays the specified files, or the standard input.
+- `shasum`: With no FILE, or when FILE is -, read standard input.
+- `cat` : If file is a single dash (`-`) or absent, cat reads from the standard input.
+
+[How to read from a file or standard input in Bash](https://stackoverflow.com/questions/6980090/how-to-read-from-a-file-or-standard-input-in-bash)
+
+以下脚本实现了类似的机制：如果传入了参数$1，则将其作为read输入，否则等待接收stdin标准输入。
+
+```Shell
+#!/bin/bash
+
+# https://stackoverflow.com/a/7126967
+
+cat "${1:-/dev/stdin}" > "${2:-/dev/stdout}"
+```
+
+```Shell
+#!/bin/bash
+
+# https://stackoverflow.com/a/7045517
+
+# Read either the first argument or from stdin
+while read line
+do
+  echo "$line"
+done < "${1:-/dev/stdin}"
+```
+
+To read from the file or stdin (if argument is not present), you can extend it to:
+
+```Shell
+#!/bin/bash
+
+# https://stackoverflow.com/a/28786207
+
+file=${1--} # POSIX-compliant; ${1:--}
+while IFS= read -r line; do
+  printf '%s\n' "$line" # Or: env POSIXLY_CORRECT=1 echo "$line"
+done < <(cat -- "$file")
+```
+
+`FILE=${1:--}` 可理解为 `[ "$1" ] && FILE=$1 || FILE="-"`。
+
+If no arguments are given, set `-`(stdin) as the first positional parameter.
+
+```Shell
+#!/bin/bash
+
+# https://stackoverflow.com/a/28788047
+
+(($#)) || set -- -
+while (($#)); do
+   { [[ $1 = - ]] || exec < "$1"; } &&
+   while read -r; do
+      printf '%s\n' "$REPLY"
+   done
+   shift
+done
+```
+
+测试用例：
+
+1. `./read_by_line.sh README.md`：打印文件。  
+2. `./read_by_line.sh`：等待键盘输入，然后回显。  
+3. `./read_by_line.sh << eof`：等待键盘输入内容，输入eof结束，然后回显。  
+4. `./read_by_line.sh <<< hello`：打印回显。  
+
 ### read 的其他选项
 
 - `read -t seconds`：指定多少秒后提示超时；  

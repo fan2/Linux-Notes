@@ -139,6 +139,8 @@ will add `:` before `/blah/bin` only if PATH is non-empty, which avoids having a
 - 如果 PATH 未定义或为空，则什么也不做，第一个环境变量不用添加冒号前缀分隔符；  
 - 如果 PATH 有定义或非空，则相当于在现有 PATH 后面追加变量：`PATH=${PATH}:/blash/bin`；  
 
+### default
+
 以下是一段来自生产实践中的sh脚本，基于 `:=` 来给未定义或空值变量赋默认值兜底：
 
 ```Shell
@@ -173,6 +175,20 @@ will add `:` before `/blah/bin` only if PATH is non-empty, which avoids having a
 ```
 Wi-Fi en0 : status=inactive
 ./scripts/proxy/launch_shelf.sh: line 33: lan_ip: unset or null
+```
+
+### read
+
+我们来看一下 [How to read from a file or standard input in Bash](https://stackoverflow.com/questions/6980090/how-to-read-from-a-file-or-standard-input-in-bash) 这个问题，优先从文件读入参数，否则从stdin接受输入。
+
+Read either the first argument or from stdin
+
+`file=${1--}`（`file=${1:--}`，等效于 `${1:-/dev/stdin}`），可理解为 `[ "$1" ] && file=$1 || file="-"`。
+
+以下脚本，从文件$1或stdin读取数据传给cat，然后输出到文件$2或stdout。
+
+```Shell
+cat "${1:-/dev/stdin}" > "${2:-/dev/stdout}"
 ```
 
 ## 字符串长度
