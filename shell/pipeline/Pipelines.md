@@ -3,17 +3,7 @@
 
 参考 BASH(1) manual page 的 `SHELL GRAMMAR > Pipelines` 部分。
 
-11.6 管道命令（pipe）
-
-- 11.6.1 选取命令：cut,grep  
-- 11.6.2 排序命令：sort,wc,uniq  
-- 11.6.3 双向重定向：tee  
-- 11.6.4 字符转换命令：tr,col,join,paste,expand  
-- 11.6.5 切割命令：split  
-- 11.6.6 参数代换：xargs  
-- 11.6.7 关于减号-的用途  
-
-## 管道分隔界定符(|)
+## |
 
 A `pipeline` is a sequence of one or more commands separated by one of the control operators `|` or `|&`. The format for a pipeline is:
 
@@ -24,14 +14,65 @@ A `pipeline` is a sequence of one or more commands separated by one of the contr
 The standard output of *`command`* is connected via a pipe to the standard input of *`command2`*.  
 If **`|&`** is used, *`command`*'s standard error, in addition to its standard output, is connected to *`command2`*'s standard input through the pipe; it is shorthand for `2>&1 |`.  
 
-`ls -al /etc | less`：列举 `/etc` 目录，然后导向 less 使可翻页查看。
+管道被放在命令之间，将一个命令的输出重定向到另一个命令中：
 
-### demo
+```Shell
+command1 | command2
+```
 
-- [Homebrew](https://docs.brew.sh/) [Installation](https://docs.brew.sh/Installation.html) 脚本，基于 `&&` 递进执行相关命令：创建目录，下载并解压。
+不要以为由管道串起的两个命令会依次执行。Linux系统实际上会同时运行这两个命令，在系统内部将它们连接起来。在第一个命令产生输出的同时，输出会被立即送给第二个命令，数据传输不会用到任何中间文件或缓冲区。
+
+管道分隔界定符是 `|`，默认只将上一个命令的stdout输出作为下一个命令的stdin输入，不包括stderr。采用 `|&` 管传，则同时传入上一个命令的stdout和stderr输出，相当于 `2>&1 |`。
+
+当命令输出较多时，为了避免滚动超出，可以导向给 more 或 less 翻页查看，例如 `ls -al /etc | less`。
+
+cat命令不仅可以读取文件、拼接数据，还支持从标准输入中进行读取。以下脚本将ls的输出传给 `cat -n`，后者接收stdin输入并将内容加上行号，输出重定向到文件out.txt。
+
+```Shell
+ls | cat -n > out.txt
+```
+
+终端通过 curl 从 github 下载安装流行的 Zsh 配置 [Oh My ZSH](https://ohmyz.sh/#install)：
+
+```Shell
+# curl
+$ sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+## 或者
+$ curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh | sh -c
+```
+
+以下脚本下载 [Homebrew](https://docs.brew.sh/) 安装包tarball，基于 `&&` 递进执行创建目录和下载文件。
+下载完成后，将下载的压缩包（本地存储的文件路径）重定向给 tar 进行解压。
 
 ```Shell
 mkdir homebrew && curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip 1 -C homebrew
+```
+
+## tee
+
+如果对stderr或stdout进行重定向，被重定向的文本会传入文件。
+因为文本已经被重定向到文件中，也就没剩下什么东西可以通过管道传给后续命令。
+有一种方法既可以将数据重定向到文件，还可以提供一份重定向数据的副本作为后续命令的stdin。
+
+双向重定向命令 `tee` 通过管道连接前后，可实现这个目标：`command1 | tee FILE | command2`。
+
+1. command1的stdout输出管传作为tee命令的stdin输入；
+2. tee将接收的数据(stdin输入)重定向到文件FILE，同时复制一份到stdout输出；
+3. tee将产生的stdout输出再通过管道传递给后续命令，command2以此作为stdin输入继续处理。
+
+tee 默认重定向是 `>` 会清空覆写已有文件，如果不想覆写而是追加，可以指定 `-a` 等效 `>>`。
+
+> `-a`: Append the output to the files rather than overwriting(default).
+
+```Shell
+# 将 ls -l 结果追加到文件，同时输出到控制台用more分页显示。
+faner@MBP-FAN:~|⇒  ls -l / | tee -a ~/homefile | more
+```
+
+执行 `shadowsocks.sh` 脚本安装 shadowsocks 时，将执行的 stdout 和 stderr 输出既在控制台显示，同时写入日志文件 shadowsocks.log，方便后续回看。
+
+```Shell
+./shadowsocks.sh 2>&1 | tee shadowsocks.log
 ```
 
 ## wc,sort,uniq
@@ -321,9 +362,19 @@ pi@raspberrypi:~ $ echo $PATH
 
 ## tr
 
-`tr`（translate）命令支持对stdin进行替换或删除，一般用于删除文件中控制字符或进行字符转换。
-使用tr时一般涉及两个字符串：字符串1用于查询，字符串2用于处理各种转换。
-tr刚执行时，字符串1中的字符被映射到字符串2中的字符，然后开始执行转换。
+`tr`（translate）命令支持对标准输入进行替换或删除，一般用于删除文件中的控制字符或进行字符转换。
+
+tr只能通过stdin，而无法通过命令行参数来接受输入，它的调用格式如下：
+
+```Shell
+tr [options] set1 set2
+```
+
+将来自stdin的输入字符从set1映射到set2，然后将输出写入stdout。
+其中set1和set2是字符类或字符集，set1用于查询，set2用于转换。
+
+- 如果两个字符集的长度不相等，那么set2会不断重复其最后一个字符，直到长度与set1相同。
+- 如果set2的长度大于set1，那么在set2中超出set1长度的那部分字符则全部被忽略。
 
 在 macOS 终端执行 `man tr` 可查看详细帮助手册（Manual Page）：
 
@@ -409,6 +460,36 @@ faner@MBP-FAN $ tr "[=e=]" "[e*]" <file1 >file2
 faner@MBP-FAN $ tr '{}' '()' < file1 > file2
 ```
 
+通过在tr中使用集合的概念，可以轻松地将字符从一个集合映射到另一个集合中。
+以下示例使用tr完成简单地加解密：set1 中的 12345 基于索引位置将映射为 set2 中的 87654，反之解密。
+
+```Shell
+# 加密
+$ echo 12345 | tr '0-9' '9876543210'
+87654
+# 解密
+$ echo 87654 | tr '9876543210' '0-9'
+12345
+```
+
+ROT13是一个著名的加密算法，它按照字母表排列顺序执行13个字母转换。
+在ROT13算法中，文本加密和解密都使用同一个函数。
+下面用tr进行ROT13加密：
+
+```Shell
+$ echo "tr came, tr saw, tr conquered." | tr 'a-zA-Z' 'n-za-mN-ZA-M'
+ge pnzr, ge fnj, ge pbadhrerq.
+```
+
+对加密后的密文再次使用同样的ROT13函数即可进行解密：
+
+```Shell
+$ echo ge pnzr, ge fnj, ge pbadhrerq. | tr 'a-zA-Z' 'n-za-mN-ZA-M'
+tr came, tr saw, tr conquered.
+```
+
+#### Squeeze
+
 以下示例将字符串中的空格转换为制表符，默认每个空格都会转换。
 
 ```Shell
@@ -450,6 +531,8 @@ faner@MBP-FAN $ tr -s "[\n]" < oops.txt
 faner@MBP-FAN $ tr -s "[\r\n]" "[\n*]" < include/litestd.h
 faner@MBP-FAN $ tr -s "[\015\012]" "[\012*]" < include/litestd.h
 ```
+
+#### Complement
 
 来自 unix/POSIX - [tr](https://pubs.opengroup.org/onlinepubs/9699919799/utilities/tr.html) manpage 的一个样例：
 

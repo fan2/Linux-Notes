@@ -8,15 +8,19 @@ bash shell 提供函数支持，方便将代码模块封装为函数，以便复
 1. 函数名加括号；  
 2. 采用关键字 function，后跟函数名；  
 
+> 当前函数名可通过内置变量 `FUNCNAME` 获取。
+
 ```Shell
 #方式1
 name() {
     commands
+    # echo "FUNCNAME = $FUNCNAME"
 }
 
 #方式2
 function name {
     commands
+    # echo "FUNCNAME = $FUNCNAME"
 }
 ```
 

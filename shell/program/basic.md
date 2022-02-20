@@ -34,7 +34,7 @@ faner    ttys006  Dec  9 22:39
 可以将这些命令组合成一个简单的脚本文件，这样就不需要每次都重复输入了。
 后续需要运行这些命令时，只要运行这个脚本文件就行了，以便复用。
 
-## 创建 shell 脚本
+## 创建脚本
 
 [一篇教会你写90%的shell脚本](https://zhuanlan.zhihu.com/p/264346586)
 
@@ -317,6 +317,12 @@ $@ Parameter #3 = r
 mainAs param count = 1
 $* Parameter #1 = p q r
 ```
+
+## 执行脚本
+
+bash shell程序可使用命令行参数修改shell启动方式。下表列举了bash中常用的启动参数：
+
+![shell-bash-param](./images/shell-bash-param.png)
 
 ## 用户输入参数
 

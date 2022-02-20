@@ -4,25 +4,60 @@
 
 数据流重定向就是将某个命令执行后本应输出到控制台的结果数据传导到指定的地方，例如文件或打印机之类的设备。
 
-1. 标准输入（STDIN）：dev fd为0，使用 `<`（`0<`） 或 `<<`（`0<<`） 导入；  
-2. 标准输出（STDOUT）：dev fd为1，使用 `>`（`1>`） 或 `>>`（`2>>`） 导出；  
-3. 标准错误输出（STDERR）：dev fd为2，使用 `2>` 或 `2>>`。  
+当在shell中执行命令的时候，每个进程都和三个打开的文件相联系，并使用文件描述符来引用这些文件。
+由于文件描述符不容易记忆，shell给出了相应的文件名代称。
 
-stdout和stderr默认都会输出到控制台，区别在于重定向 `>` 默认是指 `1>`，只将stdout输出重定向。
-而管道 `|` 传递也只传递stdout作为下一个命令的输入，不包括stderr（`|&`则包括stderr）。
+1. 标准输入（stdin）：文件描述符fd为0，缺省从键盘接受输入。
+
+    - 也可使用 `<`（`0<`） 或 `<<`（`0<<`）从文件或其他设备导入。
+
+2. 标准输出（stdout）：文件描述符fd为1，缺省输出到控制台（屏幕）。
+
+    - 也可使用 `>`（`1>`） 或 `>>`（`1>>`）重定向导出到文件或其他设备。
+
+3. 标准错误输出（stderr）：文件描述符fd为2，缺省输出到控制台（屏幕）。
+
+    - 也可使用 `>`（`2>`） 或 `>>`（`2>>`）重定向导出到文件或其他设备。
+
+如果没有特别指定文件描述符，命令默认将执行信息输出到缺省“文件”——你的屏幕，更确切地说是你的终端。
+
+**为什么会有一个专门针对错误的特殊文件stderr呢**？
+
+当用命令处理大数据文件时，除了正常的（非错误的）输出信息，还有可能输出很多错误信息。
+常见做法是先将标准输出重定向到一个文件，然后再把标准错误输出重定向到另外一个文件。
+把错误信息存储到独立的日志文件，可以避免错误信息淹没正常结果输出，也便于排查问题。
+
+- 例如 nginx 即是分开存储普通日志 access_log 和出错日志 error_log。
+
+stdout和stderr区别在于：
+
+1. 重定向 `>` 默认是指 `1>`，只将stdout输出重定向。
+2. 管道 `|` 默认也只将stdout作为下一个命令的输入，不包括stderr；`|&` 则包括了stdout和stderr。
 
 ## >, >>
 
-输出导向，分别是 **替换**（Redirecting Output） 与 **累加**（Appending Redirected Output）。
+输出导向，分别是 **替换**（Redirecting Output）与 **累加**（Appending Redirected Output）。
 
 ### >
 
-一个快速发现错误的方法是先将输出重定向到一个文件中，然后再把标准错误输出重定向到另外一个文件中。
-
-将 find 执行的正确结果输出到 list_right 文件中；错误信息输出到 list_error 文件中。
+最基本的重定向将命令的输出发送到一个文件中，bash shell用大于号（`>`）来完成这项功能：
 
 ```Shell
-$ find /home -name .bashrc > list_right 2> list_error
+command > outputfile
+# 以上缺省了标准输出1
+command 1> outputfile
+```
+
+这样之前显示器上出现的命令输出，不再输出到屏幕控制台，而是保存到指定的输出文件中。
+
+> 如果输出文件已经存在，重定向操作符会用新的数据覆盖已有文件；否则先基于默认umask创建一个新文件。
+
+可以将stderr单独重定向到一个文件，将stdout重定向到另一个文件：
+
+```Shell
+cmd 2>stderr.txt 1>stdout.txt
+# 标准输出1可以省略
+cmd 2>stderr.txt >stdout.txt
 ```
 
 假设有两个审计文件，其中一个的确存在且包含一些信息，而另一个由于某种原因可能已经不存在了。
@@ -32,22 +67,25 @@ $ find /home -name .bashrc > list_right 2> list_error
 $ cat account_qtr.doc account_end.doc 1>accounts.out 2>accounts.err
 ```
 
-在使用 grep 查找时，当传入的文件或文件夹不存在时，可以指定 `-s` 选项屏蔽 No such file or directory 之类的错误信息，避免淹没查找结果信息。
-find 命令则没有类d的选项，当查找的文件（夹）没有读权限时，会有大量的 Permission denied 报错信息，可能会淹没正常输出。
-我们只需要将 find 执行的正确结果输出到控制台，错误信息导向可以导向垃圾桶黑洞设备，吞噬不输出到控制台。
+### >>
+
+有时并不想覆盖文件原有内容，而是想要将命令的输出追加到已有文件中，此时可以用双大于号（`>>`）来向现存文件末尾追加新数据。
+
+关于累加输出导向的广泛应用是 echo 一行新配置，追加到一个配置文件中。
+以下示例在 `~/.zshrc` 末尾追加一句 export 命令：
 
 ```Shell
-$ find /home -name .bashrc 2> /dev/null
+echo export ALL_PROXY=socks5://127.0.0.1:1080 >> ~/.zshrc
 ```
 
-[Linux / Unix Find Command Avoid Permission Denied Messages](https://www.cyberciti.biz/faq/bash-find-exclude-all-permission-denied-messages/)  
-[How can I exclude all "permission denied" messages from "find"?](https://stackoverflow.com/questions/762348/how-can-i-exclude-all-permission-denied-messages-from-find)  
+brew install openssl 过程中，Caveats 提示可执行脚本将其可执行路径添加到 PATH 中：
 
 ```Shell
-$ find / -type f -name "*.conf" -maxdepth 4 2>/dev/null
+If you need to have this software first in your PATH run:
+  echo 'export PATH="/usr/local/opt/openssl/bin:$PATH"' >> ~/.zshrc
 ```
 
-### >&2
+### 1>&2
 
 在编写shell脚本时，经常会在捕获错误异常时调用echo打印自定义的出错信息，并将这些错误信息重定向到stderr设备中。
 如果之前已经将stderr重定向到了指定日志文件，那么自定义的echo信息也会随stderr重定向到日志文件。
@@ -64,33 +102,16 @@ $ find / -type f -name "*.conf" -maxdepth 4 2>/dev/null
         fi
 ```
 
-其中 `>&2` 是 `1>&2` 的简略写法，重定向符号左侧省略的`1`代表stdout。
-右侧的 `&n` 中的`&`类似C语言中的地址引用，而后面的数字n为设备描述符。
-`&2` denoted as stderr，`1>&2` 表示将stdout重定向到stderr中。
-具体到上述代码，就是将echo日志输出stdout重定向到stderr中。
+重定向符号 `>` 正常情况，连接左侧的源头和右侧的目标，左侧源头缺省是1-stdout。因此 `>&2` 实际上是 `1>&2` 的简略写法。
+右侧的 `&2` 中的`&`类似C语言中的地址引用（denote），而后面的数字`2`为stderr的文件描述符。
+因此，`>&2` 表示将1（stdout，标准输出）重定向到2（stderr，标准错误）中。
 
-> `>2`表示重定向到普通文件2中，`>&2`则表示重定向到fd=2的设备stdout中。
+**注意**：`>2`表示重定向到普通文件2中，`>&2`则表示重定向到fd=2的设备stdout中。
 
 相关参考：
 
 - [shell中>&2的含义及用法](https://blog.csdn.net/huangjuegeek/article/details/21713809)  
 - [echo >&2 "some text" what does it mean in shell scripting](https://stackoverflow.com/questions/23489934/echo-2-some-text-what-does-it-mean-in-shell-scripting)  
-
-### >>
-
-关于累加输出导向的广泛应用是 echo 一行新配置，追加到一个配置文件中。
-以下示例在 `~/.zshrc` 末尾追加一句 export 命令：
-
-```Shell
-echo export ALL_PROXY=socks5://127.0.0.1:1080 >> ~/.zshrc
-```
-
-brew install openssl 过程中，Caveats 提示可以将其可执行路径添加到 PATH 中：
-
-```Shell
-If you need to have this software first in your PATH run:
-  echo 'export PATH="/usr/local/opt/openssl/bin:$PATH"' >> ~/.zshrc
-```
 
 ### 2>&1
 
@@ -125,11 +146,12 @@ $ find /home -name .bashrc 1> file 2> file
 
 ```Shell
 $ find /home -name .bashrc &> file
+$ find /home -name .bashrc 2>&1 file
 $ find /home -name .bashrc > file 2>&1
 ```
 
 第一种写法 `command &> file`：其中的 `&` 省略了被引用的1和2，表示stdout和stderr都重定向到文件file中。
-第二种写法 `command > file 2>&1`：前面命令执行结果1-stdout重定向到file中，后面的 `2>&1` 怎么理解呢？
+第二种写法 `command > file 2>&1`：前面将标准输出1-stdout重定向到file中，后面的 `2>&1` 怎么理解呢？
 
 `2>&1` 表示将2-stderr重定向到1-stdout，这样错误信息和正常结果输出都重定向到了文件file中。
 
@@ -180,33 +202,44 @@ ls 2>&1 > dirlist
 1. 先执行 `2>&1`，此时stdout默认还是输出到终端，所以stderr同stdout一样都输出到终端控制台；  
 2. 再执行 `> dirlist`，只有stdout会被重定向到dirlist文件中。  
 
-### tee
+### 2>/dev/null
 
-双向重定向：同时将数据送与文件与控制台（stdout）。  
-输出到控制台的部分可以传导给下个命令继续处理。
+有时候，在输出中可能包含一些不必要的信息（如调试信息）。
+如果不想让终端充斥着有关stderr的繁枝末节，可考虑将stderr输出重定向到 `/dev/null`，予以忽略。
 
-`-a`: Append the output to the files rather than overwriting(default).
+在使用 grep 查找时，当传入的文件或文件夹不存在时，可以指定 `-s` 选项屏蔽 No such file or directory 之类的错误信息输出。
+find 命令则没有类似的选项，当查找的文件（夹）没有读权限时，可能会有大量的 Permission denied 报错信息输出到控制台。
+find 执行输出的错误信息可以重定向到一个单独的日志文件，也可导向垃圾桶黑洞设备，被吞噬不输出到控制台。
 
-```Shell
-# 将 ls -l 结果追加到文件，同时输出到控制台用more分页显示。
-faner@MBP-FAN:~|⇒  ls -l / | tee -a ~/homefile | more
-```
-
-**经典示例**：
-
-执行 `shadowsocks.sh` 脚本安装 shadowsocks，将执行的 stdout 和 stderr 在控制台输出，并同时写入日志文件 shadowsocks.log： 
+- [Linux / Unix Find Command Avoid Permission Denied Messages](https://www.cyberciti.biz/faq/bash-find-exclude-all-permission-denied-messages/)  
+- [How can I exclude all "permission denied" messages from "find"?](https://stackoverflow.com/questions/762348/how-can-i-exclude-all-permission-denied-messages-from-find)  
 
 ```Shell
-./shadowsocks.sh 2>&1 | tee shadowsocks.log
+# 将错误信息重定向到日志文件，不输出到控制台
+$ find /home -name .bashrc 2> finderrors.log
+# 将错误信息重定向到系统垃圾桶，不输出到控制台
+$ find /home -name .bashrc 2> /dev/null
+$ find / -type f -name "*.conf" -maxdepth 4 2>/dev/null
 ```
 
 ## <, <<
 
+输入重定向和输出重定向正好相反：输入重定向将文件的内容重定向到命令，而非将命令的输出重定向到文件。
+
+```Shell
+command < inputfile
+```
+
+一个简单的区分记忆方法是：在命令行上，命令总是在左侧，而重定向符号“指向”数据流动的方向。
+
+- 输出重定向符号是大于号（>），意味着数据从命令流向输出文件。
+- 输入重定向符号是小于号（<），意味着数据从输入文件流向命令。
+
 ### <
 
-`cat > catfile`：命令将创建 `catfile` 文件，并把标准输出重定向到文件中，这时cat命令将从标准输入（键盘）接受输入，输入 `<C-C>` 或 `<C-D>` 结束。
-
 输入导向符号 `<` 可以将原本应由键盘输入的数据源改为从文件读取。
+
+`cat > catfile`：命令将创建 `catfile` 文件，并把标准输出重定向到文件中，这时cat命令将从标准输入（键盘）接受输入，输入 `<C-C>` 或 `<C-D>` 结束。
 
 ```Shell
 # 用 stdin 替代键盘的输入以创建新文件
@@ -228,7 +261,7 @@ $ enca -L zh_CN -x UTF-8 < file1 > file2
 
 ### <<
 
-远小于号（`<<`）也称作内联输入重定向符号，后面需要续接终止输入控制标记。
+远小于号（`<<`）也称作内联输入重定向符号，后面需要续接终止输入控制标记单词（字符串），用于划分输入数据的开始和结尾。
 
 `Here Documents`: This type of redirection instructs the shell to read input from the current source *until* a line containing only word (with no trailing blanks) is seen. All of the lines read up to that point are then used as the standard input for a command.
 
@@ -262,7 +295,7 @@ line2
 line3
 ```
 
-以下函数用于输出一段帮助信息（Usage）：
+以下函数用于输出一段帮助信息（Usage），这样写的好处是可以保持排版格式：
 
 ```Shell
 show_help() {
@@ -281,6 +314,20 @@ Options:
 EOF
 }
 ```
+
+在使用tr进行转换时，需要接受stdin输入，通常是echo string或cat file管道传给tr处理。
+如果多次复制的段落中有空格需要移除，可以在预设命令末尾指定 `command << eof`。
+采用heredoc逐行粘贴待处理文本，最后一行输入eof结束输入执行处理。
+
+```Shell
+$ tr -d '[:space:]' << eof
+heredoc> 我 们 的 爱
+heredoc> 一旦 错过 就 不再
+heredoc> eof
+我们的爱一旦错过就不再%
+```
+
+这样在命令行输入预处理shell指令后，即时输入文本行（段落）做一些预处理，比每次先保存临时文件再cat管传方便得多！
 
 #### bc
 
@@ -336,13 +383,19 @@ echo The final answer for this mess is $var5
 `Here Strings`: A variant of here documents, the format is:
 
 ```Shell
-<<<word
+command <<< string
 ```
 
 The word is expanded and supplied to the command on its standard input.
 
+在使用tr进行转换时，需要接受stdin输入，通常是echo string或cat file管道传给tr处理。
+如果有字符串文本行需要执行一些转换处理，可以采用herestr在预设命令末尾输入待处理字符串。
+
 ```Shell
+# echo "dos2unix" | tr '[:lower:]' '[:upper:]'
 $ tr '[:lower:]' '[:upper:]' <<< "dos2unix"
-# 等效的管道写法
-$ echo "dos2unix" | tr '[:lower:]' '[:upper:]'
 ```
+
+这样先在命令行输入预处理shell指令后，即时输入字符串做一些预处理，比每次echo管传方便得多！
+
+> Here Documents 和 Here Strings 机制实现了类似read等待用户输入待处理数据的效果。
