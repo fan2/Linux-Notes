@@ -370,11 +370,12 @@ The [systemadmin](https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/systema
 
 ### utilities
 
-#### copydir
+#### copypath
 
-[copydir](https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/copydir): Copies the path of your current folder to the system clipboard.
+[copypath](https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/copypath): Copies the path of given directory or file to the system clipboard.
 
-use the command `copydir` to copy the $PWD.
+- `copypath`: copies the absolute path of the current directory.
+- `copypath <file_or_directory>`: copies the absolute path of the given file.
 
 相关插件：[copyfile](https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/copyfile): Puts the contents of a file in your system clipboard so you can paste it anywhere.
 
@@ -699,7 +700,7 @@ plugins=(
     wd
     #---------sys
     # man # Esc + man: man prev command
-    aliases
+    aliases # acs command
     colored-man-pages
     # sudo # esc twice to exec prev command with sudo
     # vi-mode # increase vi-like zsh functionality
@@ -711,7 +712,7 @@ plugins=(
     # shell-proxy # shell-proxy setter
     ssh-agent
     #---------utility
-    copydir
+    copypath
     copyfile
     extract # x command
     encode64

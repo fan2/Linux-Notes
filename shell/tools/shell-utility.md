@@ -67,6 +67,8 @@ faner@MBP-FAN:~/Desktop|⇒  pushd ../Music
 
 **`dirs`**：查看当前 Shell 窗口操作过的目录栈记录，索引0表示栈顶。
 
+> `dirs [−clpv] [+n] [−n]` : Without options, displays the list of currently remembered directories.
+
  选项 | 含义
 -----|------
 -p  | 每行显示一条记录
@@ -151,6 +153,32 @@ echo "basename = $(basename $0)"
         file="$1"
         file_name=$(basename "$file")
 ```
+
+## printf
+
+```Shell
+$man bash
+
+SHELL BUILTIN COMMANDS
+
+printf [−v var] format [arguments]
+
+Write the formatted arguments to the standard output under the control of the format. The format is a character string which contains three types of objects: plain characters, which are simply copied to standard output, character escape sequences, which are converted and copied to the standard output, and format speciﬁcations, each of which causes printing of the next successive argument. In addition to the standard printf(1) formats, %b causes printf to expand backslash escape sequences in the corresponding argument (except that \c terminates output, backslashes in \', \", and \? are not removed, and octal escapes beginning with \0 may contain up to four digits), and %q causes printf to output the corresponding argument in a format that can be reused as shell input.
+
+The −v option causes the output to be assigned to the variable var rather than being printed to the standard output.
+
+The format is reused as necessary to consume all of the arguments. If the format requires more arguments than are supplied, the extra format speciﬁcations behave as if a zero value or null string, as appropriate, had been supplied. The return value is zero on success, non-zero on failure.
+```
+
+- [Shell printf命令：格式化输出语句](https://wiki.jikexueyuan.com/project/shell-tutorial/shell-printf-command.html)  
+- [Shell printf命令详解](https://www.cnblogs.com/machangwei-8/p/10354698.html)  
+- [Bash Printf 命令](https://www.itcoder.tech/posts/bash-printf-command/)  
+
+- [Bash's Built-in printf Function](https://www.linuxjournal.com/content/bashs-built-printf-function)  
+- [Linux printf command](https://www.computerhope.com/unix/uprintf.htm)  
+- [Bash Printf command](https://linuxhint.com/bash-printf-command/)  
+- [Bash printf Command](https://linuxize.com/post/bash-printf-command/)  
+- [Bash printf Function: 7 Examples for Linux](https://www.makeuseof.com/bash-printf-examples/)  
 
 ## head/tail
 
@@ -868,4 +896,79 @@ DESCRIPTION
 ```Shell
 echo "Bash Shell" | rev
 llehS hsaB
+```
+
+### fuser
+
+```Shell
+$ man fuser
+NAME
+       fuser - list process IDs of all processes that have one or more files open
+
+SYNOPSIS
+       fuser [ -cfu ] file ...
+```
+
+### lsof
+
+```Shell
+NAME
+       lsof - list open files
+
+SYNOPSIS
+       lsof  [  -?abChlnNOPRtUvVX ] [ -A A ] [ -c c ] [ +c c ] [ +|-d d ] [ +|-D D ] [ +|-e s ] [ +|-E ] [ +|-f [cfgGn] ] [ -F [f] ] [ -g [s] ] [
+       -i [i] ] [ -k k ] [ -K k ] [ +|-L [l] ] [ +|-m m ] [ +|-M ] [ -o [o] ] [ -p s ] [ +|-r [t[m<fmt>]] ] [ -s [p:s] ] [ -S [t] ] [ -T [t] ]  [
+       -u s ] [ +|-w ] [ -x [fl] ] [ +|-X ] [ -z [z] ] [ -Z [Z] ] [ -- ] [names]
+```
+
+查找监听指定端口的进程PID：
+
+```Shell
+lsof -i :8010 | awk 'NR>1 {print $2}' | xargs kill -KILL
+```
+
+- [查看 Linux TCP Port 被哪隻程式(Process)佔用](https://blog.longwin.com.tw/2013/12/linux-port-process-check-2013/)  
+- [Finding the PID of the Process Using a Specific Port](https://www.baeldung.com/linux/find-process-using-port)  
+- [Linux Find Out Which Process Is Listening Upon a Port](https://www.cyberciti.biz/faq/what-process-has-open-linux-port/)  
+- [3 Ways to Find Out Which Process Listening on a Particular Port](https://www.tecmint.com/find-out-which-process-listening-on-a-particular-port/)  
+
+### jq
+
+对于压缩/转义的 JSON 字符串，可以在以下网站进行格式化或解析转换。
+
+- [JSON解析格式化工具](https://www.sojson.com/)：支持校验/格式化、压缩/转义。
+- [JSON格式化查看工具](https://www.baidufe.com/fehelper/json-format/index.html)：支持对 JSON 进行压缩，以及对压缩（转义）的JSON字符串进行还原。
+
+macOS/Linux 下还可以安装 `jq` 命令行工具，将压缩/转义的json字符串转换为格式化的 JSON 对象。
+
+[jq](https://stedolan.github.io/jq/) is a lightweight and flexible command-line JSON processor.
+
+- [linux下jq的使用](https://www.cnblogs.com/haima/p/15135587.html)
+- [给力的linux命令--jq简易教程](https://www.jianshu.com/p/6de3cfdbdb0e)
+- [jq - 一个灵活的轻量级命令行JSON处理器](https://wangchujiang.com/linux-command/c/jq.html)
+
+以下将压缩转义的json字符串格式化为JSON对象输出控制台并存储到 banner-exposure.json 文件。
+
+```Shell
+$ echo "{\"bizName\":\"yidian\",\"plat\":\"h5\",\"actionName\":\"banner\",\"actionType\":\"exposure\",\"extra\":{\"value\":{\"banner_id\":\"3303\",\"title\":\"体检季来了：你最关心的各种检查，这里都有\",\"index\":0}}}" | jq | tee banner-exposure.json
+{
+  "bizName": "yidian",
+  "plat": "h5",
+  "actionName": "banner",
+  "actionType": "exposure",
+  "extra": {
+    "value": {
+      "banner_id": "3303",
+      "title": "体检季来了：你最关心的各种检查，这里都有",
+      "index": 0
+    }
+  }
+}
+```
+
+以下对 banner-exposure.json 文件中的内容压缩为一行输出。
+
+```Shell
+$ cat banner-exposure.json | jq -c .
+{"bizName":"yidian","plat":"h5","actionName":"banner","actionType":"exposure","extra":{"value":{"banner_id":"3303","title":"体检季来了：你最关心的各种检查，这里都有","index":0}}}
 ```

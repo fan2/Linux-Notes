@@ -103,6 +103,9 @@ If you need to have this software first in your PATH run:
 ```
 
 重定向符号 `>` 正常情况，连接左侧的源头和右侧的目标，左侧源头缺省是1-stdout。因此 `>&2` 实际上是 `1>&2` 的简略写法。
+
+> `[n]>&word` - If `n` is not speciﬁed, the standard output (ﬁle descriptor 1) is used.
+
 右侧的 `&2` 中的`&`类似C语言中的地址引用（denote），而后面的数字`2`为stderr的文件描述符。
 因此，`>&2` 表示将1（stdout，标准输出）重定向到2（stderr，标准错误）中。
 
@@ -111,6 +114,7 @@ If you need to have this software first in your PATH run:
 相关参考：
 
 - [shell中>&2的含义及用法](https://blog.csdn.net/huangjuegeek/article/details/21713809)  
+- [Linux 重定向 2>&1，1>&2](https://www.cnblogs.com/bluestorm/p/10754821.html)  
 - [echo >&2 "some text" what does it mean in shell scripting](https://stackoverflow.com/questions/23489934/echo-2-some-text-what-does-it-mean-in-shell-scripting)  
 
 ### 2>&1
@@ -155,7 +159,26 @@ $ find /home -name .bashrc > file 2>&1
 
 `2>&1` 表示将2-stderr重定向到1-stdout，这样错误信息和正常结果输出都重定向到了文件file中。
 
-我们再来看一组对比写法，可以加深理解：
+以下是 man bash 中的经典对比示例：
+
+```Shell
+# Note that the order of redirections is significant. For example, the command
+# directs both standard output and standard error to the file dirlist,
+ls > dirlist 2>&1
+
+# while the command directs only the standard output to file dirlist,
+# because the standard error was duplicated as standard output before the standard output was redirected to dirlist.
+ls 2>&1 > dirlist
+```
+
+第二种写法 `ls 2>&1 > dirlist` 和第一种写法的区别在于 `2>&1` 在重定向 `1 > dirlist` 前面。
+
+1. 先执行 `2>&1`，此时stdout默认还是输出到终端，所以stderr同stdout一样都输出到终端控制台；  
+2. 再执行 `> dirlist`，只有stdout会被重定向到dirlist文件中。  
+
+---
+
+我们再来看一组对比写法，以便加深理解：
 
 ```Shell
 # greplog1：只有正常输出内容
@@ -185,22 +208,20 @@ $ echo hello 2>&1 | grep world
 
 ```
 
-以下是 man bash 中的经典对比示例：
+以下是 [How to Run Linux Commands in Background](https://linuxize.com/post/how-to-run-linux-commands-in-background/) 中执行后台命令，并忽略stdout和stderr输出：
 
 ```Shell
-# Note that the order of redirections is significant. For example, the command
-# directs both standard output and standard error to the file dirlist,
-ls > dirlist 2>&1
-
-# while the command directs only the standard output to file dirlist,
-# because the standard error was duplicated as standard output before the standard output was redirected to dirlist.
-ls 2>&1 > dirlist
+# suppress the stdout and stderr messages
+# redirect stdout to /dev/null and stderr to stdout
+command > /dev/null 2>&1 &
 ```
 
-第二种写法 `ls 2>&1 > dirlist` 和第一种写法的区别在于 `2>&1` 在重定向 `1 > dirlist` 前面。
+以下是来自 [do shell script in AppleScript](https://developer.apple.com/library/archive/technotes/tn2065/_index.html) 中的启动后台daemon的脚本示例：
 
-1. 先执行 `2>&1`，此时stdout默认还是输出到终端，所以stderr同stdout一样都输出到终端控制台；  
-2. 再执行 `> dirlist`，只有stdout会被重定向到dirlist文件中。  
+```AppleScript
+do shell script "command &> file_path &"
+do shell script "command > file_path 2>&1 &"
+```
 
 ### 2>/dev/null
 
@@ -309,6 +330,24 @@ Options:
     -d, --debug             : run in debug mode, default
     -p, --profile           : run in profile mode
     -r, --release           : run in release mode
+EOF
+}
+
+# vue -h 调用以下函数打印 usage 帮助说明
+vue_usage() {
+    cat <<EOF
+Usage: vue <command> [options]
+
+Options:
+  -V, --version  output the version number
+  -h, --help     output usage information
+
+Commands:
+  init           generate a new project from a template
+  list           list available official templates
+  build          prototype a new project
+  create         (for v3 warning only)
+  help [cmd]     display help for [cmd]
 EOF
 }
 ```
