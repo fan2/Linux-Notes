@@ -1,4 +1,6 @@
 
+[Google Shell 风格指南](https://zh-google-styleguide.readthedocs.io/en/latest/google-shell-styleguide/contents/)
+
 ## Android Studio
 
 Android Studio 打开 sh 脚本时，会建议安装 [Shell Script](https://plugins.jetbrains.com/plugin/13122-shell-script) 插件。

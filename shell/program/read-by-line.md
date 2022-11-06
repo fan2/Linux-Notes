@@ -43,12 +43,16 @@ $ echo ${#array[*]}
 以上示例中，从 data2.txt 中读入数据到 array 数组，但是数组长度不是3，而是15！
 
 造成这个问题的原因是特殊的环境变量 `IFS`（Internal Field Separator），叫作内部字段分隔符。  
-IFS环境变量定义了 bash shell 用作字段分隔符的一系列字符。
-默认情况下，bash shell 会将下列字符当作字段分隔符：
+
+IFS环境变量定义了 bash shell 用作字段分隔符的一系列字符，默认情况下，bash shell 会将下列字符当作字段分隔符：
 
 - 空格  
 - 制表符  
 - 换行符  
+
+在 man bash 的 PARAMETERS 章节中有对 IFS 的定义和说明：
+
+> **IFS** The Internal Field Separator that is used for word splitting after expansion and to split lines into words with the read builtin command. The default value is `<space><tab><newline>`.
 
 如果 bash shell 在数据中看到了这些字符中的任意一个，它就会假定这表明了列表中一个新数据字段的开始。
 

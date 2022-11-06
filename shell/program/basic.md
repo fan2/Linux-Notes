@@ -36,8 +36,6 @@ faner    ttys006  Dec  9 22:39
 
 ## 创建脚本
 
-[一篇教会你写90%的shell脚本](https://zhuanlan.zhihu.com/p/264346586)
-
 可以把要执行的命令写入sh脚本文件中，shell 解释器会根据命令在脚本文件中的顺序解释执行。
 
 ```Shell
@@ -459,3 +457,14 @@ done
 ## 脚本参数解析
 
 如果想更专业的处理输入参数列表，可以结合 `shift` 命令、`getopts`（getopt）提取分离参数，具体参考 [argparse](./argparse.md) 一节。
+
+## 相关参考
+
+[一篇教会你写90%的shell脚本](https://zhuanlan.zhihu.com/p/264346586)  
+[阮一峰](https://www.ruanyifeng.com/blog/2020/04/bash-tutorial.html) - [《Bash 脚本教程》](https://wangdoc.com/bash/index.html)  
+
+[explainshell](https://explainshell.com/)  
+[Shell Tips!](https://www.shell-tips.com/)  
+[Shell Scripting Tutorial](https://www.shellscript.sh/)  
+
+[Bash-lib by aks](http://aks.github.io/bash-lib/)  

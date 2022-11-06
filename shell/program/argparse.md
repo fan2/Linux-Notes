@@ -70,10 +70,22 @@ Here's the new first parameter: -d
 
 ## 判断选项开关
 
-bash 提供的很多命令会同时提供开关选项和键值参数。
-选项一般是跟在单破折线后面的单个字母（或字符串）。
+bash 提供的很多命令会同时提供开关选项和键值参数，选项一般是跟在单破折线（`-`）后面的单个字母（或字符串）。
 
-case会检查每个选项是否有效，进而执行对应的命令。
+bash 大部分命令，以 `--` 作为选项和参数的分界符：`--` 前为选项，`--` 后为文件名或其他参数。
+
+具体参考 man bash OPTIONS:
+
+> `−−`: A `−−` **signals** the end of options and disables further option processing. 
+> Any arguments after the `−−` are treated as *filenames* and *arguments*. 
+> An argument of `−` is equivalent to `−−`.
+
+在 SHELL BUILTIN COMMANDS 开头即阐述了内置命令的选项和参数以 `--` 分隔的惯例。
+
+> Unless otherwise noted, each builtin command documented in this section as accepting options preceded by `−` accepts `−−` to **signify** the end of the options. 
+> For example, the `:`, `true`, `false`, and `test` builtins do not accept options.
+
+一般，可以用case来检查每个选项是否有效，进而执行对应的命令。
 不管选项按什么顺序出现在命令行上，这种方法都适用。
 
 ```Shell
@@ -403,7 +415,9 @@ test18.sh 在 macOS 11.6.4 / bash version 3.2.57(1) 上运行结果非预期。
 
 [关于Bash的内置getopts命令](https://thawk.github.io/%E8%BD%AF%E4%BB%B6/bash-getopts/)  
 
-getopts命令（注意是复数）内建于bash shell。它跟近亲getopt看起来很像，但多了一些扩展功能。
+getopts命令（注意是复数）内建于bash shell，它跟近亲getopt看起来很像，但多了一些扩展功能。
+
+> 参考 man bash - SHELL BUILTIN COMMANDS - `getopts optstring name [args]`
 
 与getopt不同，前者将命令行上选项和参数处理后只生成一个输出，而getopts命令能够和已有的shell参数变量配合默契。
 每次调用它时，它一次只处理命令行上检测到的一个参数。处理完所有的参数后，它会退出并返回一个大于0的状态码。
