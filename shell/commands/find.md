@@ -110,6 +110,12 @@ find . -name "*.log"
 $ find . -iname '*OfflineFile*'
 ```
 
+以下示例通配查找当前目录下所有后缀为proto的文件（即protobuf协议文件）。
+
+```Shell
+$ find . -type f -name "*.proto"
+```
+
 #### case-insensitive
 
 `-iname`：匹配名字时会忽略大小写。
@@ -944,6 +950,7 @@ $ find . -name package.json ! -path '*/node_modules/*'
 ```Shell
 $ find / -type f -name "*.conf" -not -path "/etc/fonts/*" ! -path "*/tmpfiles.d/*" -maxdepth 4 2>/dev/null
 $ find / -not \( -path "/etc/fonts/*" -prune \) -not \( -path "*/tmpfiles.d/*" -prune \) -name "*.conf" -maxdepth 4 2>/dev/null
+$ find nodejs/src -type f -iname "*banner.vue" -not -path "nodejs/src/node_modules/*" -not -path "nodejs/src/dist/*" 2>/dev/null
 ```
 
 #### delete file

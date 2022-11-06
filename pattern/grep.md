@@ -325,6 +325,17 @@ find . -type f -exec file {} \; | grep -c 'ISO-8859'
 find . -type d -name src | xargs grep -rIm10 --exclude="*.o" --exclude="*.o.d" 'XPTask'
 ```
 
+以下示例递归遍历 nodejs/src 目录，但是排除 dist 目录，查找 `InquiryEntrance`。
+
+> 相当于 vscode 等 IDE 编辑器中 Search: Find in Files 全局查找（findInFiles）。
+
+```Shell
+# -l 只输出匹配的文件名
+grep -rIl --exclude-dir=dist 'InquiryEntrance' nodejs/src
+# 输出匹配的文件名和行及行号
+grep -rIn --exclude-dir=dist 'InquiryEntrance' nodejs/src
+```
+
 ### multiple patterns
 
 [How do I grep for multiple patterns with pattern having a pipe character?](https://unix.stackexchange.com/questions/37313/how-do-i-grep-for-multiple-patterns-with-pattern-having-a-pipe-character)
