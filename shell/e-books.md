@@ -1,3 +1,8 @@
+
+## [Bash Cookbook 中文版](https://item.jd.com/10029402646306.html)
+
+罗恩·布拉什等 著，王林生 译
+
 ## [LINUX与UNIX Shell编程指南](https://book.douban.com/subject/1231821/)
 
 豆瓣评分: 7.8  
@@ -34,6 +39,8 @@
 
 [pdf](http://download.csdn.net/download/chuweijiong3375/10209734) @CSDN  
 
+[Linux命令行与shell脚本编程大全（第4版）](https://item.jd.com/13199517.html)
+
 ## [Linux Shell脚本攻略(第2版)](https://book.douban.com/subject/25791952/)
 
 豆瓣评分: 8.1  
@@ -64,8 +71,19 @@
 
 《[Linux 命令行大全](https://item.jd.com/11196146.html)》  
 
-《[UNIX Linux OS X中的Shell编程](https://item.jd.com/20164385623.html)》  
+[实用Linux Shell编程](https://item.jd.com/10030126086187.html) - 机械工业出版社 - 石庆冬
+
+[Linux命令行与Shell脚本编程](https://item.jd.com/12878653.html) - 清华大学出版社 - 何伟娜，郝军
+
+[Linux Bash编程与脚本应用实战](https://item.jd.com/10067992635179.html) - 清华大学出版社 - 马玉军，郝军
+
+[Linux Shell命令行及脚本编程实例详解](https://item.jd.com/11609574.html) - 清华大学出版社 - 刘艳涛
+
+[UNIX/Linux/OS X中的Shell编程](https://item.jd.com/20164385623.html)  
+
 > [Shell.Programming.in.Unix.Linux.and.OS.X.4th.Edition.pdf](http://download.csdn.net/download/xinconan1992/9675826) @CSDN  
+
+[Shell脚本编程诀窍：适用于Linux、Bash等](https://item.jd.com/10066756470554.html) - [英]帕克（SteveParker）
 
 [技巧高超的Shell脚本 101个Linux_Mac OS X_Unix系统的脚本](http://download.csdn.net/download/sames/368523)  
 

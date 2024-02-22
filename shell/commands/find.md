@@ -155,6 +155,9 @@ $ find . -type f \( -iname "*.txt" ! -iname ".*" \)
 
 # 查找所有的点隐藏文件（hidden dot files），但是忽略 .htaccess 文件。
 $ find . -type f \( -iname ".*" ! -iname ".htaccess" \)
+
+# 查找所有非C/C++代码文件（包括头文件和源码文件），以便删除中间产物
+$ find . -type f \( ! -iname '*.h' ! -iname '*.hh' ! -iname '*.hpp' ! -iname '*.c' ! -iname '*.cc' ! -iname '*.cpp' \)
 ```
 
 #### or
@@ -234,6 +237,16 @@ $ find . -type f ! -name '*.txt'
 
 ```Shell
 $ find . -type f -iname 'data*'
+```
+
+以下示例列举当前文件夹下的子目录：
+
+```Shell
+$ find . -type d
+# 过滤掉当前目录dot('.')
+$ find . -type d ! -name '.'
+# 或者
+$ find ./* -type d
 ```
 
 以下示例精确查找名为 `OfflineFile` 的文件夹：
@@ -321,6 +334,15 @@ $ find /home/users -path "*/slynux/*"
 ```Shell
 /home/users/list/slynux.txt
 /home/users/slynux/eg.css
+```
+
+[shell - How to exclude this / current / dot folder from find "type d" - Stack Overflow](https://stackoverflow.com/questions/13525004/how-to-exclude-this-current-dot-folder-from-find-type-d)
+
+当 find -d 要过滤掉当前目录，除了 `! -name $targetDir` 名称排除，还可以 `! -path "$targetDir"` 通过路径排除。
+
+```Shell
+targetDir="dir_path"
+find "$targetDir" ! -path "$targetDir" -type d
 ```
 
 #### -user
@@ -756,7 +778,6 @@ $ tree -a
     ├── testDir 32
     │   ├── testDir321
     │   │   └── __MACOSX
-    │   ├── testDir322
     │   │   └── .DS_Store
     │   └── testDir323
     │       ├── testDir3231
@@ -960,6 +981,7 @@ $ find nodejs/src -type f -iname "*banner.vue" -not -path "nodejs/src/node_modul
 递归查找当前目录及其子目录下所有的 `.o`/`.DS_Store` 文件，然后执行 `-delete` 删除操作。
 
 ```Shell
+# 末尾可追加 -print 打印删除的文件
 $ find . -name "*.o" -delete
 $ find . -type f -name ".DS_Store" -delete
 ```
@@ -971,9 +993,9 @@ $ find . -type f -name ".DS_Store" -delete
 以下示例清除 macOS 文件夹下自动生成的 `.DS_Store` 文件：
 
 ```Shell
-# 运行正常
+# 运行正常（末尾可追加 -print 打印删除的文件）
 find testDir1 -name ".DS_Store" -exec rm -rf {} \;
-# 运行正常
+# 运行正常（末尾可追加 -print 打印删除的文件）
 find testDir1 -name ".DS_Store" -exec rm -rf -- {} \+
 # 运行正常
 find testDir1 -name ".DS_Store" -print0 | xargs -0 rm -rf
@@ -1000,7 +1022,7 @@ find 查找当前目录及其子目录下所有的 `__MACOSX` 目录，然后通
 ```Shell
 # 结果正确，报错 No such file or directory
 $ find testDir1 -type d -name "__MACOSX" -exec rm -rf {} \;
-# 运行正常
+# 运行正常（末尾可追加 -print 打印删除的文件夹）
 $ find testDir1 -type d -name "__MACOSX" -exec rm -rf -- {} \+
 # 运行正常
 $ find testDir1 -type d -name "__MACOSX" -print0 | xargs -0 rm -rf
@@ -1013,13 +1035,19 @@ $ find testDir1 -type d -name "__MACOSX" -print0 | xargs -0 rm -rf
 ```Shell
 # 结果正确，报错 No such file or directory
 $ find testDir1 \( -name "__MACOSX" -o -name ".DS_Store" \) -exec rm -rf {} \;
-# 运行正常
+# 运行正常（末尾可追加 -print 打印删除的文件夹）
 $ find testDir1 \( -name "__MACOSX" -o -name ".DS_Store" \) -exec rm -rf -- {} \+
 # 运行正常
 $ find testDir1 \( -name "__MACOSX" -o -name ".DS_Store" \) -print0 | xargs -0 rm -rf
 ```
 
 ---
+
+以下示例清除指定目录下的文件夹（rm -rf递归强制删除）：
+
+```Shell
+find "$targetDir"  -maxdepth 1 ! -path "$targetDir" -type d -print0 | xargs -0 rm -rf
+```
 
 以下示例清除 visual studio 工程 sln/vcproj 下编译生成的 `Debug` 文件夹：
 

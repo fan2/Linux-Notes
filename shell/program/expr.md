@@ -262,6 +262,8 @@ for (( a = 1; a < 10; a++ ))
 
 [Arithmetic Expansion](https://www.tldp.org/LDP/abs/html/arithexp.html)
 
+在 dash shell、z shell 脚本中执行算术运算的正确格式是用双圆括号方法 —— `$((expression))`。
+
 ```sh
 # man bash
    Arithmetic Expansion
@@ -316,4 +318,76 @@ $ echo $i
 $ index=$((i+1))
 $ echo $i $index
 1 2
+```
+
+减法计算间隔耗时：
+
+```Shell
+$ time_start=1668913082
+$ time_end=1668913195
+$ time_cost=$(( $time_end - $time_start ))
+$ echo $time_cost
+113
+```
+
+乘法计算倍积：
+
+```Shell
+$ SHOW_COUNT=5
+$ echo $(( $SHOW_COUNT * 3 ))
+15
+
+$ x=5
+$ echo $((2*x))
+10
+```
+
+双乘计算幂：
+
+```Shell
+$ echo $((2**x))
+32
+```
+
+浮点数乘法，printf 可限定输出浮点位数：
+
+```Shell
+$ value1=$(( 4 * 5.1 ))
+$ echo $value1
+20.399999999999999
+$ printf "%6.3f\n" $value1
+20.400
+```
+
+整除取模运算：
+
+```Shell
+SECS=3600
+UNIT_TIME=60
+STEPS=$(( $SECS / $UNIT_TIME ))
+echo $STEPS
+60
+```
+
+取模和取余运算：
+
+```Shell
+$ value1=10
+$ value2=$(( $value1 / 3 ))
+$ echo $value2
+3
+$ value3=$(( $value1 % 3 ))
+$ echo $value3
+1
+```
+
+将被除数浮点化，以便计算完整的浮点除法结果：
+
+```Shell
+$ value1=10
+$ value2=$(( $value1 / 3. ))
+$ echo $value2
+3.3333333333333335
+$ printf "%.3f\n" $value2
+3.333
 ```

@@ -665,15 +665,18 @@ faner@FAN-MB0:~/Downloads/crx|
 [Convert binary data to hexadecimal in a shell script](https://stackoverflow.com/questions/6292645/convert-binary-data-to-hexadecimal-in-a-shell-script)  
 [Binary to hexadecimal and decimal in a shell script](https://unix.stackexchange.com/questions/65280/binary-to-hexadecimal-and-decimal-in-a-shell-script)  
 
-第一种方式是基于 printf 函g格式化输出：
+[shell 编程进制转换](https://www.cnblogs.com/rykang/p/11880609.html)
+[Linux Bash：进制间转换](https://juejin.cn/post/6844903952547315726)
+
+第一种方式是基于 printf 函数格式化输出：
 
 ```Shell
-# binary to hexadecimal
-$ printf '%x\n' "$((2#101010101))"
-155
 # hexadecimal to decimal
 $ printf '%d\n' 0x24
 36
+# decimal to hexadecimal
+$ printf '%x\n' 36
+24
 ```
 
 第二种方式是基于 `$((...))` 表达式，将其他进制转换为十进制：
@@ -682,6 +685,9 @@ $ printf '%d\n' 0x24
 # binary to decimal
 $ echo "$((2#101010101))"
 341
+# binary to hexadecimal
+$ printf '%x\n' "$((2#101010101))"
+155
 # hexadecimal to decimal
 $ echo "$((16#FF))"
 255
@@ -936,6 +942,7 @@ lsof -i :8010 | awk 'NR>1 {print $2}' | xargs kill -KILL
 
 对于压缩/转义的 JSON 字符串，可以在以下网站进行格式化或解析转换。
 
+- [JSON在线解析及格式化验证](https://www.json.cn/)：支持在线解析和压缩转义。
 - [JSON解析格式化工具](https://www.sojson.com/)：支持校验/格式化、压缩/转义。
 - [JSON格式化查看工具](https://www.baidufe.com/fehelper/json-format/index.html)：支持对 JSON 进行压缩，以及对压缩（转义）的JSON字符串进行还原。
 
