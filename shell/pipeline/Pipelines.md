@@ -100,6 +100,7 @@ faner@MBP-FAN:~|⇒  ls -l / | tee -a ~/homefile | more
 执行 `shadowsocks.sh` 脚本安装 shadowsocks 时，将执行的 stdout 和 stderr 输出既在控制台显示，同时写入日志文件 shadowsocks.log，方便后续回看。
 
 ```Shell
+./shadowsocks.sh |& tee shadowsocks.log # or
 ./shadowsocks.sh 2>&1 | tee shadowsocks.log
 ```
 

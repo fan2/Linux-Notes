@@ -185,26 +185,39 @@ sed 提供了以下编辑命令：
 
 在命令行使用 sed 命令时，要加单引号，也允许加双引号。
 
-以下命令过滤打印 file.txt 文件中指定行：
+以下通过sed命令过滤显示文件中指定行号对应的行：
 
 ```Shell
+# 打印第1行
+$ sed -n '1p' file.txt
+
 # 打印第2行
 $ sed -n '2p' file.txt
+
+# 打印前3行，然后退出
+sed '3 q' file.txt
+
+# 打印第4~8行
+sed -n '4,8p' file.txt
 
 # 打印末尾行
 $ sed -n '$p' file.txt
 
-# 打印除第2行外的所有其他行
-sed -n '2!p' file.txt
+# 打印整个文件
+$ sed -n '1,$p' file.txt
+```
+
+以下通过sed命令过滤不显示文件中指定行号对应的行：
+
+```Shell
+# 打印除第3行外的所有其他行
+sed -n '3!p' file.txt
+
+# 打印除前3行外的所有其他行
+sed -n '1,3!p' file.txt
 
 # 打印除第2~4行外的所有其他行
 sed -n '2,4!p' file.txt
-
-# 打印前4行，然后退出
-sed '4 q' file.txt
-
-# 打印整个文件
-$ sed -n '1,$p' file.txt
 ```
 
 #### 输出到文件

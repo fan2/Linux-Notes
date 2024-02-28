@@ -209,6 +209,7 @@ SYNOPSIS
 此时，可通过管道命令导向 `head` / `tail` 筛选查看开头/结尾部分。
 
 ```Shell
+# history日志条目按插入时间升序（从远到近）
 # 查看最远10条输入命令记录：
 $ history | head # 默认显示10条
 $ history | head -n 10
@@ -222,6 +223,38 @@ $ history | tail -n 10
 
 ```Shell
 $ du -csh ~/Library/Developer/* | sort -rh | head
+```
+
+在 Linux 下，head 的 -n 接负号数（-NUM）表示打印除末尾几行的开头部分。
+
+```Shell
+$ man head
+       -n, --lines=[-]NUM
+              print the first NUM lines instead of the first 10; with the leading
+              '-', print all but the last NUM lines of each file
+```
+
+在 Linux 下，tail 的 -n 接正号数（+NUM）表示打印从第NUM行开头到尾部部分（即忽略前NUM-1行）。
+
+```Shell
+$ man tail
+       -n, --lines=[+]NUM
+              output  the  last NUM lines, instead of the last 10; or use -n +NUM
+              to output starting with line NUM
+```
+
+在 Linux 下，如想打印除开头和结尾10行的中间部分可以执行：`head -n -10 file.txt | tail +11`。
+
+在 macOS 下由于不支持以上特性，需要按照下面的步骤实现同等效果：
+
+```Shell
+# 先统计总行数
+lines=$(wc -l file.txt | awk '{print $1}')
+# 减去末尾10行，head显示开头部分
+hl=$(expr $lines - 10)
+# 再减去开头10行，tail显示末尾部分
+tl=$(expr $hl - 10)
+head -n $hl file.txt | tail -n $tl
 ```
 
 `-f` 参数是 tail 命令的一个突出特性，它使该命令保持活动状态，支持监视文件追加变更，并实时显示追加到到文末的内容。
@@ -243,6 +276,26 @@ $ du -csh ~/Library/Developer/* | sort -rh | head
 
 ```Shell
 $ tail -f nginx-access.log
+```
+
+---
+
+**sed**（`s`tream `ed`itor）意即流式编辑器，可轻松实现类似head/more的过滤文本显示。
+当然也可借助sed指定正则匹配规则，过滤出某些行或某些有特殊起始格式的段落。
+
+具体参考 [sed-basic.md](../../shell/sed-awk/sed/sed-basic.md) 中的示例。
+
+以上想打印除开头和结尾10行的中间部分，也可先计算好中间部分的起始行号，再用sed过滤打印：
+
+```Shell
+# 先统计总行数
+lines=$(wc -l file.txt | awk '{print $1}')
+# 开始行号11
+hl=11
+# 减去末尾10行，得出结束行号
+tl=$(expr $lines - 10)
+# 注意不能用单引号(inhibit parameter expansion)！
+sed -n "$hl, $tl p" file.txt
 ```
 
 ## du
@@ -309,8 +362,7 @@ $ du -csh ~/Library/Developer/*
 按占用磁盘空间降序（由大到小）排序：
 
 ```Shell
-$ du -csh ~/Library/Developer/* | sort -rh
- 66G	total
+$ du -sh ~/Library/Developer/* | sort -rh
  39G	/Users/faner/Library/Developer/Xcode
  23G	/Users/faner/Library/Developer/CoreSimulator
 2.2G	/Users/faner/Library/Developer/flutter

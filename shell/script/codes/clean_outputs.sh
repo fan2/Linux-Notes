@@ -26,7 +26,7 @@ clean_outputs()
     # find . -maxdepth 1 -type f \( ! -iname '*.h' ! -iname '*.hh' ! -iname '*.hpp' ! -iname '*.c' ! -iname '*.cc' ! -iname '*.cpp' \) -delete -print
     # find . -maxdepth 1 -type f \( ! -iname '*.h' ! -iname '*.hh' ! -iname '*.hpp' ! -iname '*.c' ! -iname '*.cc' ! -iname '*.cpp' \) -exec rm -rf -- {} \+ -print
     # find . -maxdepth 1 -type f \( ! -iname '*.h' ! -iname '*.hh' ! -iname '*.hpp' ! -iname '*.c' ! -iname '*.cc' ! -iname '*.cpp' \) -print0 | xargs -0 rm -rf
-    find $targetDir -maxdepth 1 -type f \( ! -iname '*.h' ! -iname '*.hh' ! -iname '*.hpp' ! -iname '*.c' ! -iname '*.cc' ! -iname '*.cpp' \) -delete -print
+    find "$targetDir" -maxdepth 1 -type f \( ! -iname '*.h' ! -iname '*.hh' ! -iname '*.hpp' ! -iname '*.c' ! -iname '*.cc' ! -iname '*.cpp' \) -delete -print
 
     echo "----------------------------------------"
     echo "clean end. 🔚"

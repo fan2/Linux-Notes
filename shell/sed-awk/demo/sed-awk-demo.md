@@ -35,7 +35,7 @@ An asterisk (*) denotes that a network service is disabled.
 
 如果是 iMac，有线网口往往是 en0，无线网口是 en1。
 
-如果提取有线网口（Ethernet）和无线网卡（Wi-Fi）的接口名称呢？
+如何提取有线网口（Ethernet）和无线网卡（Wi-Fi）的接口名称呢？
 
 基本思路：
 

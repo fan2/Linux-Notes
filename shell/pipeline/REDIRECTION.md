@@ -21,6 +21,8 @@
 
 如果没有特别指定文件描述符，命令默认将执行信息输出到缺省“文件”——你的屏幕，更确切地说是你的终端。
 
+## stderr
+
 **为什么会有一个专门针对错误的特殊文件stderr呢**？
 
 当用命令处理大数据文件时，除了正常的（非错误的）输出信息，还有可能输出很多错误信息。
@@ -67,22 +69,70 @@ cmd 2>stderr.txt >stdout.txt
 $ cat account_qtr.doc account_end.doc 1>accounts.out 2>accounts.err
 ```
 
-### >>
-
-有时并不想覆盖文件原有内容，而是想要将命令的输出追加到已有文件中，此时可以用双大于号（`>>`）来向现存文件末尾追加新数据。
-
-关于累加输出导向的广泛应用是 echo 一行新配置，追加到一个配置文件中。
-以下示例在 `~/.zshrc` 末尾追加一句 export 命令：
+我们来看一个gcc编译的例子。参考 [Overall Options](https://gcc.gnu.org/onlinedocs/gcc-13.2.0/gcc/Overall-Options.html)，gcc 的 `-E` 选项指定只执行预处理（preprocessing），并将结果输出到standard output（默认输出到屏幕控制台）。
 
 ```Shell
-echo export ALL_PROXY=socks5://127.0.0.1:1080 >> ~/.zshrc
+-E
+Stop after the preprocessing stage; do not run the compiler proper. The output is in the form of preprocessed source code, which is sent to the standard output.
 ```
 
-brew install openssl 过程中，Caveats 提示可执行脚本将其可执行路径添加到 PATH 中：
+如果c代码中包含了很多 `#define` 和 `#include` 预处理伪指令（Preprocessor Directives），控制台输出将很长，可考虑将预处理结果重定向到文本文件中，稍后用文本编辑器打开慢慢分析。
 
 ```Shell
-If you need to have this software first in your PATH run:
-  echo 'export PATH="/usr/local/opt/openssl/bin:$PATH"' >> ~/.zshrc
+$ gcc helloworld.c -E > preprocessing_E.txt
+```
+
+如果想看看 preprocessing 过程具体执行了哪些命令，可以打开 `-v` 开关，这些执行verbose信息将输出到stderr（默认输出到屏幕控制台）。
+
+```Shell
+-v
+Print (on standard error output) the commands executed to run the stages of compilation. Also print the version number of the compiler driver program and of the preprocessor and the compiler proper.
+```
+
+如果要将verbose信息单独保存到文本文件，可以追加 `2>`：
+
+```Shell
+$ gcc helloworld.c -E -v >preprocessing_E.txt 2>preprocessing_v.txt
+# or
+$ gcc helloworld.c -E -v 1>preprocessing_E.txt 2>preprocessing_v.txt
+```
+
+### > /dev/null
+
+有时候，在输出中可能包含一些不必要的信息（如调试信息）。
+如果不想让终端充斥着有关stderr的繁枝末节，可考虑将stderr输出重定向到 `/dev/null`，予以忽略。
+
+在使用 grep 查找时，当传入的文件或文件夹不存在时，可以指定 `-s` 选项屏蔽 No such file or directory 之类的错误信息输出。
+find 命令则没有类似的选项，当查找的文件（夹）没有读权限时，可能会有大量的 Permission denied 报错信息输出到控制台。
+find 执行输出的错误信息可以重定向到一个单独的日志文件，也可导向垃圾桶黑洞设备，被吞噬不输出到控制台。
+
+- [Linux / Unix Find Command Avoid Permission Denied Messages](https://www.cyberciti.biz/faq/bash-find-exclude-all-permission-denied-messages/)  
+- [How can I exclude all "permission denied" messages from "find"?](https://stackoverflow.com/questions/762348/how-can-i-exclude-all-permission-denied-messages-from-find)  
+
+```Shell
+# 将错误信息重定向到日志文件，不输出到控制台
+$ find /home -name .bashrc 2> finderrors.log
+# 将错误信息重定向到系统垃圾桶，不输出到控制台
+$ find /home -name .bashrc 2> /dev/null
+$ find / -type f -name "*.conf" -maxdepth 4 2>/dev/null
+```
+
+有时候 stdout 和 stderr 中都有内容，可将其中之一重定向到黑洞，只打印另外一个。
+
+```Shell
+# echo 命令执行正常，只输出 stdout，不输出 stderr；dump 一份到 stderr
+$ echo hello 1>&2
+hello
+
+# 过滤掉 stdout，输出 stderr
+$ echo hello 1>&2 1>/dev/null
+hello
+```
+
+在 [transfer.sh](https://transfer.sh/) 中，curl 正常输出 `| tee /dev/null` 只输出到控制台，导入黑洞（不存文件）：
+
+```
+curl --progress-bar --upload-file "-" "https://transfer.sh/$file_name" | tee /dev/null
 ```
 
 ### 1>&2
@@ -92,15 +142,6 @@ If you need to have this software first in your PATH run:
 可以在中途采取这种重定向策略，使标准输出尽可能简洁，以免被计算过程中的大量输出淹没。
 
 > redirect stdout to stderr: sending the output to standard error instead of standard out.
-
-以下是来自 [transfer.sh](https://transfer.sh/) 中的一段脚本，是典型的判断文件是否存在的错误捕获处理：
-
-```Shell
-        if [ ! -e "$file" ]; then
-            echo "$file: No such file or directory" >&2
-            return 1
-        fi
-```
 
 重定向符号 `>` 正常情况，连接左侧的源头和右侧的目标，左侧源头缺省是1-stdout。因此 `>&2` 实际上是 `1>&2` 的简略写法。
 
@@ -117,10 +158,48 @@ If you need to have this software first in your PATH run:
 - [Linux 重定向 2>&1，1>&2](https://www.cnblogs.com/bluestorm/p/10754821.html)  
 - [echo >&2 "some text" what does it mean in shell scripting](https://stackoverflow.com/questions/23489934/echo-2-some-text-what-does-it-mean-in-shell-scripting)  
 
+[bash - echo that outputs to stderr - Stack Overflow](https://stackoverflow.com/questions/2990414/echo-that-outputs-to-stderr)
+
+You could do this, which facilitates reading: `>&2 echo "error"`
+
+以下是来自 [transfer.sh](https://transfer.sh/) 中的一段脚本，是典型的判断文件是否存在的错误捕获处理：
+
+```Shell
+        if [ ! -e "$file" ]; then
+            echo "$file: No such file or directory" >&2
+            return 1
+        fi
+```
+
+echo hello 1>&2 配合管道操作：
+
+```Shell
+# echo 命令执行正常，只输出 stdout，不输出 stderr；dump 一份到 stderr
+$ echo hello 1>&2
+hello
+
+# 过滤掉 stdout，输出 stderr
+$ echo hello 1>&2 1>/dev/null
+hello
+
+# echo 输出 stdout；stderr(+stdout) 导向执行 grep
+$ echo hello 1>&2 | grep hello
+hello
+hello
+
+# echo 输出 stdout；stderr(+stdout) 导向执行 grep，出错输出stderr
+$ echo hello 1>&2 | grep world
+hello
+
+# 对比：grep 匹配失败默认没有输出（没有设置stderr）
+$ echo hello | grep world
+
+```
+
 ### 2>&1
 
 当运行某些命令的时候，出错信息往往也很重要，以便用于分析问题。
-那么，如何错误信息也和正常输出一样，都写入同一个文件中呢？
+那么，如何使错误信息也和正常输出一样，都写入同一个文件中呢？
 
 以下是 man bash 中关于 Redirecting Standard Output and Standard Error 的使用说明：
 
@@ -155,7 +234,8 @@ $ find /home -name .bashrc > file 2>&1
 ```
 
 第一种写法 `command &> file`：其中的 `&` 省略了被引用的1和2，表示stdout和stderr都重定向到文件file中。
-第二种写法 `command > file 2>&1`：前面将标准输出1-stdout重定向到file中，后面的 `2>&1` 怎么理解呢？
+第二种写法：错误写法，少了`>`，参考下面的经典示例。这里会将file理解为命令行参数！？
+第三种写法 `command > file 2>&1`：前面将标准输出1-stdout重定向到file中，后面的 `2>&1` 怎么理解呢？
 
 `2>&1` 表示将2-stderr重定向到1-stdout，这样错误信息和正常结果输出都重定向到了文件file中。
 
@@ -178,32 +258,28 @@ ls 2>&1 > dirlist
 
 ---
 
-我们再来看一组对比写法，以便加深理解：
+echo hello 2>&1 配合管道操作：
+
+> 2>&1 相当于 |&，同时管传 stderr 和 stdout。
 
 ```Shell
-# greplog1：只有正常输出内容
-grep pattern file > greplog1
-# greplog2：内容为空，stdout被导向了stderr
-grep pattern file > greplog2 1>&2
-# greplog3、greplog4：既有正常输出内容，又有错误输出内容。
-grep pattern file > greplog3 2>&1  # stdout > file, stderr same as stdout
-grep pattern file 2> greplog4 1>&2 # stderr > file, stdout same as stderr
-echo 'df' 2> test.txt >&2
-```
-
-以下脚本将1-stdout重定向到2-stderr，也就是在终端屏幕上显示hello。
-`| grep world` 搜素左边传来的1-stdout为空，匹配world无果，故没有结果输出，最终屏幕只echo到stderr显示hello。
-
-```Shell
-$ echo hello 1>&2 | grep world
+# echo 命令执行正常，只输出 stdout，不输出 stderr；dump 空的 stderr 到 stdout
+$ echo hello 2>&1
 hello
-```
 
-以下脚本将2-stderr重定向到1-stdout，不过echo执行正确，没有错误信息输出到stderr。
-`| grep world` 搜素左边传来的1-stdout为字符串 `hello`，匹配world无果，故没有结果输出，最终屏幕无输出。
+# stdout 有内容
+$ echo hello 2>&1 2>/dev/null
+hello
 
-```Shell
-# 基本等效于 echo hello | grep world，只不过顺便把stderr重定向到stdout。
+# stderr 为空
+$ echo hello 2>&1 1>/dev/null
+
+
+# echo 输出 stdout；stdout(+stderr) 导向执行 grep
+$ echo hello 2>&1 | grep hello
+hello
+
+# echo 输出 stdout；stdout(+stderr) 导向执行 grep，出错输出stderr(为空)
 $ echo hello 2>&1 | grep world
 
 ```
@@ -223,24 +299,63 @@ do shell script "command &> file_path &"
 do shell script "command > file_path 2>&1 &"
 ```
 
-### 2>/dev/null
+### >&综合示例
 
-有时候，在输出中可能包含一些不必要的信息（如调试信息）。
-如果不想让终端充斥着有关stderr的繁枝末节，可考虑将stderr输出重定向到 `/dev/null`，予以忽略。
-
-在使用 grep 查找时，当传入的文件或文件夹不存在时，可以指定 `-s` 选项屏蔽 No such file or directory 之类的错误信息输出。
-find 命令则没有类似的选项，当查找的文件（夹）没有读权限时，可能会有大量的 Permission denied 报错信息输出到控制台。
-find 执行输出的错误信息可以重定向到一个单独的日志文件，也可导向垃圾桶黑洞设备，被吞噬不输出到控制台。
-
-- [Linux / Unix Find Command Avoid Permission Denied Messages](https://www.cyberciti.biz/faq/bash-find-exclude-all-permission-denied-messages/)  
-- [How can I exclude all "permission denied" messages from "find"?](https://stackoverflow.com/questions/762348/how-can-i-exclude-all-permission-denied-messages-from-find)  
+来看一组综合对比示例，以便加深理解：
 
 ```Shell
-# 将错误信息重定向到日志文件，不输出到控制台
-$ find /home -name .bashrc 2> finderrors.log
-# 将错误信息重定向到系统垃圾桶，不输出到控制台
-$ find /home -name .bashrc 2> /dev/null
-$ find / -type f -name "*.conf" -maxdepth 4 2>/dev/null
+# greplog1：只有正常输出内容
+grep pattern file > greplog1
+# greplog2：内容为空，stdout被导向了stderr
+grep pattern file > greplog2 1>&2
+# greplog3、greplog4：既有正常输出内容，又有错误输出内容。
+grep pattern file > greplog3 2>&1  # stdout > file, stderr same as stdout
+grep pattern file 2> greplog4 1>&2 # stderr > file, stdout same as stderr
+echo 'df' 2> test.txt >&2 # same as above
+```
+
+回到上面的gcc预处理例子中，如果要将 `-E` 预处理(stdout)和 `-v`(stderr)信息一起保存到文本文件，可以有以下两种写法：
+
+```Shell
+# directs both stdout & stderr to file, nothing to console
+gcc helloworld.c -E -v &> preprocessing.txt
+
+# directs stdout to file, stderr to stdout(file), both to file, nothing to console
+gcc helloworld.c -E -v > preprocessing.txt 2>&1
+```
+
+注意：以下情况中，开始的stderr(-v verbose信息)重定向到stdout，先输出到控制台；然后stdout重定向到文件。
+
+```Shell
+# directs stderr(-v) to stdout, slip to console
+# then directs only the original stdout(-E) to file
+gcc helloworld.c -E -v 2>&1 > preprocessing_v.txt
+```
+
+如果想命令行执行的完整信息，既保留输出到控制台，又写入文件，可以通过管道加tee命令实现：
+
+```Shell
+# directs stderr(-v) to stdout, then pipe stdout to both console and file
+gcc helloworld.c -E -v 2>&1 | tee preprocessing.txt
+gcc helloworld.c -E -v |& tee preprocessing.txt
+```
+
+### >>
+
+有时并不想覆盖文件原有内容，而是想要将命令的输出追加到已有文件中，此时可以用双大于号（`>>`）来向现存文件末尾追加新数据。
+
+关于累加输出导向的广泛应用是 echo 一行新配置，追加到一个配置文件中。
+以下示例在 `~/.zshrc` 末尾追加一句 export 命令：
+
+```Shell
+echo export ALL_PROXY=socks5://127.0.0.1:1080 >> ~/.zshrc
+```
+
+brew install openssl 过程中，Caveats 提示可执行脚本将其可执行路径添加到 PATH 中：
+
+```Shell
+If you need to have this software first in your PATH run:
+  echo 'export PATH="/usr/local/opt/openssl/bin:$PATH"' >> ~/.zshrc
 ```
 
 ## <, <<
