@@ -139,6 +139,48 @@ echo "The new value is $result"
 
 dbl 函数会用 echo 语句来显示计算的结果。
 
+## 命令中定义函数
+
+[Define function in unix/linux command line (e.g. BASH) - Stack Overflow](https://stackoverflow.com/questions/35465851/define-function-in-unix-linux-command-line-e-g-bash)
+
+在终端中，如果想多个命令一起运行，可以把它们放在同一行中，彼此间用分号（`;`）隔开。
+可以在命令行中定义包含多条命令的一行函数，但每条命令的结尾必须包含分号，这样shell才知道命令在哪分开。
+
+此外，也可以在命令中输入函数，按照提示符输入即可。
+
+假设有函数 check_python_version：
+
+```Shell
+check_python_version()
+{
+    if python -V &>/dev/null;
+    then
+        python_version=$(python -V) 1>/dev/null
+        echo "python installed: $python_version"
+        return 0
+    else
+        echo "python uninstalled!"
+        return 1
+    fi
+}
+```
+
+在命令行下逐行输入如下：
+
+```Shell
+check_python_version() {
+function> if python -V &>/dev/null;
+function if> then python_version=$(python -V) 1>/dev/null;
+function then> echo "python installed: $python_version";
+function then> return 0;
+function then> else echo "python uninstalled\!";
+function else> return 1;
+function else> fi
+function> }
+```
+
+然后输入 `check_python_version` 回车即可调用该函数。
+
 ## 跨脚本调用
 
 ### source导入引用脚本
@@ -219,7 +261,28 @@ use_python38...
 which python3 = /usr/local/opt/python@3.8/bin/python3
 ```
 
-需要注意的是，直接在终端执行脚本，会新起子shell进程。
+假设脚本 check_python_version.sh 只包含 check_python_version 函数，那么source导入终端，仅是导入函数。
+
+如果 sh 脚本中有入口点 main 调用了 check_python_version 函数，那么source导入终端，直接运行脚本。
+
+```Shell
+#!/bin/bash
+
+check_python_version()
+{
+    # ...
+}
+
+main()
+{
+    check_python_version
+}
+
+main "$@" # $*
+```
+
+source导入或运行脚本，与当前终端shell共享环境变量。
+但直接在终端执行脚本，将按照Shebang新起子shell进程，环境变量可能与当前终端shell不一致。
 在执行完sh后，脚本中未export导出的变量，无法再引用！
 
 ```Shell

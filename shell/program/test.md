@@ -249,6 +249,8 @@ if-then 语句允许你使用布尔逻辑来组合测试。有两种布尔运算
 
 返回值和执行结果综合判断示例：
 
+> `-a` 选项用来对其他两个选项的结果执行布尔AND运算。
+
 ```Shell
 is_iosdeploy_installed()
 {
@@ -276,7 +278,7 @@ then
     # if [ $? -eq 0 -a $ios_deploy_device ]         # [: too many arguments
     # if [ $? -eq 0 ] && [ $ios_deploy_device ]     # [: too many arguments
     # if [[ $? -eq 0 ]] && [[ $ios_deploy_device ]] # right, not recommended
-    if [ $? -eq 0 ] && [ -n "$ios_deploy_device" ]
+    if [ $? -eq 0 ] && [ -n "$ios_deploy_device" ]  # SC2166 建议写法
     then
         echo $ios_deploy_device
         main $@ # $*

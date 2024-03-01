@@ -135,6 +135,33 @@ hello
 curl --progress-bar --upload-file "-" "https://transfer.sh/$file_name" | tee /dev/null
 ```
 
+假设要检测本地安装的Python版本，需执行 `python -V` 即可。
+
+1. 已安装python，输出提示 Python 3.9.6 到 1-stdout
+2. 未安装python，输出提示 zsh: command not found: python 到 2-stderr
+
+第3句 `if python -V;` 为试探检测语句，由于后面会针对成功失败分情况处理，若已安装后续会再次读取版本并输出安装信息。
+若不希望在控制台输出临时执行结果，可续接 `&>/dev/null` 将执行结果(stdout or stderr)重定向到黑洞。
+
+试探执行成功，表示已安装python，在then分支中再次执行 `python -V` 将结果保存在 python_version 变量中。
+由于后续有echo输出python安装和版本信息，因此这里保存执行结果到变量后，不希望输出到控制台。
+可在变量赋值后，续接 `1>/dev/null` 屏蔽stdout输出（suppress stdout）。
+
+```Shell
+check_python_version()
+{
+    if python -V &>/dev/null; # 不输出执行结果
+    then
+        python_version=$(python -V) 1>/dev/null # 不输出版本信息
+        echo "python installed: $python_version"
+        return 0
+    else
+        echo "python uninstalled!"
+        return 1
+    fi
+}
+```
+
 ### 1>&2
 
 在编写shell脚本时，经常会在捕获错误异常时调用echo打印自定义的出错信息，并将这些错误信息重定向到stderr设备中。
