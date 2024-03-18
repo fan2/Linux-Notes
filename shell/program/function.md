@@ -165,21 +165,31 @@ check_python_version()
 }
 ```
 
+以上脚本直接复制到命令行中，感叹号要转义，否则会截断提示 function else dquote>。
+
 在命令行下逐行输入如下：
 
 ```Shell
 check_python_version() {
 function> if python -V &>/dev/null;
-function if> then python_version=$(python -V) 1>/dev/null;
+function if> then
+function then> python_version=$(python -V) 1>/dev/null;
 function then> echo "python installed: $python_version";
 function then> return 0;
-function then> else echo "python uninstalled\!";
+function then> else
+function else> echo "python uninstalled\!";
 function else> return 1;
 function else> fi
 function> }
 ```
 
 然后输入 `check_python_version` 回车即可调用该函数。
+
+以下函数将两句脚本用分号隔开放在同一行里：
+
+```Shell
+pman() { manpage=$(man -w $@); mandoc -T pdf $manpage | open -fa Preview; }
+```
 
 ## 跨脚本调用
 

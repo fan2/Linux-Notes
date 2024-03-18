@@ -276,26 +276,10 @@ DESCRIPTION
 - [*8: Superuser and system administration commands*](http://man7.org/linux/man-pages/dir_section_8.html); man-pages includes a very few Section 8 pages, mainly documenting programs supplied by the <u>GNU C library</u>.  
 
 如果一个关键字（item keyword）出现在多个 man 手册中，则按照手册中的章节号顺序进行搜索。man 预定义的搜索章节号顺序（search available sections following a pre-defined order by default）为 `1 n l 8 3 2 5 4 9 6 7`。  
-可在 man 后面接 section 段号，指定从哪本 man 手册中搜索帮助，如 `man 1 kill`（User commands）,`man 2 kill`（System calls）；`man 2 shutdown`（System calls）,`man shutdown 8`（Admin commands）。  
-
-`man -f` 命令可查看命令简介，默认显示第一个搜索到的；加上 `-a`(--all) 选项，则显示所有 section 匹配到的命令。
-
-```Shell
-# macOS
-faner@MBP-FAN:~|⇒  man -af shutdown
-servertool(1)            - The Java(TM) IDL Server Tool servertool provides an ease-of-use interface for application programmers to register, unregister, startup and shutdown a server
-shutdown(8)              - close down the system at a given time
-upsshutdown(8)           - UPS emergency low power shutdown script
-
-# raspbian
-pi@raspberrypi:/usr/share/man$ man -af shutdown
-shutdown (2)         - shut down part of a full-duplex connection
-shutdown (8)         - Halt, power-off or reboot the machine
-```
 
 如果想查看某个段号下的所有命令，可以输入 `man 8 ` 再输入 tab，遍历 possibilities：
 
-```
+```Shell
 ~ → man 8 
 zsh: do you wish to see all 714 possibilities (357 lines)?
 ```
@@ -378,6 +362,54 @@ PTHREADS(7);
 ### 9.Kernel Interface
 
 ### N. New Commands
+
+### man in specified section
+
+有的命令可能会出现在不同的 man 手册中，通过 `man -f` 命令可查看命令简介，默认显示第一个搜索到的；加上 `-a`(--all) 选项，则显示所有 section 匹配到的命令。
+
+```Shell
+# macOS
+faner@MBP-FAN:~|⇒  man -af shutdown
+shutdown(8)              - close down the system at a given time
+upsshutdown(8)           - UPS emergency low power shutdown script
+shutdown(2)              - shut down part of a full-duplex connection
+shutdown(8)              - close down the system at a given time
+upsshutdown(8)           - UPS emergency low power shutdown script
+
+# raspbian
+pi@rpi3b-raspbian $ man -af kill
+kill (2)             - send signal to a process
+kill (1)             - send a signal to a process
+
+# ubuntu
+pifan@rpi4b-ubuntu $ man -af printf
+printf (1)           - format and print data
+printf (3)           - formatted output conversion
+```
+
+可以在指定手册号中查找某个命令的帮助。具体来说，可在 man 后面接手册的 section 编号，从指定 man 手册中搜索帮助。
+
+1. `man 1 kill`（User commands）,`man 2 kill`（System calls）；
+2. `man 2 shutdown`（System calls）,`man shutdown 8`（Admin commands）。
+
+学习 UNX（Unix/Linux）C 语言编程，经常要查阅标准库中的 API 参考，主要集中在 section 3——Subroutines 中。
+
+- macOS: Library Functions Manual
+- Linux: Linux Programmer's Manual
+
+例如 `PRINTF(1)` 为 macOS/Linux 内核向 bash shell 提供的格式化输出支持；而 `PRINTF(3)` 为 C 语言标准库（libstdcxx）头文件 <stdio.h> 中提供的控制台格式化打印接口函数。
+
+1. 执行 `man stdio` 查看 stdio - standard input/output library functions。
+2. 执行 `man 3 printf` 查看库函数手册中的这个 API 参考文档。
+
+例如，socket、信号量和多线程相关的 API：
+
+- socket - create an endpoint for communication: 2- `socket`
+- System V semaphore: 2 - `semget`, `semctl`, `semop`
+- POSIX semaphore: 2(macOS)/3(Linux) - `sem_open`, `sem_wait`, `sem_post`, `sem_close`
+- Standard/ANSI C software signal handling facilities: 3/2 - `signal`, `sigaction`
+- macOS: 3 pthread: Thread Routines, Mutex, Condition Variable, Read/Write Lock, Per-Thread Context
+- ubuntu: 7 pthreads
 
 ## Conventional section
 
@@ -536,7 +568,49 @@ faner@MBP-FAN:~|⇒  man -t sed | open -f -a /Applications/Preview.app
 
 open 的 `-fa` 选项表示 piping output to open(`-f`) and specifies the application(`-a`)，可参考 man open。
 
-zsh 中启用 `osx` 插件，支持 **`man-preview`** 命令调用预览打开 man page（Open a specified man page in Preview app）。例如 `man-preivew sed`。
+最新的 macOS `man -t` 已经改用 troff，机制和命令不同于之前的 groff，无法再直接使用了，建议改用 omz 自带的 macos 插件中的 `man-preview` 插件命令。
+
+在 ~/.zshrc 中启用 `macos` 插件，支持 **`man-preview`** 命令调用预览打开 man page（Open a specified man page in Preview app）。例如 `man-preivew sed`。
+
+其原理是先用 `man -w $cmd` 找到 cmd 的 manpage 文件路径，然后用 `mandoc -T` 以 pdf 形式输出，然后重定向到 `open -fa Preview` 打开。
+
+```Shell
+function man-preview() {
+  [[ $# -eq 0 ]] && >&2 echo "Usage: $0 command1 [command2 ...]" && return 1
+
+  local page
+  for page in "${(@f)"$(man -w $@)"}"; do
+    command mandoc -Tpdf $page | open -f -a Preview
+  done
+}
+compdef _man man-preview
+```
+
+相当于依次执行以下脚本：
+
+```Shell
+$ manpage=$(man -w clang)
+$ mandoc -T pdf $manpage | open -f -a Preview
+```
+
+用 Preview 应用打开后，可以 Export 导出保存为本地 PDF 文件。
+
+也可执行 mandoc 时直接重定向输出到 pdf 文件：
+
+```Shell
+$ mandoc -T pdf $manpage > man_clang.pdf
+```
+
+一行便捷脚本：
+
+- `mandoc -T pdf $(man -w clang) | open -fa Preview`
+- `mandoc -T pdf $(man -w clang) > man_clang.pdf`
+
+也可自行封装小函数，然后调用 `pman $cmd` 用预览应用打开 cmd 命令的 manual page：
+
+```Shell
+pman() { manpage=$(man -w $@); mandoc -T pdf $manpage | open -fa Preview; }
+```
 
 #### pstopdf
 

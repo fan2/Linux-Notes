@@ -106,8 +106,44 @@ Options:
   -h, --help            show this help message and exit
 ```
 
+使用 `cppman -s SOURCE` 切换参考源：
+
+```Shell
+$ cppman -s cppreference.com
+Source set to `cppreference.com'.
+
+$ cppman -s cplusplus.com
+Source set to `cplusplus.com'.
+```
+
 ## Debian / Ubuntu
 
 ```Shell
 $ sudo apt-get install cppman
 ```
+
+## macOS / brew
+
+[cppman — Homebrew Formulae](https://formulae.brew.sh/formula/cppman)
+
+```Shell
+brew search cppman
+==> Formulae
+cppman
+
+brew info cppman
+==> cppman: stable 0.5.6 (bottled)
+C++ 98/11/14/17/20 manual pages from cplusplus.com and cppreference.com
+https://github.com/aitjcize/cppman
+Not installed
+From: https://github.com/Homebrew/homebrew-core/blob/HEAD/Formula/c/cppman.rb
+License: GPL-3.0-or-later
+==> Dependencies
+Required: python@3.12 ✔
+==> Analytics
+install: 90 (30 days), 185 (90 days), 803 (365 days)
+install-on-request: 90 (30 days), 185 (90 days), 803 (365 days)
+build-error: 0 (30 days)
+```
+
+在 macOS 终端执行 `brew install cppman` 即可安装。

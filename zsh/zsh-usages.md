@@ -249,7 +249,7 @@ FILES
        /etc/zlogout    (installation-specific - /etc is the default)
 ```
 
-## ZSH 插件
+## omz 插件
 
 Oh My Zsh 默认自带的插件存放在 `~/.oh-my-zsh/plugins` 目录中，可以 cd 进入查看。
 
@@ -294,7 +294,7 @@ https://github.com/robbyrussell/oh-my-zsh/wiki/Plugins
 https://github.com/unixorn/awesome-zsh-plugins  
 https://github.com/robbyrussell/oh-my-zsh/wiki/Plugins-Overview  
 
-## ZSH 更新
+## omz 更新
 
 当 **Oh-My-Zsh** 有更新时，默认提示确认是否升级。  
 可在 `~/.zshrc` 中添加 **`DISABLE_UPDATE_PROMPT=true`** 禁用提示自动更新。  
@@ -334,3 +334,47 @@ To keep up on the latest news and updates, follow us on twitter: https://twitter
 Get your Oh My Zsh swag at:  https://shop.planetargon.com/
 
 ```
+
+**最新提示**：Note: `upgrade_oh_my_zsh` is deprecated. Use `omz update` instead.
+
+执行 `omz help` 查看帮助：
+
+```Shell
+$ omz help
+Usage: omz <command> [options]
+
+Available commands:
+
+  help                Print this help message
+  changelog           Print the changelog
+  plugin <command>    Manage plugins
+  pr     <command>    Manage Oh My Zsh Pull Requests
+  reload              Reload the current zsh session
+  theme  <command>    Manage themes
+  update              Update Oh My Zsh
+  version             Show the version
+```
+
+执行 omz 更新，会自动更新内置插件（存放在 `$ZSH/plugins` 目录）。
+
+### 更新 custom 插件
+
+[oh my zsh - How to auto-update custom plugins in Oh My Zsh? - Unix & Linux Stack Exchange](https://unix.stackexchange.com/questions/477258/how-to-auto-update-custom-plugins-in-oh-my-zsh)
+
+Oh My Zsh upgrades are handled by the `$ZSH/tools/upgrade.sh` script. To update any custom plugins (assuming those are Git clones), you can add these lines to the end of the script before the exit command:
+
+```Shell
+cd $ZSH_CUSTOM
+printf "\n${BLUE}%s${RESET}\n" "Updating custom plugins, scripts and themes"
+
+for plugin in ./*/*; do
+  if [ -d "$plugin/.git" ]; then
+     printf "${YELLOW}%s${RESET}\n" "${plugin%/}"
+     # git -C "$plugin" pull
+  fi
+done
+```
+
+也可以下载使用 [autoupdate](https://github.com/TamCore/autoupdate-oh-my-zsh-plugins) 插件。
+
+> oh-my-zsh plugin for auto updating of git-repositories in `$ZSH_CUSTOM` folder.

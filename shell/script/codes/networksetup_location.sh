@@ -3,8 +3,8 @@
 # https://www.amsys.co.uk/bash-scripting-examples-2/
 
 ## Load Variables ##
-CurrentLocation=`networksetup -getcurrentlocation`
-CheckForAutoLocation=`networksetup -listlocations | grep -c "Automatic"`
+CurrentLocation=$(networksetup -getcurrentlocation)
+CheckForAutoLocation=$(networksetup -listlocations | grep -c "Automatic")
 
 ################################################################
 
@@ -33,42 +33,39 @@ fi
 ################################################################
 
 echo "Creating Home location and auto populating network interfaces"
-networksetup –createlocation "Home" populate
-if [ $? -ne 0 ]
+if ! networksetup –createlocation "Home" populate;
 then
-    currentdate=`date`
+    currentdate=$(date)
     echo "Creating Home location failed. Please Investigate."
     exit 1
 else
-    currentdate=`date`
+    currentdate=$(date)
     echo "Home location created fine, continuing script"
 fi
 
 ################################################################
 
-echo "Switching to the new  Home location"
-networksetup –switchtolocation "Home"
-if [ $? -ne 0 ]
+echo "Switching to the new Home location"
+if ! networksetup –switchtolocation "Home";
 then
-    currentdate=`date`
+    currentdate=$(date)
     echo "Switching to the Home location failed. Please Investigate."
     exit 1
 else
-    currentdate=`date`
+    currentdate=$(date)
     echo "Home location switched fine, continuing script"
 fi
 
 ################################################################
 
 echo "Deleting the Automatic location"
-networksetup –deletelocation "Automatic"
-if [ $? -ne 0 ]
+if ! networksetup –deletelocation "Automatic";
 then
-    currentdate=`date`
+    currentdate=$(date)
     echo "Deleting the Automatic location failed. Please Investigate."
     exit 1
 else
-    currentdate=`date`
+    currentdate=$(date)
     echo "Automatic location deleted fine, continuing script"
 fi
 

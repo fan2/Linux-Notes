@@ -59,6 +59,9 @@ ls - list directory contents
              after each whiteout, and a vertical bar (`|') after each that is a FIFO.
 ```
 
+创建软连接命令：`ln -s ../Documents/iDev iDev`。
+对于软链接，除了 `ls -l iDev` 会显示真身外，也可调用 `readlink -f iDev` 查看源文件（original）。
+
 ---
 
 `ls -lR`：递归列举当前及所有子文件夹。
