@@ -345,12 +345,18 @@ targetDir="dir_path"
 find "$targetDir" ! -path "$targetDir" -type d
 ```
 
-#### -user
+#### -user/-group
 
-按照文件属主来查找文件，查找属于该用户的所有文件。
+按照文件属主、用户组来查找文件，查找属于该用户的所有文件。
 
 ```Shell
 $ find / -user $USER_ACCOUNT > $REPORT_FILE
+```
+
+查找 webdav 目录下 user 或 group 不为 `_www` 的文件。
+
+```Shell
+$ find /usr/local/var/webdav ! -user _www -o ! -group _www
 ```
 
 #### -size
