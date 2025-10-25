@@ -163,22 +163,80 @@ SHELL BUILTIN COMMANDS
 
 printf [−v var] format [arguments]
 
-Write the formatted arguments to the standard output under the control of the format. The format is a character string which contains three types of objects: plain characters, which are simply copied to standard output, character escape sequences, which are converted and copied to the standard output, and format speciﬁcations, each of which causes printing of the next successive argument. In addition to the standard printf(1) formats, %b causes printf to expand backslash escape sequences in the corresponding argument (except that \c terminates output, backslashes in \', \", and \? are not removed, and octal escapes beginning with \0 may contain up to four digits), and %q causes printf to output the corresponding argument in a format that can be reused as shell input.
+Write the formatted arguments to the standard output under the control of the format. The format is a character string which contains three types of objects: plain characters, which are simply copied to standard output, character escape sequences, which are converted and copied to the standard output, and format specifications, each of which causes printing of the next successive argument. In addition to the standard printf(1) formats, %b causes printf to expand backslash escape sequences in the corresponding argument (except that \c terminates output, backslashes in \', \", and \? are not removed, and octal escapes beginning with \0 may contain up to four digits), and %q causes printf to output the corresponding argument in a format that can be reused as shell input.
 
 The −v option causes the output to be assigned to the variable var rather than being printed to the standard output.
 
-The format is reused as necessary to consume all of the arguments. If the format requires more arguments than are supplied, the extra format speciﬁcations behave as if a zero value or null string, as appropriate, had been supplied. The return value is zero on success, non-zero on failure.
+The format is reused as necessary to consume all of the arguments. If the format requires more arguments than are supplied, the extra format specifications behave as if a zero value or null string, as appropriate, had been supplied. The return value is zero on success, non-zero on failure.
 ```
-
-- [Shell printf命令：格式化输出语句](https://wiki.jikexueyuan.com/project/shell-tutorial/shell-printf-command.html)  
-- [Shell printf命令详解](https://www.cnblogs.com/machangwei-8/p/10354698.html)  
-- [Bash Printf 命令](https://www.itcoder.tech/posts/bash-printf-command/)  
 
 - [Bash's Built-in printf Function](https://www.linuxjournal.com/content/bashs-built-printf-function)  
 - [Linux printf command](https://www.computerhope.com/unix/uprintf.htm)  
 - [Bash Printf command](https://linuxhint.com/bash-printf-command/)  
 - [Bash printf Command](https://linuxize.com/post/bash-printf-command/)  
+- [Shell printf命令详解](https://www.cnblogs.com/machangwei-8/p/10354698.html)  
 - [Bash printf Function: 7 Examples for Linux](https://www.makeuseof.com/bash-printf-examples/)  
+
+### rev line
+
+```bash
+NAME
+     rev -- reverse lines of a file
+
+SYNOPSIS
+     rev [file ...]
+
+DESCRIPTION
+     The rev utility copies the specified files to the standard output, reversing the order of characters in
+     every line.  If no files are specified, the standard input is read.
+```
+
+例如 `echo "Bash Shell" | rev` 将 “Bash Shell” 反转为 “llehS hsaB”。
+
+```bash
+echo "Bash Shell" | rev
+llehS hsaB
+```
+
+### reverse file
+
+如果想逆序（按行倒序）输出文件内容，​​Linux​ 下可通过内置的 `tac` 命令，反向 `cat` 打印文件内容。
+BSD/​​macOS​​ 系统则需安装 coreutils，或者使用 `tail -r` 等效实现。
+此外，可通过 awk或 sed​​ ​脚本编程实现行逆转的效果。
+
+参考 [sed-NDP](../sed-awk/sed/sed-NDP.md)：
+
+```bash
+$ sed -n '{1!G; h; $p}' data2.txt
+This is the last line.
+This is the second data line.
+This is the first data line.
+This is the header line.
+```
+
+line 1: `h` - copy pattern space to hold space
+
+- hold space = 1st line
+
+line 2: `G` - append hold space to pattern space; `h` - copy pattern space to hold space
+
+- pattern space = 2nd line; 1st line
+- hold space = 2nd line; 1st line
+
+line 3: `G` - append hold space to pattern space; `h` - copy pattern space to hold space
+
+- pattern space = 3nd line; 2nd line; 1st line
+- hold space = 3nd line; 2nd line; 1st line
+
+参考 [awk-vars](../sed-awk/awk/awk-vars.md)：
+
+```bash
+echo "$wlan_inet" | awk '{ ip[NR] = $0 } END { for (i = NR; i >= 1; i--) { print "\t"ip[i] } }'
+```
+
+通过 awk 命令逐行遍历 `wlan_inet`，并将每一行 `$0` 保存到数组 `ip[]`。
+在 END 中基于 NR 逆序遍历打印 inet 地址，即先打印 ipv4 再打印 ipv6。
+print 在每个 `ip[i]` 前添加一个制表符 (`\t`) 控制输出格式。
 
 ## head/tail
 
@@ -218,7 +276,7 @@ $ history | tail # 默认显示10条
 $ history | tail -n 10
 ```
 
-以下示例，只打印 curl 返回的第一行信息，即 HTTP STATUS LINE：
+以下示例，只打印 `curl -I` (--head) 返回的第一行信息，即 HTTP STATUS LINE：
 
 ```bash
 curl -sI www.google.com | head -n 1
@@ -314,7 +372,7 @@ tl=$(expr $lines - 10)
 sed -n "$hl, $tl p" file.txt
 ```
 
-## du
+## df/du
 
 关于磁盘统计涉及到两个命令：
 
@@ -345,9 +403,11 @@ du ~/Library/Developer
 du Pods
 ```
 
-- 添加 `-c` 选项，最后会输出一条总占用大小；  
+- 添加 `-l` 选项，仅显示本地文件系统，不包括 mount points；  
+- 添加 `-T` 选项（`-Y` for macOS），打印出文件系统类型；  
+- 添加 `-h` 选项，使输出的 fileSize 更易阅读；  
 - 添加 `-s` 选项，相当于 `-d 0` 指定一级目录，不递归子目录；  
-- 添加 `-h` 选项，是输出的 fileSize 更易阅读；  
+- 添加 `-c` 选项，最后会输出一条总占用大小；  
 
 ```bash
 $ du -sh ~/Documents
@@ -386,6 +446,44 @@ $ du -sh ~/Library/Developer/* | sort -rh
 425M	/Users/faner/Library/Developer/chromium
 ```
 
+从 [The Linux Kernel Archives](https://www.kernel.org/) 下载最新 Linux 内核源码 [2024-05-17 stable:6.9.1](https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/?h=v6.9.1)，解压后统计一级子目录的大小并进行排序：
+
+```bash
+du -csh ./* | sort -rh
+1.5G	total
+1.0G	./drivers
+146M	./arch
+ 74M	./tools
+ 68M	./Documentation
+ 53M	./include
+ 50M	./sound
+ 49M	./fs
+ 36M	./net
+ 14M	./kernel
+8.2M	./lib
+5.4M	./mm
+4.1M	./scripts
+3.8M	./crypto
+3.5M	./security
+2.1M	./block
+1.6M	./samples
+880K	./rust
+732K	./MAINTAINERS
+652K	./io_uring
+320K	./virt
+276K	./ipc
+276K	./LICENSES
+196K	./init
+104K	./CREDITS
+ 76K	./usr
+ 72K	./certs
+ 68K	./Makefile
+4.0K	./README
+4.0K	./Kconfig
+4.0K	./Kbuild
+4.0K	./COPYING
+```
+
 当子目录太多时，可重定向给 `more` 滚动查看，或重定向给 `head -n 10` 查看前10条。
 
 列举 Pods 目录下所有的一级子目录（不递归）：
@@ -408,235 +506,6 @@ The `tree` command is a recursive directory listing program that produces a dept
 
 ```bash
 tree --du -h /opt/ktube-media-downloader
-```
-
-## bc
-
-[bc](https://www.gnu.org/software/bc/manual/html_mono/bc.html)(basic calculator) - An arbitrary precision calculator language  
-
-bc is typically used as either a `mathematical scripting language` or as an `interactive mathematical shell`.  
-
-> 关于 bc 表达式语言，参考 wiki - [bc](https://en.wikipedia.org/wiki/Bc_(programming_language))。
-
-There are four special variables, `scale`, `ibase`, `obase`, and `last`.  
-
-支持输入数学表达式的解释型计算语言  
-
-在终端输入 `bc` 即可进入 bc 命令行解释器；输入 `quit` 或者 `<C-d>` 发送 EOF 结束退出 bc。
-
-> [COMMAND LINE CALCULATOR, BC](http://linux.byexamples.com/archives/42/command-line-calculator-bc/)  
-> [How to Use the "bc" Calculator in Scripts](https://www.lifewire.com/use-the-bc-calculator-in-scripts-2200588)  
-> [Linux下的计算器(bc、expr、dc、echo、awk)知多少？](http://blog.csdn.net/linco_gp/article/details/4517945)  
-> [Linux中的super pi(bc 命令总结)](http://www.linuxidc.com/Linux/2012-06/63684.htm)  
-> [我使用过的Linux命令之bc - 浮点计算器、进制转换](http://codingstandards.iteye.com/blog/793734)  
-
-### basic
-
-1. 在 bash shell 终端输入 `bc` 即可启动 bc 计算器。
-
-输入表达式 `56.8 + 77.7`，再按回车键即可在新行得到计算结果：
-
-```bash
-pi@raspberrypi:~ $ bc
-bc 1.06.95
-Copyright 1991-1994, 1997, 1998, 2000, 2004, 2006 Free Software Foundation, Inc.
-This is free software with ABSOLUTELY NO WARRANTY.
-For details type `warranty'. 
-
-56.8 + 77.7
-134.5
-```
-
-也可书写代数表达式，用变量承载计算结果，作为进一步计算的操作数：
-
-```bash
-$ bc -q # -q 不显示冗长的欢迎信息
-a=2+3;
-a
-5
-b=a*4;
-b
-20
-```
-
-2. 可通过 bc 内置的 **`scale`** 变量可指定浮点数计算输出精度：
-
-```bash
-$ bc -q
-5 * 7 /3
-11
-scale=2; 5 * 7 /3
-11.66
-```
-
-3. 在终端可基于[数据流重定向或管道](https://www.cnblogs.com/mingcaoyouxin/p/4077264.html)作为 `bc` 的输入表达式：
-
-```bash
-$ echo "56.8 + 77.7" | bc
-134.5
-```
-
-### inline
-
-对于简单的单行运算，可用 echo 重定向或内联重定向实现：
-
-```bash
-$ bc <<< "56.8 + 77.7"
-134.5
-```
-
-如果需要进行大量运算，在一个命令行中列出多个表达式就会有点麻烦。  
-bc命令能识别输入重定向，允许你将一个文件重定向到bc命令来处理。  
-但这同样会叫人头疼，因为你还得将表达式存放到文件中。  
-
-最好的办法是使用内联输入重定向，它允许你直接在命令行中重定向数据。  
-在shell脚本中，你可以将输出赋给一个变量。
-
-```bash
-variable=$(bc << EOF
-           options
-           statements
-           expressions
-           EOF)
-```
-
-`EOF` 文本字符串标识了内联重定向数据的起止。
-
-以下在终端测试这种用法：
-
-```bash
-$ bc << EOF
-heredoc> 56.8 + 77.7
-heredoc> EOF
-134.5
-```
-
-### script
-
-在shell脚本中，可调用bash计算器帮助处理浮点运算。可以用命令替换运行bc命令，并将输出赋给一个变量。基本格式如下：
-
-```bash
-variable=$(echo "options; expression" | bc)
-```
-
-第一部分 options 允许你设置变量。 如果你需要不止一个变量， 可以用分号将其分开。 expression参数定义了通过bc执行的数学表达式。
-
-以下为在 shell scripts 调用 bc 对常量表达式做计算的示例:
-
-```bash
-$ result=$(echo "scale=2; 5 * 7 /3;" | bc)
-$ echo $result
-11.66
-```
-
-以下为在 shell scripts 调用 bc 对变量表达式做计算的示例:
-
-```bash
-$ var1=100
-$ var2=45
-$ result=`echo "scale=2; $var1 / $var2" | bc`
-$ echo $result
-2.22
-```
-
-如果在脚本中使用，可使用内联重定向写法，将所有bash计算器涉及的部分都放到同一个脚本文件的不同行。  
-将选项和表达式放在脚本的不同行中可以让处理过程变得更清晰，提高易读性。  
-当然，一般需要用命令替换符号将 bc 命令的输出赋给变量，以作后用。  
-
-`EOF` 字符串标识了重定向给bc命令的数据的起止，bc 内部可创建临时变量辅助计算（定义辅助变量或承接中间计算结果），但总是返回最后一条表达式的计算结果。
-
-下面是在脚本中使用这种写法的例子。
-
-```bash
-$ cat test12.sh
-#!/bin/bash
-
-var1=10.46
-var2=43.67
-var3=33.2
-var4=71
-var5=$(bc << EOF
-scale = 4
-a1 = ( $var1 * $var2)
-b1 = ($var3 * $var4)
-a1 + b1
-EOF)
-
-echo The final answer for this mess is $var5
-```
-
-```bash
-$ chmod u+x test12.sh
-$ ./test12.sh
-The final answer for this mess is 2813.9882
-```
-
-**注意**：在bash计算器中创建的局部变量只在内部有效，不能在shell脚本中引用！
-
-### last
-
-**`last`**  (an  extension)  is a variable that has the value of the *last* printed number.
-
-bc 内置的 **`last`** 变量代表上个表达式的计算结果，可将 last 变量作为后续表达式的操作数，进行二次计算：
-
-```bash
-$ bc -q
-2+3
-5
-last*4
-20
-```
-
-### ibase/obase
-
-默认输入和输出都是基于十进制：
-
-```bash
-$ bc -q
-ibase
-10
-obase
-10
-```
-
-在 bc 命令解释器中输入 `ibase=10;obase=16;2017`，转换输出2017（十进制）的十六进制：
-
-```bash
-ibase=10;obase=16;2017
-7E1
-```
-
-或者 echo 分号相隔的表达式重定向作为 bc 的输入进行解释运行：
-
-```bash
-$ echo "ibase=10;obase=16;2017" | bc
-7E1
-```
-
-以下示例用 `bc` 计算器实现进制转换。
-
-先将十进制转换成二进制：
-
-```bash
-$ no=100
-$ echo "obase=2;$no" | bc 
-1100100
-```
-
-再将二进制转换回十进制
-
-```bash
-$ no=1100100
-$ echo "obase=10;ibase=2;$no" | bc
-100
-```
-
-需要注意先写obase再写ibase，否则出错：
-
-```bash
-$ no=1100100
-$ echo "ibase=2;obase=10;$no" | bc
-1100100
 ```
 
 ## Checksum
@@ -670,14 +539,14 @@ md5 命令后的默认输入参数为文件名，也可通过 `-s` 选项指定�
              Print a checksum of the given string.
 ```
 
-计算 [paywallhub_chrome_v1.0.5.zip](https://github.com/Angeloyo/paywallhub-chrome-extension/releases/tag/v1.0.5) 插件的 MD5:
+计算下载到本地的 [paywallhub_chrome_v1.0.5.zip](https://github.com/Angeloyo/paywallhub-chrome-extension/releases/tag/v1.0.5) 插件的 MD5:
 
 ```bash
 $ md5 paywallhub_chrome_v1.0.5.zip 
 MD5 (paywallhub_chrome_v1.0.5.zip) = ea7c023497e6aa1cb1f9ec130d900d0c
 ```
 
-计算下载到本地的 paywallhub_chrome_v1.0.5.zip 插件文件名字符串的 MD5 值：
+计算 paywallhub_chrome_v1.0.5.zip 插件文件名字符串的 MD5 值：
 
 ```bash
 md5 -s "paywallhub_chrome_v1.0.5.zip"
@@ -721,249 +590,7 @@ be91514807049dee326fcb1269861caa9f7a5bb75c11462d9246c45dad645b76  jdk-25_macos-a
 [Why use SHA256 instead of SHA1?](https://www.ibm.com/support/pages/why-use-sha256-instead-sha1)  
 [Re-Hashed: The Difference Between SHA-1, SHA-2 and SHA-256 Hash Algorithms](https://www.thesslstore.com/blog/difference-sha-1-sha-2-sha-256-hash-algorithms/)  
 
-## binhex
-
-[Convert binary data to hexadecimal in a shell script](https://stackoverflow.com/questions/6292645/convert-binary-data-to-hexadecimal-in-a-shell-script)  
-[Binary to hexadecimal and decimal in a shell script](https://unix.stackexchange.com/questions/65280/binary-to-hexadecimal-and-decimal-in-a-shell-script)  
-
-[shell 编程进制转换](https://www.cnblogs.com/rykang/p/11880609.html)
-[Linux Bash：进制间转换](https://juejin.cn/post/6844903952547315726)
-
-第一种方式是基于 printf 函数格式化输出：
-
-```bash
-# hexadecimal to decimal
-$ printf '%d\n' 0x24
-36
-# decimal to hexadecimal
-$ printf '%x\n' 36
-24
-```
-
-第二种方式是基于 `$((...))` 表达式，将其他进制转换为十进制：
-
-```bash
-# binary to decimal
-$ echo "$((2#101010101))"
-341
-# binary to hexadecimal
-$ printf '%x\n' "$((2#101010101))"
-155
-# hexadecimal to decimal
-$ echo "$((16#FF))"
-255
-```
-
-第三种方式是基于上文提到的bc计算器，实现任意进制间互转：
-
-```bash
-# binary to decimal
-$ echo 'obase=10;ibase=2;101010101' | bc
-341
-# decimal to hexadecimal
-$ bc <<< 'obase=16;ibase=10;254'
-FE
-# hexadecimal to decimal
-$ bc <<< 'obase=10;ibase=16;FE'
-254
-```
-
-## hexdump
-
-### od
-
-Linux/Unix（macOS）下的命令行工具 `od` 可按指定进制格式查看文档：
-
-```bash
-pi@raspberrypi:~ $ od --version
-od (GNU coreutils) 8.26
-Copyright (C) 2016 Free Software Foundation, Inc.
-License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.
-This is free software: you are free to change and redistribute it.
-There is NO WARRANTY, to the extent permitted by law.
-
-Written by Jim Meyering.
-```
-
-```bash
-pi@raspberrypi:~ $ man od
-
-NAME
-       od - dump files in octal and other formats
-
-SYNOPSIS
-       od [OPTION]... [FILE]...
-       od [-abcdfilosx]... [FILE] [[+]OFFSET[.][b]]
-       od --traditional [OPTION]... [FILE] [[+]OFFSET[.][b] [+][LABEL][.][b]]
-```
-
-**`-A`**, --address-radix=RADIX
-
-> output format for file offsets; RADIX is one of [doxn], for Decimal, Octal, Hex or None  
->> 输出左侧的地址格式，默认为 o（八进制），可指定为 x（十六进制）。   
-
-**`-j`**, --skip-bytes=BYTES
-
-> skip BYTES input bytes first（跳过开头指定长度的字节）
-
-**`-N`**, --read-bytes=BYTES
-
-> limit dump to BYTES input bytes（只 dump 转译指定长度的内容）
-
-**`-t`**, --format=TYPE
-
-> select output format or formats（dump 输出的级联复合格式：`[d|o|u|x][C|S|I|L|n]`）
-
-- `[doux]` 可指定有符号十、八、无符号十、十六进制；  
-- `[CSIL]` 可指定 sizeof(char)=1, sizeof(short)=2, sizeof(int)=4, sizeof(long)=8 作为 group_bytes_by_bits；或直接输入数字[1,2,4,8]。
-
-- `a`：Named characters (ASCII)，打印可见 ASCII 字符。
-
-***`-x`***: same as `-t x2`, select hexadecimal 2-byte units
-
->  默认 group_bytes_by_bits = 16，两个字节（shorts）为一组。  
-
----
-
-以下示例 hex dump `tuple.h` 文件开头的64字节：
-
-```bash
-# 等效 od -N 64 -A x -t xCa tuple.h
-faner@MBP-FAN:~/Downloads|⇒  od -N 64 -A x -t x1a tuple.h
-0000000    ef  bb  bf  0d  0a  23  70  72  61  67  6d  61  20  6f  6e  63
-           ?   ?   ?  cr  nl   #   p   r   a   g   m   a  sp   o   n   c
-0000010    65  0d  0a  0d  0a  6e  61  6d  65  73  70  61  63  65  20  41
-           e  cr  nl  cr  nl   n   a   m   e   s   p   a   c   e  sp   A
-0000020    73  79  6e  63  54  61  73  6b  0d  0a  7b  0d  0a  0d  0a  2f
-           s   y   n   c   T   a   s   k  cr  nl   {  cr  nl  cr  nl   /
-0000030    2f  20  e5  85  83  e7  bb  84  28  54  75  70  6c  65  29  e6
-           /  sp   ?  85  83   ?   ?  84   (   T   u   p   l   e   )   ?
-0000040
-```
-
-### xxd
-
-还有一个od类似的命令行工具是xxd。
-
-```bash
-XXD(1)                                                                                                XXD(1)
-
-
-
-NAME
-       xxd - make a hexdump or do the reverse.
-
-SYNOPSIS
-       xxd -h[elp]
-       xxd [options] [infile [outfile]]
-       xxd -r[evert] [options] [infile [outfile]]
-
-DESCRIPTION
-       xxd creates a hex dump of a given file or standard input.  It can also convert a hex dump back to its
-       original binary form.  Like uuencode(1) and uudecode(1) it allows the transmission of binary data  in
-       a  `mail-safe' ASCII representation, but has the advantage of decoding to standard output.  Moreover,
-       it can be used to perform binary file patching.
-```
-
-[dstebila/bin2hex.sh](https://gist.github.com/dstebila/1731faaad1da66475db1)
-
-```bash
-#!/bin/bash
-
-# Read either the first argument or from stdin
-cat "${1:-/dev/stdin}" | \
-# Convert binary to hex using xxd in plain hexdump style
-xxd -ps | \
-# Put spaces between each pair of hex characters
-sed -E 's/(..)/\1 /g' | \
-# Merge lines
-tr -d '\n'
-```
-
-### hexdump
-
-Linux/Unix（macOS）下的命令行工具 `hexdump` 可按指定进制格式查看文档：
-
-```bash
-pi@raspberrypi:~ $ man hexdump
-
-NAME
-     hexdump, hd — ASCII, decimal, hexadecimal, octal dump
-
-SYNOPSIS
-     hexdump [-bcCdovx] [-e format_string] [-f format_file] [-n length] [-s skip] file ...
-     hd [-bcdovx] [-e format_string] [-f format_file] [-n length] [-s skip] file ...
-```
-
-**`-b`**      One-byte octal display.  
-**`-c`**      One-byte character display.  
-**`-C`**      Canonical hex+ASCII display.  
-**`-d`**      Two-byte decimal display.  
-**`-o`**      Two-byte octal display.  
-**`-x`**      Two-byte hexadecimal display.  
-
-**`-s`** offset: Skip offset bytes from the beginning of the input（跳过开头指定长度的字节）  
-**`-n`** length: Interpret only length bytes of input（ 只 dump 转译指定长度的内容）  
-
----
-
-可以 hexdump 出 UTF-8 编码的文本文件，通过开头3个字节来判断是否带BOM：
-
-> 如果开头3个字节为 `ef bb bf`，则为带 BOM 编码；否则为不带 BOM 编码。
-
-```bash
-# 等效 hexdump -C litetransfer.cpp | head -n 4
-faner@MBP-FAN:~/Downloads|⇒  hexdump -n 64 -C tuple.h
-00000000  ef bb bf 0d 0a 23 70 72  61 67 6d 61 20 6f 6e 63  |.....#pragma onc|
-00000010  65 0d 0a 0d 0a 6e 61 6d  65 73 70 61 63 65 20 41  |e....namespace A|
-00000020  73 79 6e 63 54 61 73 6b  0d 0a 7b 0d 0a 0d 0a 2f  |syncTask..{..../|
-00000030  2f 20 e5 85 83 e7 bb 84  28 54 75 70 6c 65 29 e6  |/ ......(Tuple).|
-00000040
-```
-
-### strings
-
-```bash
-pi@raspberrypi:~ $ man strings
-
-STRINGS(1)                          GNU Development Tools                          STRINGS(1)
-
-NAME
-       strings - print the strings of printable characters in files.
-
-SYNOPSIS
-       strings [-afovV] [-min-len]
-               [-n min-len] [--bytes=min-len]
-               [-t radix] [--radix=radix]
-               [-e encoding] [--encoding=encoding]
-               [-] [--all] [--print-file-name]
-               [-T bfdname] [--target=bfdname]
-               [-w] [--include-all-whitespace]
-               [-s] [--output-separatorsep_string]
-               [--help] [--version] file...
-
-```
-
-## 其他
-
-### rev
-
-```bash
-NAME
-     rev -- reverse lines of a file
-
-SYNOPSIS
-     rev [file ...]
-
-DESCRIPTION
-     The rev utility copies the specified files to the standard output, reversing the order of characters in
-     every line.  If no files are specified, the standard input is read.
-```
-
-```bash
-echo "Bash Shell" | rev
-llehS hsaB
-```
+## misc
 
 ### fuser
 
@@ -999,17 +626,31 @@ lsof -i :8010 | awk 'NR>1 {print $2}' | xargs kill -KILL
 - [Linux Find Out Which Process Is Listening Upon a Port](https://www.cyberciti.biz/faq/what-process-has-open-linux-port/)  
 - [3 Ways to Find Out Which Process Listening on a Particular Port](https://www.tecmint.com/find-out-which-process-listening-on-a-particular-port/)  
 
+You can use `lsof` (list of open files) in most cases to find open log files without knowing the configuration.
+
+```bash
+# macOS
+~$ ps aux | grep nginx
+faner            33741   0.0  0.0 35126068   3596   ??  S     7:34AM   0:00.30 nginx: worker process
+root             33691   0.0  0.0 34425616   6392   ??  Ss    7:34AM   0:00.03 nginx: master process /usr/local/opt/nginx-full/bin/nginx -g daemon off;
+
+~$ lsof -p 33741 | grep log
+nginx   33741 faner    1u     REG              1,13        0            25121281 /usr/local/var/log/nginx.log
+nginx   33741 faner    2w     REG              1,13    51695             3821144 /usr/local/var/log/nginx/error.log
+nginx   33741 faner    4w     REG              1,13  2103983             3821142 /usr/local/var/log/nginx/access.log
+nginx   33741 faner    5w     REG              1,13    51695             3821144 /usr/local/var/log/nginx/error.log
+```
+
 ### jq
 
 对于压缩/转义的 JSON 字符串，可以在以下网站进行格式化或解析转换。
 
 - [JSON在线解析及格式化验证](https://www.json.cn/)：支持在线解析和压缩转义。
 - [JSON解析格式化工具](https://www.sojson.com/)：支持校验/格式化、压缩/转义。
-- [JSON格式化查看工具](https://www.baidufe.com/fehelper/json-format/index.html)：支持对 JSON 进行压缩，以及对压缩（转义）的JSON字符串进行还原。
 
 macOS/Linux 下还可以安装 `jq` 命令行工具，将压缩/转义的json字符串转换为格式化的 JSON 对象。
 
-[jq](https://stedolan.github.io/jq/) is a lightweight and flexible command-line JSON processor.
+[jq](https://jqlang.org/) is a lightweight and flexible command-line JSON processor.
 
 - [linux下jq的使用](https://www.cnblogs.com/haima/p/15135587.html)
 - [给力的linux命令--jq简易教程](https://www.jianshu.com/p/6de3cfdbdb0e)
