@@ -308,6 +308,52 @@ J.Troll     07/99   4842    Brown-3     12  26  26
 L.Tansley   05/99   4712    Brown-2     12  30  28
 ```
 
+与或条件关系：综合 FNR 行数和模式条件限定，最后统计每行第三列（Size）之和。
+
+```bash
+# print from line 6
+objdump -hw a.out | awk 'FNR>5'
+# print column 3 : Size without 0x prefix
+objdump -hw a.out | awk 'FNR>5{print $3}'
+# print column 3 : Size add 0x prefix
+objdump -hw a.out | awk 'FNR>5{print "0x"$3}'
+# filter sections mapped to text segment
+objdump -hw a.out | awk 'FNR>5 && /ALLOC/ && /READONLY/'
+# objdump -hw a.out | awk 'FNR>5 && /READONLY/ && !/.comment/'
+# filter sections mapped to data segment
+objdump -hw a.out | awk 'FNR>5 && /ALLOC/ && !/READONLY/'
+# objdump -hw a.out | awk 'FNR>5 && !/READONLY/ && (/DATA/ || /.bss/)'
+
+# calculate size of text segment; r2: iS,*/head/18,vsize/sum
+objdump -hw a.out | awk 'FNR>5 && /ALLOC/ && /READONLY/ {total+="0x"$3} END{print total}'
+# calculate size of data segment; r2: iS,*/tail/9,vsize/sum
+objdump -hw a.out | awk 'FNR>5 && /ALLOC/ && !/READONLY/ {total+="0x"$3} END{print total}'
+```
+
+[size](https://man7.org/linux/man-pages/man1/size.1.html) - list section sizes and total size of binary files.
+
+The default Berkeley style(`-B`) output counts read only data in the "text" column, not in the "data" column.
+
+```bash
+$ size a.out
+   text	   data	    bss	    dec	    hex	filename
+   1615	    640	      8	   2263	    8d7	a.out
+```
+
+It can be calculated by `objdump` and `awk` via pipe.
+
+```bash
+# objdump -hw a.out | awk 'FNR>5 && /ALLOC/ && /READONLY/ {total+="0x"$3} END{printf("%#x\n", total)}'
+$ objdump -hw a.out | awk 'FNR>5 && /ALLOC/ && /READONLY/ {total+="0x"$3} END{print total}'
+1615
+# exclude empty .bss
+$ objdump -hw a.out | awk 'FNR>5 && /ALLOC/ && !/READONLY/ && /DATA/ {total+="0x"$3} END{print total}'
+640
+# .bss: ALLOC only, no CONTENTS
+$ objdump -hw a.out | awk '/.bss/{print (("0x"$3))+0}'
+8
+```
+
 ## CSV 匹配示例
 
 假设代码扫描分析平台导出的 LineTooLong 警告问题清单为 issue_data-LineTooLong.csv。

@@ -395,6 +395,17 @@ J.Troll     07/99   4842    Brown-3     12  26  26
 awk -F ',' 'FNR==2, FNR==4 {print $2}' issue_data-LineTooLong.csv
 ```
 
+以下脚本使用模式过滤 `readelf -SW` 输出的 section entry，结尾 END 统计总行数（FNR）。
+然后，基于 FNR 过滤输出限定范围行。
+
+```bash
+# count output lines between [Section Headers:, Key to Flags:]
+secnum=$(readelf -SW a.out | awk '/Section Headers:/,/Key to Flags:/' | wc -l)
+secnum=$(readelf -SW a.out | awk '/Section Headers:/,/Key to Flags:/' | awk 'END{print FNR}')
+# discard first three prefix lines and the last suffix line
+readelf -SW a.out | awk '/Section Headers:/,/Key to Flags:/' | awk "FNR==4, FNR==$((secnum-1))"
+```
+
 ### csv-analyze
 
 CSV（Comma-Separated Values）即逗号分割值，有时也称为字符分割值。
