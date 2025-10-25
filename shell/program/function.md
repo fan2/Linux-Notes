@@ -172,6 +172,14 @@ dbl 函数会用 echo 语句来显示计算的结果。
 在终端中，如果想多个命令一起运行，可以把它们放在同一行中，彼此间用分号（`;`）隔开。
 可以在命令行中定义包含多条命令的一行函数，但每条命令的结尾必须包含分号，这样shell才知道命令在哪分开。
 
+在 [Linux Shell Program - control](./control.md) 中，提到可以将整个 `if ... then ... [else] ... fi` 控制结构写到一行内，方便在命令行中单行快捷测试。
+
+```bash
+backups=$(rclone lsf $dstpath)
+if [ "$backups" ]; then backupscount=$(echo $backups | wc -l | tr -d '[:space:]') ; fi
+if [ "$backupscount" -gt 0 ] ; then echo "backupscount>0" ; else echo "backupscount=0" ; fi
+```
+
 此外，也可以在命令中输入函数，按照提示符输入即可。
 
 假设有函数 check_python_version：

@@ -3,6 +3,7 @@
 - a: append after;  
 - c: change line;  
 - d: delete line;  
+- s: substitute;  
 
 ## i(nsert)
 

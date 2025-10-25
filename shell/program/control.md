@@ -6,7 +6,7 @@
 
 `if-then` 语句格式如下:
 
-```Shell
+```bash
 if command
 then
     commands
@@ -22,7 +22,7 @@ fi
 
 你可能看到过 if-then 语句的另一种形式：
 
-```Shell
+```bash
 if command; then
     commands
 fi
@@ -30,9 +30,9 @@ fi
 
 通过把分号放在待求值的命令尾部，就可以将 then 语句写在同一行中了，这样看起来更像其他编程语言中的 if-then 语句。
 
-也可以将整个 `if ... them ... fi` 写到一行内，方便在命令行中单行快捷测试：
+也可以将整个 `if ... then ... fi` 写到一行内，方便在命令行中单行快捷测试：
 
-```Shell
+```bash
 if [ -n "$HOME" ]; then echo "HOME is defined"; fi
 if [ -z "$ZDOTDIR" ]; then echo "ZDOTDIR not defined"; fi
 ```
@@ -79,7 +79,7 @@ elif 语句继续 if-then 检查，为比较变量寻找特定的值。
 有了 case 命令，就不需要再写出所有的 elif 语句来不停地检查同一个变量的值了。
 **case** 命令会采用列表格式来检查单个变量的多个可能取值，类似枚举命中测试。
 
-```Shell
+```bash
 case variable in
     pattern1 | pattern2) commands1;;
     pattern3) commands2;;
@@ -95,7 +95,7 @@ case 命令会将指定的变量与不同模式进行比较，可以通过竖线
 
 1. 以下为 ubuntu 的 bash 配置文件 `~/.bashrc` 中的内容：
 
-```Shell
+```bash
 # set a fancy prompt (non-color, unless we know we "want" color)
 case "$TERM" in
     xterm-color|*-256color) color_prompt=yes;;
@@ -106,7 +106,7 @@ esac
 
 3. 在 [How to detect the OS from a Bash script?](https://stackoverflow.com/questions/394230/how-to-detect-the-os-from-a-bash-script) 中，基于 case 对 `$OSTYPE` 进行匹配，从而判断操作系统类型。
 
-```Shell
+```bash
 # https://stackoverflow.com/a/18434831
 function get_ostype_2 {
     local platform2='unknown'
@@ -143,4 +143,62 @@ if_nix() {
     esac
     [[ "${sys}" == "$1" ]]
 }
+```
+
+## for
+
+for 命令允许创建一个遍历一系列值的循环，每次迭代都使用其中一个值来执行已定义好的一组命令。
+
+```
+for var in {list}
+do
+    command1
+    command2
+    ...
+done
+```
+
+> 在 list 参数中，你需要提供迭代中要用到的一系列值。
+
+### args
+
+在 for 循环中省去 in 列表选项时，它将接受命令行位置参数作为参数，等效于：
+
+```
+for params in "$@"
+```
+
+或
+
+```
+for params in "$*"
+```
+
+## while
+
+while 命令某种意义上是 if-then 语句和 for 循环的混杂体。
+
+while 命令允许定义一个要测试的命令，然后循环执行一组命令，只要定义的测试命令返回的是退出状态码为0。
+它会在每次迭代的一开始测试 test 命令，在 test 命令返回非零退出状态码时，while 命令会停止执行那组命令。
+
+```
+while test command
+do
+    other commands
+done
+```
+
+## until
+
+和 while 命令类似，你可以在 until 命令语句中放入多个测试命令。
+只有最后一个命令的退出状态码决定了 bash shell 是否执行已定义的 other commands。
+
+1. 只有测试命令的退出状态码 **不为0**，bash shell 才会执行循环中列出的命令。
+2. 当首次测试命令的退出状态码为0时，将一次也不执行循环体。
+
+```
+until test commands
+do
+    other commands
+done
 ```
