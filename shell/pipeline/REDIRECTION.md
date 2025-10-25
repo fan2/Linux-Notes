@@ -140,15 +140,8 @@ curl --progress-bar --upload-file "-" "https://transfer.sh/$file_name" | tee /de
 1. 已安装python，输出提示 Python 3.9.6 到 1-stdout
 2. 未安装python，输出提示 zsh: command not found: python 到 2-stderr
 
-第3句 `if python -V;` 为试探检测语句，由于后面会针对成功失败分情况处理，若已安装后续会再次读取版本并输出安装信息。
-若不希望在控制台输出临时执行结果，可续接 `&>/dev/null` 将执行结果(stdout or stderr)重定向到黑洞。
-
-试探执行成功，表示已安装python，在then分支中再次执行 `python -V` 将结果保存在 python_version 变量中。
-由于后续有echo输出python安装和版本信息，因此这里保存执行结果到变量后，不希望输出到控制台。
-可在变量赋值后，续接 `1>/dev/null` 屏蔽stdout输出（suppress stdout）。
-
-```Shell
-check_python_version()
+```bash
+check_python_version_1()
 {
     if python -V &>/dev/null; # 不输出执行结果
     then
@@ -161,6 +154,33 @@ check_python_version()
     fi
 }
 ```
+
+第3句 `if python -V;` 为试探检测语句，由于后面会针对成功失败分情况处理，若已安装后续会再次读取版本并输出安装信息。
+若不希望在控制台输出临时执行结果，可续接 `&>/dev/null` 将执行结果(stdout or stderr)重定向到黑洞。
+
+试探执行成功，表示已安装python，在then分支中再次执行 `python -V` 将结果保存在 python_version 变量中。
+由于后续有echo输出python安装和版本信息，因此这里保存执行结果到变量后，不希望输出到控制台。
+可在变量赋值后，续接 `1>/dev/null` 屏蔽stdout输出（suppress stdout）。
+
+**逻辑结构替换**：将 `if command; then ... else ... fi` 的结构，替换为 `command && success_actions || failure_actions` 的形式。这种结构利用逻辑运算符的短路特性实现条件判断。
+
+```bash
+check_python_version()
+{
+    python -V &>/dev/null && {
+        python_version=$(python -V 2>&1) 1>/dev/null
+        echo "python installed: $python_version"
+        return 0
+    } || {
+        echo "python uninstalled!"
+        return 1
+    }
+}
+```
+
+纠正：`python -V` 默认将版本信息输出到标准错误（stderr），只不过 python 不存在时运行出错，返回值 `$?` 非 0。
+因此，使用 `python_version=$(python -V 2>&1)` 将标准错误重定向到标准输出，以便变量能够正确捕获版本信息。
+外层 `1>/dev/null` 则确保变量赋值命令本身不产生无关输出。
 
 ### 1>&2
 

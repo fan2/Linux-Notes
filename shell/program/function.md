@@ -107,6 +107,32 @@ function brews() {
 }
 ```
 
+[bash - Achieve Local Function - Stack Overflow](https://stackoverflow.com/questions/34985408/achieve-local-function)
+
+show_netstat 函数中定义了子函数 check_dev，用于检查网络接口的网络连接信息。其中局部函数接受第一个参数 `$1` 作为网络接口类型，第二个及之后的参数为外部调用 show_netstat 函数时透传过来的 `"$@"`。
+
+```bash
+show_netstat() {
+    # will be referenced by the following sub-routine
+    local hwp_prefix='Hardware Port: '
+
+    # 获取接口信息
+    check_dev() {
+        local service="$1"
+        local has_service=false
+        # body
+    }
+
+    # 获取有线网卡接口信息
+    # check_dev 'Ethernet' "$@"
+    # 获取无线网卡接口信息
+    # check_dev 'Wi-Fi' "$@"
+    # 获取iPhone USB接口信息
+    # check_dev 'iPhone USB' "$@"
+
+    check_dev 'Wi-Fi' "$@" || check_dev 'iPhone USB' "$@"
+```
+
 ## 函数返回
 
 bash shell 会把函数当作一个小型脚本，运行结束时会返回一个退出状态码。
