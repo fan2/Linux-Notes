@@ -292,6 +292,8 @@ P.Bunny     02/99   48      Yellow      12  35  28
 
 以下脚本使用与条件先匹配记录再匹配域：
 
+- `netstat -rn`: Show routing tables without resolving numeric addresses and port numbers to names.
+
 ```bash
 wlan_dev='en0'
 wlan_gate=$(netstat -nr | awk -v dev="$wlan_dev" '/default/ && $4==dev {print $2}')
