@@ -260,7 +260,7 @@ source $(dirname $0)/aux_etc.sh
 ```Shell
     # 导入shell脚本格式的配置文件
     script_dir="$(dirname "$(dirname "$0")")"
-    conf=$script_dir/config/"${run_mode:=debug}".conf
+    conf=$script_dir/conf/"${run_mode:=debug}".conf
     # echo "conf = $conf"
     if [ -f "$conf" ]; then
         eval "source $conf"
