@@ -314,7 +314,7 @@ $ find . -name 'JceObjectV2.h' \( -type f -o -type l \)
 $ find . -name 'JceObjectV2.h'
 ```
 
-### 其他选项
+### other
 
 #### -path
 

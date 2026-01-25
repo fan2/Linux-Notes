@@ -3,7 +3,7 @@
 pattern { action }
 ```
 
-`pattern` 可为逻辑运算表达式或正则表达式。
+`pattern` 可为逻辑运算表达式或正则表达式，awk 支持扩展的正则表达式（Extended Regular Expressions，EREs）。
 
 ```bash
 $ cat grade.txt
