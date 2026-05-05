@@ -4,7 +4,7 @@
 
 命令行执行运算表达式：
 
-```sh
+```bash
 $ expr 5 + 1
 6
 
@@ -36,7 +36,51 @@ expr 命令能够识别少数的数学和字符串操作符，见表11-1。
 1. 操作符两侧需要空格隔开算子；  
 2. 算子引用变量需要用美元符号；  
 
-```sh
+### 数值比较
+
+数值比较：比较结果和退出状态刚好相反。
+
+- 比较结果为真时，返回 1（true），退出状态码=0；
+- 比较结果为假时，返回 0（false），退出状态码=1。
+
+```bash
+$ n=5
+# 
+$ expr $n = 5
+1
+$ echo $?
+0
+$ expr $n != 5
+0
+echo $?
+1
+
+# 大于号、小于号需要转义，以区分重定向
+$ expr $n \> 3
+1
+expr $n \< 6
+1
+```
+
+### 条件判断
+
+注意会输出比较结果。
+
+```bash
+if expr $n \< 3; then
+    echo "lt 3"
+elif expr $n \> 6; then
+    echo "gt 6"
+elif expr $n = 5; then
+    echo "eq 5"
+else
+    echo "neq 5"
+fi
+```
+
+### 数值计算
+
+```bash
 $ x=$(expr 5 + 1)
 $ echo $x
 6
@@ -48,18 +92,18 @@ $ echo $y
 10
 ```
 
-可用 expr 表达式实现 for 循环中记录递增的索引：
+基于 expr 表达式实现 for 循环中记录递增的索引：
 
-```sh
+```bash
 $ i=0
 $ index=`expr $i + 1` # 等效于 index=$(expr $i + 1)
 $ echo $i $index
 0 1
 ```
 
-综合示例2：
+### 综合示例
 
-```sh
+```bash
 #!/bin/bash
 
 $ var1=5
@@ -86,9 +130,58 @@ z=6
 
 bash shell 内置支持的 let 表达式，直接引用变量，而无需美元符号解引用，更接近于 C 等现代编程语言里面的自然表达式。
 
-范式：`let var3=var1+var2`
+### 数值比较
 
-```sh
+数值比较：比较结果和退出状态刚好相反。
+
+- 比较结果为真时，返回 1（true），退出状态码=0；
+- 比较结果为假时，返回 0（false），退出状态码=1。
+
+```bash
+$ n=5
+
+$ let "n=5"
+
+echo $?
+0
+
+$ let "n!=5"
+
+echo $?
+1
+
+$ let "eq=n==5"; echo $eq
+1
+$ let "neq=n!=5"; echo $neq
+0
+$ let "gt=n>3"; echo $gt
+1
+$ let "lt=n<6"; echo $lt
+1
+```
+
+### 条件判断
+
+1. 不输出比较结果；
+2. 大于号、小于号无需转义。
+
+```bash
+if let "n < 3"; then
+    echo "lt 3"
+elif let "n > 6"; then
+    echo "gt 6"
+elif let "n==5"; then
+    echo "eq 5"
+else
+    echo "neq 5"
+fi
+```
+
+### 数值计算
+
+数值计算：`let var3=var1+var2`
+
+```bash
 $ z=0
 $ let z=z+3 # 等效: let z+=3
 $ let "z += 3"
@@ -100,9 +193,11 @@ $ echo "sum = $sum"
 sum = 11
 ```
 
-综合示例：
+### 综合示例
 
-```sh
+相比 expr 表达式，let 表达式更自然，推荐使用。
+
+```bash
 $ var1=5
 $ var2=1
 $ let x=var1+var2
@@ -114,11 +209,9 @@ $ echo "y=$y"
 y=6
 ```
 
-let 表达式更自然，算子引用的变量直接采用变量名，无需添加美元符号，推荐使用。
+使用 let 表达式实现 for 循环中记录递增的索引：
 
-以下用 `let` 表达式实现 for 循环中记录递增的索引：
-
-```sh
+```bash
 $ i=0
 $ let index=i+1
 $ echo $i $index
@@ -151,9 +244,38 @@ bash shell 为了保持跟 Bourne shell 的兼容而包含了 expr 命令，但�
 1. 操作符两侧非必须要用空格隔开算子；  
 2. 算子可直接引用变量，可无需美元符号；  
 
-常量计算表达式：
+### 数值比较
 
-```sh
+```bash
+$ echo $[$n==5]
+1
+$ echo $[$n!=5]
+0
+$ echo $[$n>3]
+1
+$ echo $[$n<6]
+1
+```
+
+### 条件判断
+
+基于中括号的 test 条件判断：
+
+```bash
+if [ $n -lt 3 ]; then
+    echo "lt 3"
+elif [ $n -gt 6 ]; then
+    echo "gt 6"
+elif [ $n -eq 5 ]; then
+    echo "eq 5"
+else
+    echo "neq 5"
+fi
+```
+
+### 数值计算
+
+```bash
 $ x=$[5 + 1]
 $ echo $x
 6
@@ -163,18 +285,9 @@ $ echo $y
 10
 ```
 
-用 `$[]` 表达式实现 for 循环中记录递增的索引：
+计算表达式：
 
-```sh
-$ i=0
-$ index=$[$i+1]
-$ echo $i $index
-0 1
-```
-
-变量计算表达式：
-
-```sh
+```bash
 $ var1=5
 $ var2=1
 
@@ -183,10 +296,21 @@ $ echo "x=$x"
 x=6
 ```
 
+### 综合示例
+
+用 `$[]` 表达式实现 for 循环中记录递增的索引：
+
+```bash
+$ i=0
+$ index=$[$i+1]
+$ echo $i $index
+0 1
+```
+
 在使用方括号来计算公式时，不用担心shell会误解乘号或其他符号。  
 对于方括号中的星号，shell知道它执行数学中的乘法运算而不是通配符，因为它在方括号内。
 
-```sh
+```bash
 $ var1=100
 $ var2=50
 $ var3=45
@@ -198,7 +322,7 @@ The final result is 500
 
 无论是 expr 表达式，还是中括号运算式，bash shell 数学运算符只支持整数运算。
 
-```sh
+```bash
 $ var1=100
 $ var2=45
 $ var3=$(expr $var1 / $var2)
@@ -222,17 +346,31 @@ $ echo The final result is $var4
 
 ![double-parentheses](./images/shell-double-parentheses.png)
 
-可以在脚本中使用双括号来执行数学运算，也可以使用if判断计算结果状态。
+### 数值比较
 
-```sh
-#!/bin/bash
+```bash
+echo $(($n<6))
+1
+echo $(($n>3))
+1
+echo $(($n==5))
+1
+echo $(($n!=5))
+0
+```
 
-n=0
-(( n += 1 )) #Increment
-echo $? # 返回0
-(( n -= 1))
-echo $? # 返回1
-echo "n = $n"
+### 条件判断
+
+```bash
+if (($n<3)); then
+    echo "lt 3"
+elif (($n>6)); then
+    echo "gt 6"
+elif (($n==5)); then
+    echo "eq 5"
+else
+    echo "not eq 5"
+fi
 
 val1=10
 
@@ -242,9 +380,22 @@ then (( val2 = $val1 ** 2 ))
 fi
 ```
 
+### 数值计算
+
+```bash
+#!/bin/bash
+
+n=0
+(( n += 1 )) #Increment
+echo $? # 返回0
+(( n -= 1))
+echo $? # 返回1
+echo "n = $n"
+```
+
 关于双括号的场景，参考bash中C语言风格的for循环格式：
 
-```sh
+```bash
 for (( variable assignment ; condition ; iteration process ))
 
 #实例
@@ -257,6 +408,8 @@ for (( a = 1; a < 10; a++ ))
 - 变量赋值可以有空格  
 - 条件中的变量不以美元符开头  
 - 迭代过程的算式未用expr命令格式。  
+
+### 综合示例
 
 在 [Linux Command - awk control](../sed-awk/awk/awk-control.md) 中的格式化输出（printf）
 
@@ -293,7 +446,7 @@ Offset		Address				Value
 
 在 dash shell、z shell 脚本中执行算术运算的正确格式是用双圆括号方法 —— `$((expression))`。
 
-```sh
+```bash
 # man bash
    Arithmetic Expansion
        Arithmetic expansion allows the evaluation of an arithmetic expression and the substitu-
@@ -311,6 +464,8 @@ Offset		Address				Value
        tution occurs.
 ```
 
+### Shell Check
+
 根据 Shell Check 建议，在做数学运算时，应采用 `$(())` 代替 `expr` 和 `let` 表达式以及 `$[ ]`。
 
 - [SC2003](https://github.com/koalaman/shellcheck/wiki/SC2003): `expr` is antiquated. Consider rewriting this using `$((..))`, `${}` or `[[ ]]`.  
@@ -325,7 +480,7 @@ Offset		Address				Value
 
 示例：
 
-```sh
+```bash
 #!/bin/bash
 
 val3=$((val2+3))
@@ -334,11 +489,9 @@ val3=$((val2+3))
 echo "val3=$val3"
 ```
 
-双重括号表达式基本上和 let 表达式等效。
-
 以下用 `(( expr ))` 表达式实现 for 循环中记录递增的索引：
 
-```sh
+```bash
 $ i=0
 $ ((i += 1))
 $ echo $i
@@ -349,9 +502,11 @@ $ echo $i $index
 1 2
 ```
 
+### 综合示例
+
 减法计算间隔耗时：
 
-```Shell
+```bash
 $ time_start=1668913082
 $ time_end=1668913195
 $ time_cost=$(( $time_end - $time_start ))
@@ -361,7 +516,7 @@ $ echo $time_cost
 
 乘法计算倍积：
 
-```Shell
+```bash
 $ SHOW_COUNT=5
 $ echo $(( $SHOW_COUNT * 3 ))
 15
@@ -373,14 +528,14 @@ $ echo $((2*x))
 
 双乘计算幂：
 
-```Shell
+```bash
 $ echo $((2**x))
 32
 ```
 
 浮点数乘法，printf 可限定输出浮点位数：
 
-```Shell
+```bash
 $ value1=$(( 4 * 5.1 ))
 $ echo $value1
 20.399999999999999
@@ -390,7 +545,7 @@ $ printf "%6.3f\n" $value1
 
 整除取模运算：
 
-```Shell
+```bash
 SECS=3600
 UNIT_TIME=60
 STEPS=$(( $SECS / $UNIT_TIME ))
@@ -400,7 +555,7 @@ echo $STEPS
 
 取模和取余运算：
 
-```Shell
+```bash
 $ value1=10
 $ value2=$(( $value1 / 3 ))
 $ echo $value2
@@ -412,7 +567,7 @@ $ echo $value3
 
 将被除数浮点化，以便计算完整的浮点除法结果：
 
-```Shell
+```bash
 $ value1=10
 $ value2=$(( $value1 / 3. ))
 $ echo $value2
@@ -421,7 +576,9 @@ $ printf "%.3f\n" $value2
 3.333
 ```
 
-实际案例：`readelf -SW test-gdb` 读取其中的 section `.interp` 的 Offset=0x000238, size=0x00001b。
+### 实际案例
+
+`readelf -SW test-gdb` 读取其中的 section `.interp` 的 Offset=0x000238, size=0x00001b。
 
 ```bash
 $ readelf -SW test-gdb
