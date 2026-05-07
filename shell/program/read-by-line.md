@@ -1,5 +1,5 @@
 
-```Shell
+```bash
 $ cat data2.txt
 One line of test text.
 Two lines of test text.
@@ -14,7 +14,7 @@ awk 默认对数据流逐行读取分析，每一行即为一条记录（Record�
 
 以下为最简单的逐行处理，打印每行（`print $0`）。
 
-```Shell
+```bash
 # 可简写为 awk 1 data2.txt
 $ awk '1{print}' data2.txt
 One line of test text.
@@ -26,12 +26,12 @@ Three lines of test text.
 
 ## array
 
-```Shell
+```bash
 $ array=($(cat data2.txt))
 $ array=($(awk 1 data2.txt))
 ```
 
-```Shell
+```bash
 $ echo $array
 One line of test text. Two lines of test text. Three lines of test text.
 $ echo ${#array[*]}
@@ -44,7 +44,7 @@ $ echo ${#array[*]}
 
 造成这个问题的原因是特殊的环境变量 `IFS`（Internal Field Separator），叫作内部字段分隔符。  
 
-IFS环境变量定义了 bash shell 用作字段分隔符的一系列字符，默认情况下，bash shell 会将下列字符当作字段分隔符：
+环境变量 IFS 定义了 bash shell 用作字段分隔符的一系列字符，默认情况下，bash shell 会将下列字符当作字段分隔符：
 
 - 空格  
 - 制表符  
@@ -58,7 +58,7 @@ IFS环境变量定义了 bash shell 用作字段分隔符的一系列字符，�
 
 命令行执行 `"$IFS"` 会提示非命令，看到 IFS 的值。
 
-```Shell
+```bash
 $ "$IFS"
 zsh: command not found:  \t\n
 ```
@@ -66,7 +66,7 @@ zsh: command not found:  \t\n
 data2.txt 中有3行，但是每一行单词之间以空格分割，导致for循环读取了15个单词，而非三行。
 若想按行读入数组，可临时更改环境变量 IFS 的值，执行前保存旧值，执行后恢复。
 
-```Shell
+```bash
 $ OLDIFS=$IFS
 $ IFS=$'\n'
 $ array=($(cat data2.txt))
@@ -85,7 +85,7 @@ $ IFS=$OLDIFS # restore
 
 以下为在脚本中逐行读取，并附带打印行号：
 
-```Shell
+```bash
 #!/bin/bash
 
 filename=$1
@@ -105,7 +105,7 @@ exit 0
 
 执行结果如下：
 
-```Shell
+```bash
 $ ./dumpFileLines.sh data2.txt
 0 : One line of test text.
 1 : Two lines of test text.
@@ -118,7 +118,7 @@ $ ./dumpFileLines.sh data2.txt
 
 [standard form](http://mywiki.wooledge.org/BashFAQ/001) for reading lines from a file in a loop.
 
-```Shell
+```bash
 while IFS= read -r line; do
     echo "Text read from file: $line"
 done < my_filename.txt
@@ -129,7 +129,7 @@ done < my_filename.txt
 
 Or you can put it in a bash file helper script, example contents:
 
-```Shell
+```bash
 #!/bin/bash
 
 while IFS= read -r line; do
@@ -137,17 +137,28 @@ while IFS= read -r line; do
 done < "$1"
 ```
 
-If the file isn’t a standard POSIX text file (= not terminated by a newline character), the loop can be modified to handle trailing partial lines:
+If the file isn't a standard POSIX text file (= not terminated by a newline character), the loop can be modified to handle trailing partial lines:
 
-```Shell
+```bash
 while IFS= read -r line || [[ -n "$line" ]]; do
     echo "Text read from file: $line"
 done < "$1"
 ```
 
+The output of `rclone lsf` is multiple lines separated by `\n`, while ... reads them line by line.
+
+```bash
+# macOS bash 3.2<4.0 doesn't support mapfile/readarray
+# mapfile -t files < <(rclone lsf "$1")
+rclone lsf "$1" | while IFS= read -r name; do
+    echo -n "$name: "
+
+done
+```
+
 Here, `|| [[ -n $line ]]` prevents the last line from being ignored if it doesn't end with a `\n` (since read returns a non-zero exit code when it encounters EOF).
 
-```Shell
+```bash
 #! /bin/bash
 cat filename | while read LINE; do
     echo $LINE
